@@ -1,0 +1,5 @@
+﻿esquema,view_nome,definicao
+dbo,IC_Conta,
+dbo,IC_CRecCartao,
+dbo,View_AutoAtendimento,
+dbo,vw_painel_pedidos,

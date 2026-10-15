@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="h-full bg-[#020617]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GM Limpeza - Painel Estratégico de Rentabilidade</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js para gráficos avançados -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Configurações de Design e Tema Premium Dark Blue com Toques Neon -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617'
+                        },
+                        brand: {
+                            purple: '#6366f1',
+                            purpleLight: 'rgba(99, 102, 241, 0.12)',
+                            green: '#10b981',
+                            greenLight: 'rgba(16, 185, 129, 0.12)',
+                            cyan: '#06b6d4',
+                            cyanLight: 'rgba(6, 182, 212, 0.12)',
+                            amber: '#f59e0b',
+                            amberLight: 'rgba(245, 158, 11, 0.12)',
+                            rose: '#f43f5e',
+                            roseLight: 'rgba(244, 63, 94, 0.12)'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-purple': '0 0 15px rgba(99, 102, 241, 0.35)',
+                        'neon-green': '0 0 15px rgba(16, 185, 129, 0.35)',
+                        'neon-cyan': '0 0 15px rgba(6, 182, 212, 0.35)',
+                        'neon-rose': '0 0 15px rgba(244, 63, 94, 0.35)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Barra de rolagem personalizada */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-200 flex flex-col antialiased bg-gradient-to-tr from-[#020617] via-[#090d1f] to-[#0d1527]">
+
+    <!-- NOTIFICAÇÃO INTELIGENTE CUSTOMIZADA (Substituta de alert) -->
+    <div id="custom-notification" class="fixed bottom-5 right-5 z-[9999] transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 border border-brand-purple rounded-2xl p-4 shadow-2xl flex items-center gap-3 max-w-sm">
+            <div id="notification-icon-wrapper" class="w-10 h-10 rounded-xl flex items-center justify-center">
+                <i id="notification-icon" data-lucide="info" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <h4 id="notification-title" class="text-xs font-bold text-white uppercase tracking-wider">Aviso do Sistema</h4>
+                <p id="notification-msg" class="text-[11px] text-slate-400 mt-0.5">Mensagem de aviso padrão.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CABEÇALHO -->
+    <header class="border-b border-slate-800/80 bg-[#0c1224]/85 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-3.5 shadow-lg shadow-slate-950/20">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-purple to-brand-cyan flex items-center justify-center shadow-lg shadow-brand-purple/25">
+                    <i data-lucide="line-chart" class="w-5.5 h-5.5 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h1 class="text-lg font-black tracking-wider text-white">
+                            GM LIMPEZA <span class="text-brand-purple text-xs font-semibold ml-1 px-2.5 py-0.5 rounded-full bg-brand-purpleLight border border-brand-purple/30">JULHO INICIAL</span>
+                        </h1>
+                        <span class="text-[10px] bg-brand-greenLight text-brand-green border border-brand-green/30 px-2 py-0.5 rounded-md font-bold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse"></span> 26,06% Rentabilidade
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-brand-purple"></i> 
+                        Relatório: JULHO 02.pdf <span class="text-slate-600">|</span> 01/07/2026 à 02/07/2026
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Quick KPI global -->
+            <div class="flex items-center gap-5 bg-[#121a30] border border-slate-800 rounded-2xl p-2 px-4 shadow-md self-start lg:self-auto">
+                <div class="text-xs">
+                    <span class="text-slate-400 block uppercase font-bold tracking-wider text-[9px]">Faturamento Atual</span>
+                    <span class="text-white font-black text-sm flex items-center gap-1" id="global-kpi-fat">
+                        R$ 107.394,99
+                    </span>
+                </div>
+                <div class="w-px h-8 bg-slate-800"></div>
+                <div class="text-xs">
+                    <span class="text-slate-400 block uppercase font-bold tracking-wider text-[9px]">Resultado Caixa</span>
+                    <span class="text-brand-green font-extrabold text-sm" id="global-kpi-caixa">
+                        R$ 27.987,25
+                    </span>
+                </div>
+                <div class="w-px h-8 bg-slate-800"></div>
+                <div class="text-xs">
+                    <span class="text-slate-400 block uppercase font-bold tracking-wider text-[9px]">Volume Geral</span>
+                    <span class="text-brand-cyan font-extrabold text-sm" id="global-kpi-pedidos">
+                        133 Pedidos
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 space-y-6">
+        
+        <!-- PAINEL DE FILTROS AVANÇADOS -->
+        <section class="bg-[#0b1224]/95 border border-slate-800/80 p-4 rounded-3xl shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-brand-purple to-brand-cyan"></div>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 pb-2 border-b border-slate-800/60 gap-2">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-brand-purple"></i>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 font-sans">Filtros Inteligentes de Operação</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="active-filters-count" class="text-[9px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded hidden"></span>
+                    <button onclick="clearAllFilters()" class="text-[10px] text-slate-400 hover:text-white transition flex items-center gap-1 bg-[#1e293b]/50 hover:bg-[#1e293b] px-2.5 py-1 rounded-xl border border-slate-800">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Repor Filtros
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Busca Vendedora -->
+                <div>
+                    <label class="text-[9px] text-slate-400 font-bold uppercase block mb-1">Pesquisar Vendedora</label>
+                    <div class="relative">
+                        <input type="text" id="search-input" onkeyup="triggerFilters()" placeholder="Filtrar por nome..." 
+                               class="w-full bg-[#121a30] border border-slate-850 rounded-xl py-2 px-3 pl-8 text-xs focus:outline-none focus:border-brand-purple focus:bg-[#16213e] transition text-slate-100">
+                        <i data-lucide="search" class="absolute left-2.5 top-3 w-3.5 h-3.5 text-slate-500"></i>
+                    </div>
+                </div>
+                <!-- Supervisor Selector -->
+                <div>
+                    <label class="text-[9px] text-slate-400 font-bold uppercase block mb-1">Supervisor Líder</label>
+                    <select id="supervisor-select" onchange="triggerFilters()"
+                            class="w-full bg-[#121a30] border border-slate-850 rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-brand-purple focus:bg-[#16213e] transition text-slate-100">
+                        <option value="todos">Todos os Supervisores</option>
+                        <option value="LEANDRO">Equipe: LEANDRO</option>
+                        <option value="CESAR">Equipe: CESAR</option>
+                        <option value="GERAL">Outros (Geral)</option>
+                    </select>
+                </div>
+                <!-- Limite Pedidos Mínimos -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[9px] text-slate-400 font-bold uppercase block">Volume Mínimo de Pedidos</label>
+                        <span id="orders-val" class="text-xs font-extrabold text-brand-cyan bg-brand-cyanLight px-1.5 py-0.5 rounded border border-brand-cyan/20">0</span>
+                    </div>
+                    <input type="range" id="orders-range" min="0" max="40" value="0" oninput="updateRangeLabel(this.value); triggerFilters();"
+                           class="w-full accent-brand-purple cursor-pointer bg-slate-800 rounded-lg h-1.5 mt-2.5">
+                </div>
+            </div>
+
+            <!-- Badges de Filtros Ativos -->
+            <div id="filter-badges-container" class="flex flex-wrap gap-2 mt-3 pt-2 border-t border-slate-800/40 hidden">
+                <span class="text-[9px] text-slate-500 font-bold uppercase self-center">Ativos:</span>
+                <!-- Inserido via JS -->
+            </div>
+        </section>
+
+        <!-- MENU DE NAVEGAÇÃO -->
+        <nav class="flex gap-2 p-1 bg-[#0b1224]/90 border border-slate-800/80 rounded-2xl overflow-x-auto shadow-md">
+            <button onclick="switchTab('tab-visao-geral')" id="btn-tab-visao-geral" 
+                    class="tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap bg-brand-purple text-white shadow-neon-purple">
+                <i data-lucide="pie-chart" class="w-4 h-4"></i> Visão Geral & BI
+            </button>
+            <button onclick="switchTab('tab-comparativos')" id="btn-tab-comparativos" 
+                    class="tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white">
+                <i data-lucide="swatch-book" class="w-4 h-4"></i> Análise de Equipes
+            </button>
+            <button onclick="switchTab('tab-ranking')" id="btn-tab-ranking" 
+                    class="tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white">
+                <i data-lucide="table-properties" class="w-4 h-4"></i> Ranking Individual
+            </button>
+            <button onclick="switchTab('tab-target-day')" id="btn-tab-target-day" 
+                    class="tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap text-rose-300 hover:text-white border border-brand-rose/20 bg-brand-roseLight">
+                <i data-lucide="flame" class="w-4 h-4 text-brand-rose animate-pulse"></i> Meta de Guerra: R$ 1.6M
+            </button>
+            <button onclick="switchTab('tab-simulador')" id="btn-tab-simulador" 
+                    class="tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white">
+                <i data-lucide="calculator" class="w-4 h-4"></i> Simulador de Margens
+            </button>
+        </nav>
+
+        <!-- CONTEÚDO DAS ABAS -->
+        
+        <!-- ABA: VISÃO GERAL -->
+        <div id="tab-visao-geral" class="tab-content space-y-6">
+            
+            <!-- Cards Globais de Desempenho -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Faturamento Líquido -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-4 rounded-2xl relative overflow-hidden group hover:border-brand-purple/40 transition duration-300 shadow-md">
+                    <div class="absolute -right-2 -top-2 text-slate-800/20 group-hover:scale-105 transition duration-300 pointer-events-none">
+                        <i data-lucide="trending-up" class="w-20 h-20"></i>
+                    </div>
+                    <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Preço Total Líquido</span>
+                    <h3 id="kpi-faturamento" class="text-base sm:text-xl font-black text-white">R$ 107.394,99</h3>
+                    <div class="flex items-center gap-1 mt-2 text-[10px] text-indigo-400">
+                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Ticket Médio: <span id="kpi-ticket" class="font-bold">R$ 807,48</span>
+                    </div>
+                </div>
+
+                <!-- Rentabilidade Líquida -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-4 rounded-2xl relative overflow-hidden group hover:border-brand-green/40 transition duration-300 shadow-md">
+                    <div class="absolute -right-2 -top-2 text-slate-800/20 group-hover:scale-105 transition duration-300 pointer-events-none">
+                        <i data-lucide="badge-dollar-sign" class="w-20 h-20"></i>
+                    </div>
+                    <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Rentabilidade de Caixa</span>
+                    <h3 id="kpi-rent-rs" class="text-lg sm:text-xl font-black text-brand-green">R$ 27.987,25</h3>
+                    <div class="flex items-center gap-1 mt-2 text-[10px] text-emerald-400 font-extrabold">
+                        <span class="px-1.5 py-0.5 rounded bg-brand-greenLight border border-brand-green/20">
+                            Margem: <span id="kpi-rent-pct">26,06%</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Volume Total de Pedidos -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-4 rounded-2xl relative overflow-hidden group hover:border-brand-cyan/40 transition duration-300 shadow-md">
+                    <div class="absolute -right-2 -top-2 text-slate-800/20 group-hover:scale-105 transition duration-300 pointer-events-none">
+                        <i data-lucide="package" class="w-20 h-20"></i>
+                    </div>
+                    <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Volume de Pedidos</span>
+                    <h3 id="kpi-pedidos" class="text-lg sm:text-xl font-black text-white">133 Pedidos</h3>
+                    <div class="flex items-center gap-1 mt-2 text-[10px] text-brand-cyan">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Vendas Concluídas no Período
+                    </div>
+                </div>
+
+                <!-- Desconto Médio Geral -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-4 rounded-2xl relative overflow-hidden group hover:border-brand-amber/40 transition duration-300 shadow-md">
+                    <div class="absolute -right-2 -top-2 text-slate-800/20 group-hover:scale-105 transition duration-300 pointer-events-none">
+                        <i data-lucide="percent" class="w-20 h-20"></i>
+                    </div>
+                    <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Desconto Médio Geral</span>
+                    <h3 id="kpi-desconto" class="text-lg sm:text-xl font-black text-brand-amber">4,66% Médio</h3>
+                    <div class="flex items-center gap-1 mt-2 text-[10px] text-brand-amber font-semibold">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-amber"></i> Limite de Segurança: &lt; 6,00%
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Gráficos e Distribuição Comercial -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Gráfico de Pizza: Volume de Pedidos -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-5 rounded-3xl flex flex-col justify-between shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <i data-lucide="donut-chart" class="w-4 h-4 text-brand-cyan"></i> Share de Pedidos (%)
+                            </h3>
+                            <span class="text-[9px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-black">SUPERVISORES</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mb-4">Divisão proporcional das vendas faturadas no período.</p>
+                    </div>
+                    <div class="relative flex items-center justify-center p-3 h-52">
+                        <canvas id="chart-share-pedidos"></canvas>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-xs border-t border-slate-800 pt-3 mt-3">
+                        <div>
+                            <span class="text-[9px] text-slate-400 block uppercase font-bold">Leandro</span>
+                            <span class="text-indigo-400 font-black text-xs" id="share-txt-leandro">66.92% (87 ped)</span>
+                        </div>
+                        <div class="border-l border-slate-800">
+                            <span class="text-[9px] text-slate-400 block uppercase font-bold">Cesar</span>
+                            <span class="text-brand-cyan font-black text-xs" id="share-txt-cesar">33.08% (43 ped)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Barras: Margem Comparativa -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-5 rounded-3xl flex flex-col justify-between lg:col-span-2 shadow-lg">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <i data-lucide="percent" class="w-4 h-4 text-brand-green"></i> Rentabilidade (%) por Equipa
+                            </h3>
+                            <span class="text-[9px] bg-brand-greenLight text-brand-green border border-brand-green/25 px-2 py-0.5 rounded font-black">MEDIDAS LÍQUIDAS</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mb-4">Comparativo de margem líquida média ponderada das vendas concluídas por equipa.</p>
+                    </div>
+                    <div class="relative w-full h-52">
+                        <canvas id="chart-rentabilidade-comparativa"></canvas>
+                    </div>
+                    <div class="flex justify-between items-center text-xs border-t border-slate-800 pt-3 mt-3 text-slate-400">
+                        <span>Meta Recomendada: <strong class="text-white">26,00%</strong></span>
+                        <div class="flex gap-4">
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-brand-purple"></span> Leandro (<span id="rent-avg-l">26.42</span>%)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-brand-cyan"></span> Cesar (<span id="rent-avg-c">25.35</span>%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MÓDULO INTELIGENTE: GOVERNANÇA & ALERTAS COMERCIAIS -->
+            <div class="bg-[#121a30] border border-slate-800/80 p-5 rounded-3xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-amber-950/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="flex items-center gap-2 mb-3 pb-2 border-b border-slate-850">
+                    <i data-lucide="shield-alert" class="w-5 h-5 text-brand-amber"></i>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Alertas de Governança Comercial</h3>
+                        <p class="text-[11px] text-slate-400">Identificação proativa de consultoras com descontos médios acima do limite de tolerância operacional (&gt; 6.00%) ou rentabilidades atípicas.</p>
+                    </div>
+                </div>
+                <div id="governança-alerts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Inserido via JS de forma dinâmica -->
+                </div>
+            </div>
+
+            <!-- Destaques Estratégicos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Destaque Leandro -->
+                <div class="bg-gradient-to-br from-[#121a30] to-[#1a1b4b]/40 border border-indigo-900/40 p-5 rounded-3xl flex flex-col justify-between shadow-lg">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[9px] bg-brand-purpleLight text-brand-purple border border-brand-purple/20 px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider">
+                            LÍDER EM VOLUME
+                        </span>
+                        <span class="text-xs font-bold text-brand-green bg-brand-greenLight border border-brand-green/20 px-2 py-0.5 rounded">26,42% Rent.</span>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white mb-2">Análise Tática - Equipa Leandro</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            A equipa do supervisor **Leandro** consolidou **87 pedidos** em Julho inicial. A vendedora **Laudiceia** é o principal pilar em volume físico com **29 pedidos** (Rentabilidade de **27,26%**). **Karla** lidera em faturamento com **R$ 16.021,11** faturados com excelente ticket médio de R$ 2.002,64.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 border-t border-slate-800/80 pt-4 mt-4 text-xs text-slate-400">
+                        <div>
+                            <span class="block text-[8px] uppercase font-bold text-slate-500">Rentabilidade Total</span>
+                            <span class="font-extrabold text-slate-200 text-sm">R$ 15.112,68</span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] uppercase font-bold text-slate-500">Ticket Médio</span>
+                            <span class="font-extrabold text-slate-200 text-sm">R$ 692,66</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Destaque Cesar -->
+                <div class="bg-gradient-to-br from-[#121a30] to-[#042840]/35 border border-cyan-900/40 p-5 rounded-3xl flex flex-col justify-between shadow-lg">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[9px] bg-brand-cyanLight text-brand-cyan border border-brand-cyan/20 px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider">
+                            LÍDER EM TICKET MÉDIO
+                        </span>
+                        <span class="text-xs font-bold text-brand-green bg-brand-greenLight border border-brand-green/20 px-2 py-0.5 rounded">25,35% Rent.</span>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white mb-2">Análise Tática - Equipa Cesar</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            A equipa de **Cesar** registou **R$ 46.980,96** em faturamento, apresentando o maior Ticket Médio geral (**R$ 1.092,58**). Os principais resultados foram entregues por **Fabiana** (R$ 17,2k) e **Raissa Bezerra** com faturamento de R$ 11,1k e a maior rentabilidade da equipa (27,29%).
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 border-t border-slate-800/80 pt-4 mt-4 text-xs text-slate-400">
+                        <div>
+                            <span class="block text-[8px] uppercase font-bold text-slate-500">Rentabilidade Total</span>
+                            <span class="font-extrabold text-slate-200 text-sm">R$ 11.914,05</span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] uppercase font-bold text-slate-500">Ticket Médio</span>
+                            <span class="font-extrabold text-slate-200 text-sm">R$ 1.092,58</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ABA: COMPARATIVOS -->
+        <div id="tab-comparativos" class="tab-content hidden flex flex-col gap-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Equipe Leandro Card Executivo -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-6 rounded-3xl flex flex-col gap-5 border-l-4 border-l-brand-purple relative overflow-hidden shadow-lg">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-900/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="flex justify-between items-start pb-3 border-b border-slate-800/60">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-brand-purpleLight flex items-center justify-center border border-brand-purple/20 text-indigo-400">
+                                <i data-lucide="shield" class="w-4.5 h-4.5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">Equipe Leandro</h3>
+                                <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Foco: Volume de Mercado e Giro</p>
+                            </div>
+                        </div>
+                        <span class="bg-brand-purpleLight text-brand-purple text-[9px] font-black px-2.5 py-1 rounded-full border border-brand-purple/10" id="members-count-leandro-badge">
+                            87 PEDIDOS (66.92%)
+                        </span>
+                    </div>
+
+                    <!-- Mini KPIs Leandro -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="bg-[#0b1224]/60 p-2.5 rounded-xl border border-slate-800/80 text-center">
+                            <span class="text-[8px] uppercase font-bold text-slate-400 block mb-0.5">Preço Líq.</span>
+                            <span class="text-xs font-bold text-slate-200">R$ 60.261,04</span>
+                        </div>
+                        <div class="bg-[#0b1224]/60 p-2.5 rounded-xl border border-slate-800/80 text-center">
+                            <span class="text-[8px] uppercase font-bold text-slate-400 block mb-0.5">Rent. R$</span>
+                            <span class="text-xs font-bold text-brand-green">R$ 15.112,68</span>
+                        </div>
+                        <div class="bg-[#0b1224]/60 p-2.5 rounded-xl border border-slate-800/80 text-center">
+                            <span class="text-[8px] uppercase font-bold text-slate-400 block mb-0.5">Rent. %</span>
+                            <span class="text-xs font-extrabold text-brand-green bg-brand-greenLight px-1 py-0.5 rounded border border-brand-green/10">26,42%</span>
+                        </div>
+                        <div class="bg-[#0b1224]/60 p-2.5 rounded-xl border border-slate-800/80 text-center">
+                            <span class="text-[8px] uppercase font-bold text-slate-400 block mb-0.5">Tkt Médio</span>
+                            <span class="text-xs font-bold text-indigo-400">R$ 692,66</span>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Membros Leandro -->
+                    <div class="space-y-2">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Vendedoras Ativas</h4>
+                        <div id="members-list-leandro" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <!-- Inserido dinamicamente via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equipe Cesar Card Executivo -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-6 rounded-3xl flex flex-col gap-5 border-l-4 border-l-brand-cyan relative overflow-hidden shadow-lg">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-cyan-950/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div class="flex justify-between items-start pb-3 border-b border-slate-800/60">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-brand-cyanLight flex items-center justify-center border border-brand-cyan/20 text-brand-cyan">
+                                <i data-lucide="crown" class="w-4.5 h-4.5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">Equipe Cesar</h3>
+                                <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Foco: Ticket Alto e Contas-Chave</p>
+                            </div>
+                        </div>
+                        <span class="bg-brand-cyanLight text-brand-cyan text-[9px] font-black px-2.5 py-1 rounded-full border border-brand-cyan/10" id="members-count-cesar-badge">
+                            43 PEDIDOS (33.08%)
+                        </span>
+                    </div>
+
+                    <!-- Mini KPIs Cesar -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="bg-[#0b1224]/60 p-2.5 rounded-xl border border-slate-800/80 text-center">
+                            <span class="text-[8px] uppercase font-bold text-slate-400 block mb-0.5">Preço Líq.</span>
+                            <span class="text-xs font-bold text-slate-200">R$ 46.980,96</span>
+                        </div>
+                        <div class="bg-[#0b1224]/60 p-2.5 rounded-xl border border-slate-800/80 text-center">
+                            <span class="text-[8px] uppercase font-bold text-slate-400 block mb-0.5">Rent. R$</span>
+                            <span class="text-xs font-bold text-brand-cyan">R$ 11.914,05</span>
+                        </div>
+                        <div class="bg-[#0b1224]/60 p-2.5 rounded-xl border border-slate-800/80 text-center">
+                            <span class="text-[8px] uppercase font-bold text-slate-400 block mb-0.5">Rent. %</span>
+                            <span class="text-xs font-extrabold text-brand-cyan bg-brand-cyanLight px-1 py-0.5 rounded border border-brand-cyan/10">25,35%</span>
+                        </div>
+                        <div class="bg-[#0b1224]/60 p-2.5 rounded-xl border border-slate-800/80 text-center">
+                            <span class="text-[8px] uppercase font-bold text-slate-400 block mb-0.5">Tkt Médio</span>
+                            <span class="text-xs font-bold text-brand-cyan">R$ 1.092,58</span>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Membros Cesar -->
+                    <div class="space-y-2">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Vendedoras Ativas</h4>
+                        <div id="members-list-cesar" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <!-- Inserido dinamicamente via JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ABA: RANKING E DETALHES -->
+        <div id="tab-ranking" class="tab-content hidden space-y-4">
+            
+            <div class="bg-[#121a30] border border-slate-800/80 rounded-3xl overflow-hidden shadow-lg">
+                <div class="p-5 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Ranking de Desempenho Individual</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Ordene clicando nas colunas para filtrar o ranking estratégico por métrica de preferência.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="exportToCSV()" class="text-xs bg-[#1e293b] hover:bg-slate-700 text-slate-200 border border-slate-800 py-1.5 px-3 rounded-xl transition flex items-center gap-1.5 font-bold">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i> Descarregar Dados (.CSV)
+                        </button>
+                        <span class="text-xs text-slate-400 font-semibold">Total Consultoras: <span id="active-sellers-count" class="text-indigo-400 font-black">13</span></span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-[#0b1224]/80 text-[9px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800/80 select-none">
+                                <th class="p-3 pl-5">Vendedora</th>
+                                <th class="p-3">Supervisor</th>
+                                <th class="p-3 text-center cursor-pointer hover:bg-slate-800/80 transition" onclick="sortTable('pedidos')">Pedidos <i data-lucide="chevrons-up-down" class="inline w-3 h-3 text-slate-500"></i></th>
+                                <th class="p-3 text-right cursor-pointer hover:bg-slate-800/80 transition" onclick="sortTable('faturamento')">Preço Líq. (R$) <i data-lucide="chevrons-up-down" class="inline w-3 h-3 text-slate-500"></i></th>
+                                <th class="p-3 text-right cursor-pointer hover:bg-slate-800/80 transition" onclick="sortTable('custo')">Custo Líq. (R$) <i data-lucide="chevrons-up-down" class="inline w-3 h-3 text-slate-500"></i></th>
+                                <th class="p-3 text-right cursor-pointer hover:bg-slate-800/80 transition" onclick="sortTable('desc')">Desc. (%) <i data-lucide="chevrons-up-down" class="inline w-3 h-3 text-slate-500"></i></th>
+                                <th class="p-3 text-right cursor-pointer hover:bg-slate-800/80 transition" onclick="sortTable('rent_rs')">Rentabilidade (R$) <i data-lucide="chevrons-up-down" class="inline w-3 h-3 text-slate-500"></i></th>
+                                <th class="p-3 text-center cursor-pointer hover:bg-slate-800/80 transition" onclick="sortTable('rent_pct')">Rentabilidade (%) <i data-lucide="chevrons-up-down" class="inline w-3 h-3 text-slate-500"></i></th>
+                                <th class="p-3 text-right cursor-pointer hover:bg-slate-800/80 transition" onclick="sortTable('ticket')">Ticket Médio <i data-lucide="chevrons-up-down" class="inline w-3 h-3 text-slate-500"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-table-body" class="divide-y divide-slate-800/60 text-xs">
+                            <!-- Inserido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ABA: META DE GUERRA -->
+        <div id="tab-target-day" class="tab-content hidden space-y-6">
+            
+            <!-- Barra de Progresso Macro da Meta -->
+            <div class="bg-gradient-to-br from-[#121a30] via-[#121a30] to-[#4c0519]/20 border border-slate-800/80 p-6 rounded-3xl relative overflow-hidden shadow-lg">
+                <div class="absolute right-0 top-0 w-64 h-64 bg-rose-950/15 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-6">
+                    <div class="space-y-1">
+                        <span class="text-[9px] bg-brand-roseLight text-brand-rose border border-brand-rose/20 px-3 py-1 rounded-full font-black uppercase tracking-wider">
+                            OBJETIVO DO MÊS: PROCESSO JULHO
+                        </span>
+                        <h3 class="text-xl font-black text-white flex items-center gap-2 mt-2">
+                            <i data-lucide="target" class="text-brand-rose w-5.5 h-5.5 animate-pulse"></i> Projeção de Faturamento para R$ 1.6M
+                        </h3>
+                        <p class="text-xs text-slate-300">
+                            Atualmente faturamos **R$ 107.394,99** nestes primeiros dias do mês. Veja a alocação e o esforço comercial necessários por supervisor e consultora para alcançar o objetivo geral de **R$ 1.600.000,00**.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4 bg-[#0b1224] border border-slate-800/80 p-3.5 rounded-2xl shadow-inner">
+                        <div class="text-right">
+                            <span class="text-[9px] text-slate-500 uppercase block font-black">Falta Faturar</span>
+                            <span class="text-lg font-black text-brand-rose animate-pulse" id="meta-rs-falta">R$ 1.492.605,01</span>
+                        </div>
+                        <div class="w-px h-10 bg-slate-800"></div>
+                        <div>
+                            <span class="text-[9px] text-slate-500 uppercase block font-black">Progresso Atual</span>
+                            <span class="text-lg font-black text-brand-green" id="meta-pct-progresso">6,71%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra Visual de Progresso Neon -->
+                <div class="space-y-2">
+                    <div class="w-full bg-[#0b1224] rounded-full h-4 p-0.5 border border-slate-800/80 overflow-hidden shadow-inner flex">
+                        <div id="meta-progress-bar" class="bg-gradient-to-r from-brand-purple via-brand-cyan to-brand-green h-full rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(99,102,241,0.5)]" 
+                             style="width: 6.71%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 font-bold px-1">
+                        <span id="meta-lbl-atual">Atual: R$ 107.394,99 (6.71%)</span>
+                        <span class="text-brand-rose font-black" id="meta-lbl-falta">Falta: R$ 1.492.605,01 (93.29%)</span>
+                        <span>Meta: R$ 1.600.000,00 (100.00%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divisão da Meta por Supervisor -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Alocação Proporcional: LEANDRO -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-5 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-lg">
+                    <div class="flex justify-between items-start pb-4 border-b border-slate-800/60">
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Distribuição para Leandro</h4>
+                            <p class="text-[9px] text-brand-purple uppercase font-bold tracking-widest mt-0.5" id="proportional-lbl-l">Parâmetro: 56,21% de Share de Faturamento</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] text-slate-500 block uppercase font-bold">Cota Restante</span>
+                            <span class="text-sm font-black text-white" id="proportional-rs-l">R$ 838.993,28</span>
+                        </div>
+                    </div>
+
+                    <div class="my-5 space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-[#0b1224]/60 p-3 rounded-xl border border-slate-800/80 text-center">
+                                <span class="text-[8px] text-slate-500 uppercase block font-bold mb-0.5">Ticket Médio Base</span>
+                                <span class="text-xs font-extrabold text-slate-300">R$ 692,66</span>
+                            </div>
+                            <div class="bg-indigo-950/40 p-3 rounded-xl border border-brand-purple/20 text-center">
+                                <span class="text-[8px] text-brand-purple uppercase block font-black mb-0.5">Pedidos Necessários</span>
+                                <span class="text-xs font-black text-indigo-400" id="proportional-ped-l">~ 1.211 Pedidos</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-[#0b1224]/80 border border-slate-800/80 rounded-xl shadow-inner">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase block mb-2">Meta de Rentabilidade Estimada</span>
+                            <div class="flex justify-between items-center text-xs mb-1">
+                                <span class="text-slate-400 font-medium">Rentabilidade (%) Alvo</span>
+                                <span class="text-brand-green font-extrabold bg-brand-greenLight px-2 py-0.5 rounded border border-brand-green/20">26,42% Margem</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs mt-1.5">
+                                <span class="text-slate-400 font-medium">Valor de Rentabilidade Alvo</span>
+                                <span class="text-slate-200 font-extrabold" id="proportional-rent-l">R$ 221.662,02</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] text-slate-400 italic">
+                        * Com base no comportamento histórico de Leandro, a equipa necessita de focar-se em conversões volumétricas de alta velocidade.
+                    </p>
+                </div>
+
+                <!-- Alocação Proporcional: CESAR -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-5 rounded-3xl relative overflow-hidden flex flex-col justify-between shadow-lg">
+                    <div class="flex justify-between items-start pb-4 border-b border-slate-800/60">
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Distribuição para Cesar</h4>
+                            <p class="text-[9px] text-brand-cyan uppercase font-bold tracking-widest mt-0.5" id="proportional-lbl-c">Parâmetro: 43,79% de Share de Faturamento</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] text-slate-500 block uppercase font-bold">Cota Restante</span>
+                            <span class="text-sm font-black text-white" id="proportional-rs-c">R$ 653.611,73</span>
+                        </div>
+                    </div>
+
+                    <div class="my-5 space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-[#0b1224]/60 p-3 rounded-xl border border-slate-800/80 text-center">
+                                <span class="text-[8px] text-slate-500 uppercase block font-bold mb-0.5">Ticket Médio Base</span>
+                                <span class="text-xs font-extrabold text-slate-300">R$ 1.092,58</span>
+                            </div>
+                            <div class="bg-cyan-950/40 p-3 rounded-xl border border-brand-cyan/20 text-center">
+                                <span class="text-[8px] text-brand-cyan uppercase block font-black mb-0.5">Pedidos Necessários</span>
+                                <span class="text-xs font-black text-brand-cyan" id="proportional-ped-c">~ 598 Pedidos</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-[#0b1224]/80 border border-slate-800/80 rounded-xl shadow-inner">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase block mb-2">Meta de Rentabilidade Estimada</span>
+                            <div class="flex justify-between items-center text-xs mb-1">
+                                <span class="text-slate-400 font-medium">Rentabilidade (%) Alvo</span>
+                                <span class="text-brand-green font-extrabold bg-brand-greenLight px-2 py-0.5 rounded border border-brand-green/20">25,35% Margem</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs mt-1.5">
+                                <span class="text-slate-400 font-medium">Valor de Rentabilidade Alvo</span>
+                                <span class="text-slate-200 font-extrabold" id="proportional-rent-c">R$ 165.690,57</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-[10px] text-slate-400 italic">
+                        * Com base no comportamento de Cesar, a equipa necessita de faturar focando em clientes corporativos maiores e contas-chave.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Tabela de Estimativas por Consultora -->
+            <div class="bg-[#121a30] border border-slate-800/80 rounded-3xl overflow-hidden shadow-lg">
+                <div class="p-5 border-b border-slate-800/80">
+                    <h3 class="text-sm font-bold text-white">Plano Detalhado de Metas de Emergência por Consultora</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Alocação sugerida de faturamento complementar para cada vendedora do time, baseada na proporção de participação para atingir a meta coletiva de R$ 1.6M.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-[#0b1224]/80 text-[9px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800/80 select-none">
+                                <th class="p-3 pl-5">Vendedora</th>
+                                <th class="p-3">Supervisor</th>
+                                <th class="p-3 text-right">Peso Histórico (%)</th>
+                                <th class="p-3 text-right">Preço Atual (R$)</th>
+                                <th class="p-3 text-right text-rose-400 font-black">Cota de Faturamento (R$)</th>
+                                <th class="p-3 text-center text-rose-400 font-black">Cota de Pedidos (Un)</th>
+                                <th class="p-3 text-center">Fidelidade Operacional (% Margem)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projection-table-body" class="divide-y divide-slate-800/60 text-xs">
+                            <!-- Inserido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ABA: SIMULADOR DE MARGEM E COMPARADOR DE CENÁRIOS -->
+        <div id="tab-simulador" class="tab-content hidden space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Controles do Simulador -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-6 rounded-3xl lg:col-span-2 space-y-6 shadow-lg">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="calculator" class="text-brand-purple w-5 h-5"></i> Simulador Dinâmico de Projeções Comerciais
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-1">Ajuste os controlos deslizantes para simular como as variações no volume ou ticket de cada supervisor afetam a rentabilidade percentual (%) e absoluta (R$) geral.</p>
+                    </div>
+
+                    <!-- Controles -->
+                    <div class="space-y-4 border-t border-slate-800/80 pt-4">
+                        
+                        <!-- Leandro Simulação -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Pedidos Leandro: <strong id="val-sim-ped-l" class="text-white">87</strong></span>
+                                <span class="text-[9px] text-slate-500 font-semibold">Base Julho: 87</span>
+                            </div>
+                            <input type="range" id="sim-ped-l" min="10" max="500" value="87" oninput="runProjections()" class="w-full accent-brand-purple cursor-pointer bg-[#0b1224] h-1.5 rounded-lg">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Ticket Médio Leandro: <strong id="val-sim-tkt-l" class="text-white">R$ 692,66</strong></span>
+                                <span class="text-[9px] text-slate-500 font-semibold">Base Julho: R$ 692,66</span>
+                            </div>
+                            <input type="range" id="sim-tkt-l" min="100" max="2000" value="693" oninput="runProjections()" class="w-full accent-brand-purple cursor-pointer bg-[#0b1224] h-1.5 rounded-lg">
+                        </div>
+
+                        <!-- Cesar Simulação -->
+                        <div class="border-t border-slate-800/80 pt-4">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-brand-cyan uppercase tracking-wider">Pedidos Cesar: <strong id="val-sim-ped-c" class="text-white">43</strong></span>
+                                <span class="text-[9px] text-slate-500 font-semibold">Base Julho: 43</span>
+                            </div>
+                            <input type="range" id="sim-ped-c" min="5" max="300" value="43" oninput="runProjections()" class="w-full accent-brand-cyan cursor-pointer bg-[#0b1224] h-1.5 rounded-lg">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-brand-cyan uppercase tracking-wider">Ticket Médio Cesar: <strong id="val-sim-tkt-c" class="text-white">R$ 1.092,58</strong></span>
+                                <span class="text-[9px] text-slate-500 font-semibold">Base Julho: R$ 1.092,58</span>
+                            </div>
+                            <input type="range" id="sim-tkt-c" min="200" max="3000" value="1093" oninput="runProjections()" class="w-full accent-brand-cyan cursor-pointer bg-[#0b1224] h-1.5 rounded-lg">
+                        </div>
+
+                        <!-- Rentabilidade Projetada geral -->
+                        <div class="border-t border-slate-800/80 pt-4">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-bold text-brand-green uppercase tracking-wider">Meta de Rentabilidade (%): <strong id="val-sim-pct" class="text-brand-green">26,06%</strong></span>
+                                <span class="text-[9px] text-slate-500 font-semibold">Base: 26,06%</span>
+                            </div>
+                            <input type="range" id="sim-pct" min="15" max="35" value="26.06" step="0.01" oninput="runProjections()" class="w-full accent-brand-green cursor-pointer bg-[#0b1224] h-1.5 rounded-lg">
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Painel Lateral de Resultados da Simulação -->
+                <div class="bg-[#121a30] border border-slate-800/80 p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden shadow-lg">
+                    <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-emerald-950/15 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[9px] bg-brand-greenLight text-brand-green border border-brand-green/20 px-2.5 py-1 rounded-full font-black uppercase tracking-wider">RESULTADOS ESTIMADOS</span>
+                            <button onclick="saveScenarioPreset()" class="text-[10px] text-indigo-400 hover:text-white transition flex items-center gap-1 bg-[#1e293b] border border-slate-850 px-2 py-1 rounded-xl">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Salvar Preset
+                            </button>
+                        </div>
+
+                        <!-- Cards de Telemetria Dinâmica -->
+                        <div class="space-y-4">
+                            <div class="bg-[#0b1224]/80 p-4 rounded-2xl border border-slate-850">
+                                <span class="text-[9px] text-slate-500 uppercase font-black block mb-1">Novo Faturamento Estimado</span>
+                                <span id="sim-res-faturamento" class="text-lg font-black text-slate-100">R$ 107.394,99</span>
+                            </div>
+
+                            <div class="bg-[#0b1224]/80 p-4 rounded-2xl border border-slate-850">
+                                <span class="text-[9px] text-slate-500 uppercase font-black block mb-1">Nova Rentabilidade de Caixa</span>
+                                <span id="sim-res-rent-rs" class="text-lg font-black text-brand-green">R$ 27.987,25</span>
+                            </div>
+
+                            <div class="bg-[#0b1224]/80 p-4 rounded-2xl border border-slate-850">
+                                <span class="text-[9px] text-slate-500 uppercase font-black block mb-1">Nova Rentabilidade de Caixa (%)</span>
+                                <span id="sim-res-rent-pct" class="text-lg font-black text-brand-cyan">26,06% Rentabilidade</span>
+                            </div>
+
+                            <div class="bg-[#0b1224]/80 p-4 rounded-2xl border border-slate-850">
+                                <span class="text-[9px] text-slate-500 uppercase font-black block mb-1">Total de Pedidos Gerados</span>
+                                <span id="sim-res-pedidos" class="text-lg font-black text-slate-100">133 Pedidos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800 text-[10px] text-slate-400 leading-relaxed">
+                        * O cálculo de custos operacionais assume que a taxa de despesa permanece estritamente proporcional aos percentuais estipulados de rentabilidade.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- COMPARAÇÃO DE PRESETS DE CENÁRIO -->
+            <div class="bg-[#121a30] border border-slate-800/80 p-5 rounded-3xl shadow-lg relative overflow-hidden">
+                <div class="flex items-center gap-2 mb-3 pb-2 border-b border-slate-850">
+                    <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i>
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Banco de Cenários Comparativos</h3>
+                        <p class="text-[11px] text-slate-400 font-medium">Veja e compare os cenários salvos durante a sua simulação dinâmica para avaliar caminhos estratégicos alternativos.</p>
+                    </div>
+                </div>
+                <div id="presets-empty-state" class="text-center py-6 text-slate-500 text-xs">
+                    Nenhum preset customizado foi salvo ainda. Clique em "Salvar Preset" no painel acima para registrar seu primeiro cenário.
+                </div>
+                <div id="presets-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
+                    <!-- Cards de presets inseridos dinamicamente -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-850/60 bg-[#070b16] py-4 text-center text-[10px] text-slate-500 mt-auto">
+        GM Limpeza Ltda • CNPJ 11.287.886/0001-12 • Painel de Controle de Rentabilidade Corporativa e Metas de Emergência • Atualizado em Julho 2026
+    </footer>
+
+    <!-- LÓGICA DE DADOS E EVENTOS (JAVASCRIPT) -->
+    <script>
+        // Dados Brutos Completos - Relatório JULHO 02.pdf (01/07/2026 à 02/07/2026)
+        const rawSellerData = [
+            // Equipe LEANDRO
+            { vendedor: "KARLA", supervisor: "LEANDRO", pedidos: 8, preco_liq: 16021.11, desc: 5.81, custo_liq: 11878.86, rent_pct: 25.85, rent_rs: 4142.25, ticket: 2002.64 },
+            { vendedor: "PAMELLA", supervisor: "LEANDRO", pedidos: 14, preco_liq: 13452.85, desc: 6.30, custo_liq: 9893.46, rent_pct: 26.45, rent_rs: 3559.39, ticket: 960.92 },
+            { vendedor: "LAUDICEIA", supervisor: "LEANDRO", pedidos: 29, preco_liq: 7956.28, desc: 2.52, custo_liq: 5787.15, rent_pct: 27.26, rent_rs: 2169.13, ticket: 274.35 },
+            { vendedor: "SILVANIA", supervisor: "LEANDRO", pedidos: 6, preco_liq: 7889.65, desc: 4.94, custo_liq: 5613.41, rent_pct: 28.85, rent_rs: 2276.24, ticket: 1314.94 },
+            { vendedor: "ANDREA", supervisor: "LEANDRO", pedidos: 11, preco_liq: 7431.57, desc: 7.05, custo_liq: 5547.89, rent_pct: 25.34, rent_rs: 1883.68, ticket: 675.60 },
+            { vendedor: "GRAZI", supervisor: "LEANDRO", pedidos: 18, preco_liq: 6404.76, desc: 3.72, custo_liq: 4707.47, rent_pct: 26.50, rent_rs: 1697.29, ticket: 355.82 },
+            { vendedor: "ANDREA SIMOA", supervisor: "LEANDRO", pedidos: 1, preco_liq: 1104.82, desc: 0.00, custo_liq: 805.12, rent_pct: 27.12, rent_rs: 299.70, ticket: 1104.82 },
+            
+            // Equipe CESAR
+            { vendedor: "FABIANA", supervisor: "CESAR", pedidos: 16, preco_liq: 17278.47, desc: 4.40, custo_liq: 13087.13, rent_pct: 24.25, rent_rs: 4191.34, ticket: 1079.90 },
+            { vendedor: "RAISSA BEZERRA", supervisor: "CESAR", pedidos: 4, preco_liq: 11130.69, desc: 6.13, custo_liq: 8092.10, rent_pct: 27.29, rent_rs: 3038.59, ticket: 2782.67 },
+            { vendedor: "VIVIANA", supervisor: "CESAR", pedidos: 11, preco_liq: 10110.72, desc: 6.76, custo_liq: 7525.62, rent_pct: 25.56, rent_rs: 2585.10, ticket: 919.16 },
+            { vendedor: "ALINEIDE", supervisor: "CESAR", pedidos: 10, preco_liq: 7796.41, desc: 8.49, custo_liq: 5876.19, rent_pct: 24.62, rent_rs: 1920.22, ticket: 779.64 },
+            { vendedor: "VALERIA", supervisor: "CESAR", pedidos: 2, preco_liq: 664.67, desc: 3.90, custo_liq: 480.99, rent_pct: 27.63, rent_rs: 183.68, ticket: 332.33 },
+
+            // Outras Vendedoras (Fora das frentes de supervisão mas inclusas no global)
+            { vendedor: "EMPRESA", supervisor: "GERAL", pedidos: 3, preco_liq: 152.99, desc: 0.64, custo_liq: 112.37, rent_pct: 26.55, rent_rs: 40.62, ticket: 51.00 }
+        ];
+
+        // Presets Padrões Iniciais de Cenário para Julho
+        let scenarioPresets = [
+            { id: "p1", title: "Cenário Conservador", pedL: 200, tktL: 650, pedC: 100, tktC: 1000, pct: 25.50 },
+            { id: "p2", title: "Cenário Otimista", pedL: 450, tktL: 750, pedC: 250, tktC: 1200, pct: 27.00 }
+        ];
+
+        // Estado ativo da aplicação
+        let filteredSellers = [...rawSellerData];
+        let currentSortKey = "pedidos";
+        let currentSortDirection = "desc";
+
+        // Instâncias Globais de Chart.js
+        let chartShareInstance = null;
+        let chartRentInstance = null;
+
+        window.onload = function() {
+            lucide.createIcons();
+            triggerFilters();
+            buildInteractiveCharts();
+            renderProjectionsTable();
+            renderScenarioPresets();
+            calculateGlobalMetrics();
+        };
+
+        // Sistema de Alerta Customizado (Notification UI)
+        function showToast(msg, title = "Notificação", type = "purple") {
+            const toast = document.getElementById('custom-notification');
+            const toastIconWrapper = document.getElementById('notification-icon-wrapper');
+            const toastIcon = document.getElementById('notification-icon');
+            const toastTitle = document.getElementById('notification-title');
+            const toastMsg = document.getElementById('notification-msg');
+
+            // Configurar mensagem e título dinâmicos
+            toastTitle.innerText = title;
+            toastMsg.innerText = msg;
+
+            // Reiniciar classes
+            toastIconWrapper.className = "w-10 h-10 rounded-xl flex items-center justify-center";
+            toast.className = "fixed bottom-5 right-5 z-[9999] transform transition-all duration-300 pointer-events-auto shadow-2xl flex items-center gap-3 max-w-sm border p-4 rounded-2xl bg-slate-900";
+
+            if (type === "rose") {
+                toastIconWrapper.classList.add("bg-brand-roseLight", "text-brand-rose");
+                toastIcon.setAttribute("data-lucide", "alert-circle");
+                toast.classList.add("border-brand-rose/60", "shadow-neon-rose");
+            } else if (type === "green") {
+                toastIconWrapper.classList.add("bg-brand-greenLight", "text-brand-green");
+                toastIcon.setAttribute("data-lucide", "check-circle");
+                toast.classList.add("border-brand-green/60", "shadow-neon-green");
+            } else {
+                toastIconWrapper.classList.add("bg-brand-purpleLight", "text-brand-purple");
+                toastIcon.setAttribute("data-lucide", "bell");
+                toast.classList.add("border-brand-purple/60", "shadow-neon-purple");
+            }
+
+            lucide.createIcons();
+
+            // Animar Entrada
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                // Animar Saída
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 4000);
+        }
+
+        // Troca de Abas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap text-slate-400 hover:text-white";
+                if(btn.id === 'btn-tab-target-day') {
+                    btn.classList.add('border', 'border-brand-rose/20', 'bg-brand-roseLight', 'text-rose-300');
+                }
+            });
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('text-slate-400', 'hover:text-white');
+            
+            if (tabId === 'tab-target-day') {
+                activeBtn.className = "tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap bg-brand-rose text-white shadow-neon-rose border border-brand-rose";
+            } else {
+                activeBtn.className = "tab-btn px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition whitespace-nowrap bg-brand-purple text-white shadow-neon-purple";
+            }
+
+            lucide.createIcons();
+        }
+
+        // Formatação de Moeda Brasileira R$
+        function formatCurrency(val) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+        }
+
+        function updateRangeLabel(val) {
+            document.getElementById('orders-val').innerText = val;
+        }
+
+        // Limpeza dos Filtros Ativos
+        function clearAllFilters() {
+            document.getElementById('search-input').value = "";
+            document.getElementById('supervisor-select').value = "todos";
+            document.getElementById('orders-range').value = "0";
+            updateRangeLabel(0);
+            triggerFilters();
+            showToast("Todos os filtros originais foram restaurados.", "Filtros Limpos", "purple");
+        }
+
+        // Execução de Filtros e Recálculos
+        function triggerFilters() {
+            const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+            const selectedSupervisor = document.getElementById('supervisor-select').value;
+            const minOrders = parseInt(document.getElementById('orders-range').value);
+
+            filteredSellers = rawSellerData.filter(seller => {
+                const matchesSearch = seller.vendedor.toLowerCase().includes(searchQuery);
+                const matchesSupervisor = selectedSupervisor === 'todos' || seller.supervisor === selectedSupervisor;
+                const matchesOrders = seller.pedidos >= minOrders;
+                return matchesSearch && matchesSupervisor && matchesOrders;
+            });
+
+            // Atualizar os badges de filtros ativos
+            renderActiveFilterBadges(searchQuery, selectedSupervisor, minOrders);
+            updateKPIValues();
+            renderRankingTable();
+            renderSupervisorAnalysisLists();
+            buildInteractiveCharts();
+            renderGovernanceAlerts();
+        }
+
+        // Renderização dos Badges Dinâmicos de Filtro
+        function renderActiveFilterBadges(search, supervisor, minOrders) {
+            const container = document.getElementById('filter-badges-container');
+            container.innerHTML = `<span class="text-[9px] text-slate-500 font-bold uppercase self-center">Filtros Ativos:</span>`;
+            
+            let activeCount = 0;
+
+            if (search) {
+                activeCount++;
+                container.innerHTML += `
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold bg-[#1e293b] text-brand-purple border border-brand-purple/30 px-2 py-0.5 rounded-full">
+                        Busca: "${search}"
+                        <button onclick="document.getElementById('search-input').value=''; triggerFilters();" class="hover:text-white"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+                    </span>
+                `;
+            }
+            if (supervisor !== 'todos') {
+                activeCount++;
+                container.innerHTML += `
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold bg-[#1e293b] text-brand-cyan border border-brand-cyan/30 px-2 py-0.5 rounded-full">
+                        Sup: ${supervisor}
+                        <button onclick="document.getElementById('supervisor-select').value='todos'; triggerFilters();" class="hover:text-white"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+                    </span>
+                `;
+            }
+            if (minOrders > 0) {
+                activeCount++;
+                container.innerHTML += `
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold bg-[#1e293b] text-brand-green border border-brand-green/30 px-2 py-0.5 rounded-full">
+                        Ped Min: ${minOrders}
+                        <button onclick="document.getElementById('orders-range').value='0'; updateRangeLabel(0); triggerFilters();" class="hover:text-white"><i data-lucide="x" class="w-2.5 h-2.5"></i></button>
+                    </span>
+                `;
+            }
+
+            if (activeCount > 0) {
+                container.classList.remove('hidden');
+                const countBadge = document.getElementById('active-filters-count');
+                countBadge.innerText = `${activeCount} Filtro(s)`;
+                countBadge.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+                document.getElementById('active-filters-count').classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // Recalcular métricas globais e atualizar visualização de metas de faturamento mensal (Meta: R$ 1.6M)
+        function calculateGlobalMetrics() {
+            let totalFat = 107394.99;
+            let targetTotal = 1600000;
+            let distance = targetTotal - totalFat;
+            let percentProgresso = (totalFat / targetTotal) * 100;
+
+            document.getElementById('meta-rs-falta').innerText = formatCurrency(distance);
+            document.getElementById('meta-pct-progresso').innerText = percentProgresso.toFixed(2) + "%";
+            document.getElementById('meta-progress-bar').style.width = percentProgresso.toFixed(2) + "%";
+            
+            document.getElementById('meta-lbl-atual').innerText = `Atual: ${formatCurrency(totalFat)} (${percentProgresso.toFixed(2)}%)`;
+            document.getElementById('meta-lbl-falta').innerText = `Falta: ${formatCurrency(distance)} (${(100 - percentProgresso).toFixed(2)}%)`;
+
+            // Leandro dynamic target (56.21% of remainder)
+            const shareL = 0.5621;
+            const targetL = distance * shareL;
+            const pedL = Math.round(targetL / 692.66);
+            document.getElementById('proportional-lbl-l').innerText = `Parâmetro: 56,21% de Share de Faturamento`;
+            document.getElementById('proportional-rs-l').innerText = formatCurrency(targetL);
+            document.getElementById('proportional-ped-l').innerText = `~ ${pedL.toLocaleString('pt-BR')} Pedidos`;
+            document.getElementById('proportional-rent-l').innerText = formatCurrency(targetL * 0.2642);
+
+            // Cesar dynamic target (43.79% of remainder)
+            const shareC = 0.4379;
+            const targetC = distance * shareC;
+            const pedC = Math.round(targetC / 1092.58);
+            document.getElementById('proportional-lbl-c').innerText = `Parâmetro: 43,79% de Share de Faturamento`;
+            document.getElementById('proportional-rs-c').innerText = formatCurrency(targetC);
+            document.getElementById('proportional-ped-c').innerText = `~ ${pedC.toLocaleString('pt-BR')} Pedidos`;
+            document.getElementById('proportional-rent-c').innerText = formatCurrency(targetC * 0.2535);
+        }
+
+        // Atualização Dinâmica dos KPIs principais na tela
+        function updateKPIValues() {
+            if (filteredSellers.length === 0) {
+                document.getElementById('kpi-faturamento').innerText = "R$ 0,00";
+                document.getElementById('kpi-rent-rs').innerText = "R$ 0,00";
+                document.getElementById('kpi-rent-pct').innerText = "0,00%";
+                document.getElementById('kpi-pedidos').innerText = "0 Pedidos";
+                document.getElementById('kpi-ticket').innerText = "R$ 0,00";
+                document.getElementById('kpi-desconto').innerText = "0,00%";
+                return;
+            }
+
+            let totalFat = 0;
+            let totalCusto = 0;
+            let totalRent = 0;
+            let totalPedidos = 0;
+            let totalDescPonderado = 0;
+
+            filteredSellers.forEach(s => {
+                totalFat += s.preco_liq;
+                totalCusto += s.custo_liq;
+                totalRent += s.rent_rs;
+                totalPedidos += s.pedidos;
+                totalDescPonderado += (s.desc * s.preco_liq);
+            });
+
+            const marginPctGeral = totalFat > 0 ? (totalRent / totalFat) * 100 : 0;
+            const descGeral = totalFat > 0 ? (totalDescPonderado / totalFat) : 0;
+            const ticketGeral = totalPedidos > 0 ? (totalFat / totalPedidos) : 0;
+
+            document.getElementById('kpi-faturamento').innerText = formatCurrency(totalFat);
+            document.getElementById('kpi-rent-rs').innerText = formatCurrency(totalRent);
+            document.getElementById('kpi-rent-pct').innerText = marginPctGeral.toFixed(2) + "%";
+            document.getElementById('kpi-pedidos').innerText = totalPedidos.toLocaleString('pt-BR') + " Pedidos";
+            document.getElementById('kpi-ticket').innerText = formatCurrency(ticketGeral);
+            document.getElementById('kpi-desconto').innerText = descGeral.toFixed(2) + "% Médio";
+        }
+
+        // Renderização de Alertas de BI (Governança de Descontos e Rentabilidade)
+        function renderGovernanceAlerts() {
+            const container = document.getElementById('governança-alerts-container');
+            container.innerHTML = "";
+
+            // Consultoras ativas com desconto médio acima de 6% ou rentabilidade abaixo de 25%
+            const problemSellers = filteredSellers.filter(s => (s.desc > 6.0 && s.preco_liq > 0) || (s.rent_pct < 25.0 && s.preco_liq > 0));
+
+            if (problemSellers.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-brand-greenLight border border-brand-green/20 p-4 rounded-2xl flex items-center justify-center gap-2">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-brand-green"></i>
+                        <span class="text-xs font-bold text-brand-green uppercase tracking-wider">Toda a equipa comercial está a operar dentro dos limites de desconto e margens recomendados.</span>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            problemSellers.forEach(s => {
+                const isHighDiscount = s.desc > 6.0;
+                const isLowProfit = s.rent_pct < 25.0;
+
+                let badgeText = "";
+                let alertColorClass = "";
+                let alertIcon = "";
+
+                if (isHighDiscount && isLowProfit) {
+                    badgeText = "Desconto Elevado & Margem Baixa";
+                    alertColorClass = "border-brand-rose/40 bg-brand-roseLight hover:border-brand-rose/60";
+                    alertIcon = "alert-triangle";
+                } else if (isHighDiscount) {
+                    badgeText = "Estouro do Limite de Desconto";
+                    alertColorClass = "border-brand-amber/40 bg-brand-amberLight hover:border-brand-amber/60";
+                    alertIcon = "percent";
+                } else {
+                    badgeText = "Rentabilidade Sob Monitorização";
+                    alertColorClass = "border-brand-amber/40 bg-brand-amberLight hover:border-[#f59e0b]/50";
+                    alertIcon = "trending-down";
+                }
+
+                const cardAlert = document.createElement('div');
+                cardAlert.className = `p-3.5 rounded-2xl border transition duration-300 flex flex-col justify-between ${alertColorClass}`;
+                cardAlert.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-1 mb-1.5">
+                            <span class="text-[9px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1">
+                                <i data-lucide="${alertIcon}" class="w-3.5 h-3.5"></i> ${s.vendedor}
+                            </span>
+                            <span class="text-[8px] px-1.5 py-0.5 rounded font-extrabold ${isHighDiscount ? 'bg-brand-rose/20 text-brand-rose' : 'bg-brand-amber/20 text-brand-amber'}">${s.supervisor}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300">
+                            Registou <strong class="${isHighDiscount ? 'text-brand-rose' : 'text-brand-amber'}">${s.desc.toFixed(2)}%</strong> de desconto médio e margem líquida de <strong>${s.rent_pct.toFixed(2)}%</strong> neste faturamento de Julho.
+                        </p>
+                    </div>
+                    <div class="mt-2.5 pt-2 border-t border-slate-800/45 flex justify-between items-center text-[10px]">
+                        <span class="text-slate-400">Faturado: <strong class="text-white">${formatCurrency(s.preco_liq)}</strong></span>
+                        <span class="font-bold underline cursor-pointer text-slate-300 hover:text-white" onclick="filterBySingleSeller('${s.vendedor}')">Análise Focada</span>
+                    </div>
+                `;
+                container.appendChild(cardAlert);
+            });
+            lucide.createIcons();
+        }
+
+        // Filtro rápido de vendedora com foco visual
+        function filterBySingleSeller(name) {
+            document.getElementById('search-input').value = name;
+            triggerFilters();
+            showToast(`Filtro estratégico aplicado para a consultora ${name}.`, "Filtro Ativo", "purple");
+        }
+
+        // Tabela de Ranking Geral formatada
+        function renderRankingTable() {
+            filteredSellers.sort((a, b) => {
+                let valA, valB;
+                if (currentSortKey === 'pedidos') { valA = a.pedidos; valB = b.pedidos; }
+                else if (currentSortKey === 'faturamento') { valA = a.preco_liq; valB = b.preco_liq; }
+                else if (currentSortKey === 'custo') { valA = a.custo_liq; valB = b.custo_liq; }
+                else if (currentSortKey === 'desc') { valA = a.desc; valB = b.desc; }
+                else if (currentSortKey === 'rent_rs') { valA = a.rent_rs; valB = b.rent_rs; }
+                else if (currentSortKey === 'rent_pct') { valA = a.rent_pct; valB = b.rent_pct; }
+                else if (currentSortKey === 'ticket') { valA = a.ticket; valB = b.ticket; }
+
+                return currentSortDirection === 'desc' ? valB - valA : valA - valB;
+            });
+
+            const tbody = document.getElementById('ranking-table-body');
+            tbody.innerHTML = "";
+
+            document.getElementById('active-sellers-count').innerText = filteredSellers.length;
+
+            filteredSellers.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-[#151f38] transition border-b border-slate-800/50";
+                
+                const supBadge = s.supervisor === 'LEANDRO' 
+                    ? `<span class="bg-brand-purpleLight text-indigo-300 border border-brand-purple/20 px-2 py-0.5 rounded-full font-bold text-[9px]">LEANDRO</span>`
+                    : s.supervisor === 'CESAR'
+                    ? `<span class="bg-brand-cyanLight text-brand-cyan border border-brand-cyan/20 px-2 py-0.5 rounded-full font-bold text-[9px]">CESAR</span>`
+                    : `<span class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold text-[9px]">OUTROS</span>`;
+
+                // Governança de cor para o desconto médio
+                const discColor = s.desc > 6.0 ? 'text-brand-rose font-extrabold' : 'text-slate-400';
+
+                tr.innerHTML = `
+                    <td class="p-3 pl-5 font-bold text-white">${s.vendedor}</td>
+                    <td class="p-3">${supBadge}</td>
+                    <td class="p-3 text-center font-bold text-slate-300">${s.pedidos}</td>
+                    <td class="p-3 text-right text-slate-300 font-medium">${formatCurrency(s.preco_liq)}</td>
+                    <td class="p-3 text-right text-slate-500">${formatCurrency(s.custo_liq)}</td>
+                    <td class="p-3 text-right ${discColor}">${s.desc.toFixed(2)}%</td>
+                    <td class="p-3 text-right text-emerald-400 font-bold">${formatCurrency(s.rent_rs)}</td>
+                    <td class="p-3 text-center">
+                        <span class="bg-brand-greenLight text-brand-green border border-brand-green/20 px-2 py-0.5 rounded font-extrabold text-[10px] inline-block">
+                            ${s.rent_pct.toFixed(2)}% Margem
+                        </span>
+                    </td>
+                    <td class="p-3 text-right text-slate-400">${formatCurrency(s.ticket)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function sortTable(key) {
+            if (currentSortKey === key) {
+                currentSortDirection = currentSortDirection === 'desc' ? 'asc' : 'desc';
+            } else {
+                currentSortKey = key;
+                currentSortDirection = "desc";
+            }
+            renderRankingTable();
+        }
+
+        // Renderizar a listagem comparativa de equipas (Leandro vs Cesar)
+        function renderSupervisorAnalysisLists() {
+            const listLeandro = document.getElementById('members-list-leandro');
+            const listCesar = document.getElementById('members-list-cesar');
+
+            listLeandro.innerHTML = "";
+            listCesar.innerHTML = "";
+
+            let lCount = 0;
+            let cCount = 0;
+            let lPed = 0;
+            let cPed = 0;
+
+            rawSellerData.forEach(s => {
+                if (s.supervisor === 'GERAL') return;
+
+                const card = document.createElement('div');
+                card.className = "bg-[#0b1224]/80 p-2.5 rounded-xl border border-slate-800/80 flex flex-col justify-between hover:border-slate-700 transition shadow-inner";
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1.5">
+                        <div>
+                            <span class="font-extrabold text-white block text-xs cursor-pointer hover:underline" onclick="filterBySingleSeller('${s.vendedor}')">${s.vendedor}</span>
+                            <span class="text-[9px] text-slate-400 font-bold">${s.pedidos} Pedidos</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-emerald-400 font-bold block text-xs">${formatCurrency(s.rent_rs)}</span>
+                            <span class="text-[9px] text-slate-300 font-bold bg-[#121a30] border border-slate-800 px-1 rounded">${s.rent_pct.toFixed(2)}% Margem</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1 overflow-hidden">
+                        <div class="bg-gradient-to-r from-brand-purple to-brand-green h-full rounded-full" style="width: ${(s.rent_pct / 35) * 100}%"></div>
+                    </div>
+                `;
+
+                if (s.supervisor === 'LEANDRO') {
+                    listLeandro.appendChild(card);
+                    lCount++;
+                    lPed += s.pedidos;
+                } else if (s.supervisor === 'CESAR') {
+                    listCesar.appendChild(card);
+                    cCount++;
+                    cPed += s.pedidos;
+                }
+            });
+
+            // Update Header badges dynamically
+            const totalPed = lPed + cPed;
+            const pctL = totalPed > 0 ? ((lPed / totalPed) * 100).toFixed(2) : 0;
+            const pctC = totalPed > 0 ? ((cPed / totalPed) * 100).toFixed(2) : 0;
+
+            document.getElementById('members-count-leandro-badge').innerText = `${lPed} PEDIDOS (${pctL}%)`;
+            document.getElementById('members-count-cesar-badge').innerText = `${cPed} PEDIDOS (${pctC}%)`;
+        }
+
+        // Geração de Gráficos via Chart.js
+        function buildInteractiveCharts() {
+            if (chartShareInstance) chartShareInstance.destroy();
+            if (chartRentInstance) chartRentInstance.destroy();
+
+            let leandroPedidos = 0;
+            let cesarPedidos = 0;
+
+            let leandroRentTotal = 0;
+            let leandroPrecoTotal = 0;
+            let cesarRentTotal = 0;
+            let cesarPrecoTotal = 0;
+
+            filteredSellers.forEach(s => {
+                if (s.supervisor === 'LEANDRO') {
+                    leandroPedidos += s.pedidos;
+                    leandroRentTotal += s.rent_rs;
+                    leandroPrecoTotal += s.preco_liq;
+                } else if (s.supervisor === 'CESAR') {
+                    cesarPedidos += s.pedidos;
+                    cesarRentTotal += s.rent_rs;
+                    cesarPrecoTotal += s.preco_liq;
+                }
+            });
+
+            const leandroRentPct = leandroPrecoTotal > 0 ? (leandroRentTotal / leandroPrecoTotal) * 100 : 0;
+            const cesarRentPct = cesarPrecoTotal > 0 ? (cesarRentTotal / cesarPrecoTotal) * 100 : 0;
+
+            // Atualização de rótulos dos gráficos (com base no filtro ativo)
+            const sumPed = leandroPedidos + cesarPedidos;
+            const pctL = sumPed > 0 ? ((leandroPedidos / sumPed) * 100).toFixed(2) : 0;
+            const pctC = sumPed > 0 ? ((cesarPedidos / sumPed) * 100).toFixed(2) : 0;
+
+            document.getElementById('share-txt-leandro').innerText = `${pctL}% (${leandroPedidos.toLocaleString('pt-BR')} ped)`;
+            document.getElementById('share-txt-cesar').innerText = `${pctC}% (${cesarPedidos.toLocaleString('pt-BR')} ped)`;
+
+            document.getElementById('rent-avg-l').innerText = leandroRentPct.toFixed(2);
+            document.getElementById('rent-avg-c').innerText = cesarRentPct.toFixed(2);
+
+            // Chart Share de Pedidos
+            const ctxShare = document.getElementById('chart-share-pedidos').getContext('2d');
+            chartShareInstance = new Chart(ctxShare, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Leandro (Pedidos)', 'Cesar (Pedidos)'],
+                    datasets: [{
+                        data: [leandroPedidos, cesarPedidos],
+                        backgroundColor: ['#6366f1', '#06b6d4'],
+                        borderWidth: 2,
+                        borderColor: '#121a30',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false }
+                    },
+                    cutout: '75%'
+                }
+            });
+
+            // Chart Rentabilidade por Supervisor
+            const ctxRent = document.getElementById('chart-rentabilidade-comparativa').getContext('2d');
+            chartRentInstance = new Chart(ctxRent, {
+                type: 'bar',
+                data: {
+                    labels: ['Equipe Leandro', 'Equipe Cesar'],
+                    datasets: [{
+                        label: 'Margem de Rentabilidade (%)',
+                        data: [leandroRentPct.toFixed(2), cesarRentPct.toFixed(2)],
+                        backgroundColor: ['#6366f1', '#06b6d4'],
+                        borderRadius: 8,
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            grid: { color: '#1e293b' },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { size: 9 },
+                                callback: value => value + '%'
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#e2e8f0', font: { size: 10, weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Renderizar Tabela do Plano Detalhado de Metas de Emergência por Consultora (Meta: R$ 1.6M)
+        function renderProjectionsTable() {
+            const tbody = document.getElementById('projection-table-body');
+            tbody.innerHTML = "";
+
+            const targetTotal = 1600000;
+            const currentTotal = 107394.99;
+            const distance = targetTotal - currentTotal; // R$ 1.492.605,01 restantes
+
+            // Filtrar apenas vendedoras reais ativas nos times de Leandro e Cesar
+            const activeTeamSellers = rawSellerData.filter(s => s.supervisor === 'LEANDRO' || s.supervisor === 'CESAR');
+            
+            // Soma do faturamento das equipas para a ponderação relativa
+            const sumTeamFaturamento = activeTeamSellers.reduce((acc, curr) => acc + curr.preco_liq, 0);
+
+            activeTeamSellers.sort((a, b) => b.preco_liq - a.preco_liq);
+
+            activeTeamSellers.forEach(s => {
+                // Participação relativa
+                const relativeShare = (s.preco_liq / sumTeamFaturamento) * 100;
+                
+                // Cota proporcional dos R$ 1.49M restantes
+                const individualCotaFat = distance * (s.preco_liq / sumTeamFaturamento);
+                
+                // Pedidos necessários com base no ticket médio base de Julho
+                const individualCotaPedidos = Math.max(1, Math.round(individualCotaFat / s.ticket));
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-[#151f38] border-b border-slate-800/50 transition";
+                
+                const supervisorText = s.supervisor === 'LEANDRO'
+                    ? `<span class="bg-brand-purpleLight text-indigo-300 border border-brand-purple/20 px-2 py-0.5 rounded-full font-bold text-[9px]">LEANDRO</span>`
+                    : `<span class="bg-brand-cyanLight text-brand-cyan border border-brand-cyan/20 px-2 py-0.5 rounded-full font-bold text-[9px]">CESAR</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3 pl-5 font-bold text-white">${s.vendedor}</td>
+                    <td class="p-3">${supervisorText}</td>
+                    <td class="p-3 text-right font-semibold text-slate-400">${relativeShare.toFixed(2)}%</td>
+                    <td class="p-3 text-right text-slate-500 font-medium">${formatCurrency(s.preco_liq)}</td>
+                    <td class="p-3 text-right font-black text-rose-400">${formatCurrency(individualCotaFat)}</td>
+                    <td class="p-3 text-center font-black text-slate-200 bg-rose-950/20 border-x border-slate-800/80">${individualCotaPedidos.toLocaleString('pt-BR')} ped</td>
+                    <td class="p-3 text-center">
+                        <span class="bg-brand-greenLight text-brand-green border border-brand-green/20 px-2 py-0.5 rounded font-bold text-[10px]">
+                            ${s.rent_pct.toFixed(2)}% Rent.
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Execução do simulador de margem comercial
+        function runProjections() {
+            const pedL = parseInt(document.getElementById('sim-ped-l').value);
+            const tktL = parseFloat(document.getElementById('sim-tkt-l').value);
+            const pedC = parseInt(document.getElementById('sim-ped-c').value);
+            const tktC = parseFloat(document.getElementById('sim-tkt-c').value);
+            const projectionMargin = parseFloat(document.getElementById('sim-pct').value);
+
+            // Atualização da UI de sliders
+            document.getElementById('val-sim-ped-l').innerText = pedL.toLocaleString('pt-BR');
+            document.getElementById('val-sim-tkt-l').innerText = formatCurrency(tktL);
+            document.getElementById('val-sim-ped-c').innerText = pedC.toLocaleString('pt-BR');
+            document.getElementById('val-sim-tkt-c').innerText = formatCurrency(tktC);
+            document.getElementById('val-sim-pct').innerText = projectionMargin.toFixed(2) + "%";
+
+            // Processamento faturamento simulado
+            const fatL = pedL * tktL;
+            const fatC = pedC * tktC;
+            const totalFaturamentoProjetado = fatL + fatC;
+            const totalPedidosProjetados = pedL + pedC;
+            const totalRentabilidadeFinanceiraProjetada = totalFaturamentoProjetado * (projectionMargin / 100);
+
+            // Outputs da Interface do Simulador
+            document.getElementById('sim-res-faturamento').innerText = formatCurrency(totalFaturamentoProjetado);
+            document.getElementById('sim-res-rent-rs').innerText = formatCurrency(totalRentabilidadeFinanceiraProjetada);
+            document.getElementById('sim-res-rent-pct').innerText = projectionMargin.toFixed(2) + "% Rentabilidade";
+            document.getElementById('sim-res-pedidos').innerText = totalPedidosProjetados.toLocaleString('pt-BR') + " Pedidos";
+        }
+
+        // Salvar Preset de Cenário customizado para comparação direta
+        function saveScenarioPreset() {
+            const pedL = parseInt(document.getElementById('sim-ped-l').value);
+            const tktL = parseFloat(document.getElementById('sim-tkt-l').value);
+            const pedC = parseInt(document.getElementById('sim-ped-c').value);
+            const tktC = parseFloat(document.getElementById('sim-tkt-c').value);
+            const pct = parseFloat(document.getElementById('sim-pct').value);
+
+            const presetId = "p-" + Date.now();
+            const scenarioTitle = `Simulação Customizada #${scenarioPresets.length + 1}`;
+
+            const newPreset = {
+                id: presetId,
+                title: scenarioTitle,
+                pedL,
+                tktL,
+                pedC,
+                tktC,
+                pct
+            };
+
+            scenarioPresets.push(newPreset);
+            renderScenarioPresets();
+            showToast(`Preset "${scenarioTitle}" registado com sucesso.`, "Preset Salvo", "green");
+        }
+
+        // Renderização dos Presets no Banco de Cenários
+        function renderScenarioPresets() {
+            const container = document.getElementById('presets-container');
+            const emptyState = document.getElementById('presets-empty-state');
+
+            if (scenarioPresets.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            container.innerHTML = "";
+
+            scenarioPresets.forEach(p => {
+                const fatL = p.pedL * p.tktL;
+                const fatC = p.pedC * p.tktC;
+                const totalFat = fatL + fatC;
+                const totalRent = totalFat * (p.pct / 100);
+
+                const cardPreset = document.createElement('div');
+                cardPreset.className = "bg-[#0b1224] border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-indigo-500/40 transition duration-300 relative group";
+                cardPreset.innerHTML = `
+                    <div class="flex justify-between items-start pb-2 border-b border-slate-800/80 mb-3">
+                        <span class="text-[10px] font-bold text-white uppercase tracking-wider">${p.title}</span>
+                        <button onclick="deleteScenarioPreset('${p.id}')" class="text-slate-500 hover:text-brand-rose transition opacity-0 group-hover:opacity-100">
+                            <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-2 text-[11px] text-slate-300">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Faturamento Projetado:</span>
+                            <span class="font-extrabold text-slate-200">${formatCurrency(totalFat)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Rentabilidade de Caixa:</span>
+                            <span class="font-extrabold text-brand-green">${formatCurrency(totalRent)} (${p.pct.toFixed(2)}%)</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-400 border-t border-slate-850 pt-2 mt-1">
+                            <span>L: ${p.pedL} ped (${formatCurrency(p.tktL)})</span>
+                            <span>C: ${p.pedC} ped (${formatCurrency(p.tktC)})</span>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="applyPresetToSliders(${p.pedL}, ${p.tktL}, ${p.pedC}, ${p.tktC}, ${p.pct})" class="w-full text-center text-[10px] bg-brand-purpleLight text-indigo-300 font-bold border border-brand-purple/20 hover:bg-brand-purple hover:text-white rounded-xl py-1.5 transition">
+                            Aplicar Cenário ao Painel
+                        </button>
+                    </div>
+                `;
+                container.appendChild(cardPreset);
+            });
+            lucide.createIcons();
+        }
+
+        // Excluir preset customizado
+        function deleteScenarioPreset(id) {
+            scenarioPresets = scenarioPresets.filter(p => p.id !== id);
+            renderScenarioPresets();
+            showToast("O cenário foi removido.", "Preset Excluído", "rose");
+        }
+
+        // Aplicar o preset selecionado de volta aos Sliders
+        function applyPresetToSliders(pedL, tktL, pedC, tktC, pct) {
+            document.getElementById('sim-ped-l').value = pedL;
+            document.getElementById('sim-tkt-l').value = Math.round(tktL);
+            document.getElementById('sim-ped-c').value = pedC;
+            document.getElementById('sim-tkt-c').value = Math.round(tktC);
+            document.getElementById('sim-pct').value = pct;
+
+            runProjections();
+            showToast("Os parâmetros deste cenário foram carregados nos controlos deslizantes.", "Cenário Aplicado", "purple");
+        }
+
+        // Exportação de Dados para formato CSV do Excel
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Vendedora;Supervisor;Pedidos;Preco Liquido (RS);Custo Liquido (RS);Desconto (%);Rentabilidade (RS);Rentabilidade (%);Ticket Medio (RS)\n";
+
+            filteredSellers.forEach(s => {
+                const row = [
+                    s.vendedor,
+                    s.supervisor,
+                    s.pedidos,
+                    s.preco_liq.toFixed(2),
+                    s.custo_liq.toFixed(2),
+                    s.desc.toFixed(2),
+                    s.rent_rs.toFixed(2),
+                    s.rent_pct.toFixed(2),
+                    s.ticket.toFixed(2)
+                ];
+                csvContent += row.join(";") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Ranking_Rentabilidade_GM_Limpeza_Julho_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Ficheiro .CSV gerado e exportado com os registros selecionados.", "Dados Exportados", "green");
+        }
+    </script>
+</body>
+</html>

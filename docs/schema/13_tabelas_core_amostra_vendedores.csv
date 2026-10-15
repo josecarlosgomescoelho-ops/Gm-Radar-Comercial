@@ -1,0 +1,6 @@
+﻿CodVendedor,IdEmpresa,CodFilial,NomeVendedor,NomeCompleto,Tipo,ENDERECOVENDEDOR,BAIRROVENDEDOR,CepVendedor,CIDADEVENDEDOR,UFVENDEDOR,FoneVendedor,CelularVendedor,ComissaoVendedor,PossuiLocalEstoque,CodLocal,DataAdmissao,DataNascimento,Email,TipoFisJur,CpfVendedor,Setor,Funcao,CodSupervisor,PercDescMaxFunc,Inativo,IdUsuarioAcesso,UsuarioWeb,SenhaWeb,UsuarioWebAtivo,Observacao,IdCentroCusto,UtilizaControleVerbaVendedor,DtSaldoIniControleVerba,SaldoIniControleVerba,LimiteControleVerba,IdUsuario,DataOperacao
+00001,1,01,VENDEDOR PADRAO,VENDEDOR PADRAO,S,,,58000,CABEDELO,PB,,,0.00,N,,,,,F,,,,,,N,,,,,,,,,,,Import,2024-07-23 15:08:24.760000
+00002,1,01,EMPRESA,EMPRESA - FRENTE DE LOJA,V,,,     -,JOÃO PESSOA,PB,,,0.00,N,,,,,F,,,,,,N,,,,,,,,,,,Import,2024-07-23 15:08:24.770000
+00012,1,01,KARLA,KARLA CIBELLE DE FARIAS PEREIRA,V,,,     -,JOÃO PESSOA,PB,,,0.00,N,,,,,F,,,,02187,,N,,,,,,,,,,,Import,2024-07-23 15:08:24.770000
+00018,1,01,MARCIO,MARCIO PAULINO,V,,,     -,JOÃO PESSOA,PB,,8388012262,0.00,N,,,,,F,,,,,,N,,,,,,,,,,,Import,2024-07-23 15:08:24.770000
+00025,1,01,RAISSA BEZERRA,RAISSA BEZERRA,V,,,     -,JOÃO PESSOA,PB,,,0.00,N,,,,,F,,,,02210,,N,,,,,,,,,,,Import,2024-07-23 15:08:24.770000

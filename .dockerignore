@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDEs e Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentação (não precisa no container)
+docs/
+notebooks/
+requisitos/
+*.md
+!README.md
+CLAUDE.MD
+
+# Cache local (será montado como volume)
+cache/*.parquet
+cache/*.json
+
+# Logs (será montado como volume)
+logs/*.log
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Outros
+.DS_Store
+.env.example
+Thumbs.db
+sql/
+.claude/

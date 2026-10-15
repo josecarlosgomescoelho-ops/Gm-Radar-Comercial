@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//tmp/**)",
+      "Bash(venv/bin/python -c ' *)",
+      "Bash(venv/bin/pip install *)"
+    ]
+  }
+}
