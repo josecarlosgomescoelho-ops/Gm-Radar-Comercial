@@ -9,3 +9,27 @@ __pycache__/
 *.py[cod]
 *.parquet
 .streamlit/secrets.toml
+/data/
+/backups/
+/cache/
+/.venv/
+/.env
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+# Configuracoes e dados locais
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+.venv/
+cache/
+data/
+logs/
+backups/
+__pycache__/
+*.pyc
+*.parquet
+*.sqlite3
+*.sqlite3-*

@@ -3,10 +3,13 @@ GM Limpeza — ETL de Cache Local
 Agendado via cron às 01h. Pre-computa os Parquets que o dashboard lê durante o dia.
 O banco de produção (Cronos) é consultado apenas uma vez ao dia, fora do horário comercial.
 
-NOLOCK: todas as queries usam WITH (NOLOCK) para eliminar lock contention com rotinas
+NOLOCK: as consultas legadas usam WITH (NOLOCK) para eliminar lock contention com rotinas
 noturnas do ERP (backup, fechamento, reindexação). Dirty reads são aceitáveis neste
 contexto — analytics em horário noturno, sem operadores ativos, dado corrigido no ETL
 do dia seguinte.
+As consultas financeiras Cronos novas usam o isolamento padrao do banco.
+rentabilidade_cronos.parquet e recalculado por inteiro para o mes corrente,
+incluindo alteracoes e cancelamentos de movimentos ja carregados.
 
 Modo de execução por Parquet:
   FULL LOAD   — Parquet ausente: carrega todo o período histórico.
@@ -22,6 +25,9 @@ Cron: 0 1 * * * cd /home/vmonteiro/gm-limpeza-analytics && venv/bin/python scrip
 import os
 import sys
 import logging
+import argparse
+from decimal import Decimal, InvalidOperation
+from uuid import uuid4
 import pymssql
 import pandas as pd
 from pathlib import Path
@@ -59,10 +65,10 @@ def get_conn():
     return pymssql.connect(**DB_CONFIG, login_timeout=30, timeout=120, charset="UTF-8")
 
 
-def _run(nome, sql, conn, mode="FULL LOAD"):
+def _run(nome, sql, conn, mode="FULL LOAD", coerce_float=True):
     t0 = datetime.now()
     logging.info(f"[{nome}] {mode} iniciando...")
-    df = pd.read_sql(sql, conn)
+    df = pd.read_sql(sql, conn, coerce_float=coerce_float)
     elapsed = (datetime.now() - t0).total_seconds()
     slow = elapsed > 60
     logging.log(
@@ -131,6 +137,168 @@ def _etl_incremental(nome, conn, path, sql_full, sql_inc_tpl,
 
 
 # ── ETL functions ─────────────────────────────────────────────────────────────
+
+VERSAO_FINANCEIRO_CRONOS = 1
+
+
+def _sql_valor_ope():
+    """Os 27 argumentos da QueryPrincipal de Rentabilidade por Periodo - GM."""
+    return """dbo.fn_ValorItemMov4(
+        'OPE', M.IdMov, IM.IdItemMov, IM.IdProduto,
+        IM.PrecoUnit, IM.PercDescontoItem, IM.Qtd,
+        IM.PercICMS, IM.PercIPI, IM.PercISS, IM.MVAitem,
+        M.TipoMov, M.CodCliFor, M.CodFilial, M.CodFilialDest,
+        M.CodLocalDest, M.PercDesconto, M.CalculaICMSsubstituto,
+        M.DescNaoIncideICMS, IM.IdNaturezaOperacao, IM.SitTributariaItem,
+        M.ValorIPIincideICMS, M.ValorFreteIncideICMS,
+        IM.PercReducaoBICMS, IM.PercSubICMS,
+        IM.ValorItemFrete, IM.ValorItemOutDespesas
+    )"""
+
+
+def _data_cronos(valor=None):
+    referencia = (pd.Timestamp.now(tz="America/Sao_Paulo")
+                  if valor is None else pd.Timestamp(valor))
+    if pd.isna(referencia):
+        raise ValueError("Data de referencia invalida.")
+    if referencia.tzinfo is not None:
+        referencia = referencia.tz_convert("America/Sao_Paulo")
+    return pd.Timestamp(referencia.date())
+
+
+def _money_unidades(valor):
+    """MONEY em unidades de 0,0001 real; nao arredonda por nota nem usa float."""
+    if pd.isna(valor):
+        raise ValueError("Valor financeiro ausente; cache anterior preservado.")
+    try:
+        unidades = Decimal(str(valor)) * 10000
+        if (not unidades.is_finite() or unidades != unidades.to_integral_value()
+                or not -(2**63) <= unidades < 2**63):
+            raise ValueError("Valor financeiro fora da precisao MONEY.")
+        return int(unidades)
+    except InvalidOperation as exc:
+        raise ValueError("Valor financeiro invalido.") from exc
+
+
+def _salvar_parquet_atomico(df, path):
+    temporario = path.with_name(f"{path.stem}.{uuid4().hex}.tmp.parquet")
+    try:
+        df.to_parquet(temporario, index=False)
+        os.replace(temporario, path)
+    finally:
+        temporario.unlink(missing_ok=True)
+
+
+def etl_rentabilidade_cronos(conn, data_referencia=None):
+    """Mes ate a referencia, com os filtros e a contagem da QueryPrincipal.
+
+    Preserva inclusive os joins originais sem IdEmpresa e a subconsulta Qtd
+    por DtMov, sem os filtros financeiros. Isso permite conferir o relatorio.
+    NULLIF apenas torna a margem indisponivel quando a receita e zero.
+    Este cache e independente de movimentos.parquet e itens.parquet.
+    """
+    dia = _data_cronos(data_referencia)
+    inicio = dia.replace(day=1)
+    valor_ope = _sql_valor_ope()
+    receita = "SUM(CONVERT(MONEY, X.Mult * X.ValorOPE))"
+    custo = "SUM(CONVERT(MONEY, X.Mult * ISNULL(IM.CustoUnitarioItem * IM.Qtd, 0)))"
+    sql = f"""
+    DECLARE @DataInicial DATE = '{inicio:%Y%m%d}',
+            @DataFinal DATE = '{dia:%Y%m%d}';
+    SELECT
+        V.CodVendedor,
+        V.NomeVendedor,
+        F.NomeFilial,
+        F.IdImagem,
+        Qtd = (
+            SELECT SUM(dbo.MultV(M1.TipoMov) * 1)
+            FROM Movimento AS M1
+            WHERE M1.TipoMov IN ('2.4', '2.8', '2.3', '2.1')
+              AND M1.Status NOT IN ('C', 'T')
+              AND CONVERT(DATE, M1.DtMov, 103) BETWEEN @DataInicial AND @DataFinal
+              AND M1.CodVendedor = V.CodVendedor
+        ),
+        PrecoLiquido = CONVERT(DECIMAL(19, 4), {receita}),
+        CustoLiqU = CONVERT(DECIMAL(19, 4), {custo}),
+        PercRetabilidadeItem = CONVERT(NUMERIC(7, 2),
+            ({receita} - {custo}) / NULLIF({receita}, 0) * 100),
+        ValorRentabilidadeItem = CONVERT(DECIMAL(19, 4), SUM(CONVERT(MONEY, X.Mult * ISNULL(
+            (X.ValorOPE - CONVERT(MONEY, ISNULL(IM.CustoUnitarioItem * IM.Qtd, 0))), 0)))),
+        ItensSemReceita = COUNT_BIG(*) - COUNT_BIG(X.Mult * X.ValorOPE)
+    FROM Movimento AS M
+    INNER JOIN ItensMov AS IM ON M.IdMov = IM.IdMov
+    INNER JOIN Produtos AS P ON IM.IdProduto = P.IdProduto
+    INNER JOIN Filiais AS F ON M.CodFilial = F.CodFilial
+    INNER JOIN Cli_For AS CF ON M.CodCliFor = CF.CodCliFor
+    LEFT JOIN CondPag AS CP ON M.CodCondPag = CP.CodCondPag
+    LEFT JOIN Vendedores AS V ON M.CodVendedor = V.CodVendedor
+    CROSS APPLY (SELECT dbo.MultV(M.TipoMov) AS Mult,
+                        {valor_ope} AS ValorOPE) AS X
+    WHERE M.TipoMov IN ('2.4', '2.8', '2.3', '2.1')
+      AND M.Status NOT IN ('C', 'T')
+      AND M.CodFilial = '01' AND M.CodLocal = '01'
+      AND CONVERT(DATE, M.DataFaturamento, 103) BETWEEN @DataInicial AND @DataFinal
+      AND CP.CodCondPag NOT IN ('28', '45', '80', '81', '84', '85')
+    GROUP BY F.NomeFilial, F.Cgc, F.IdImagem, V.CodVendedor, V.NomeVendedor
+    ORDER BY PrecoLiquido DESC;
+    """
+    df = _run("rentabilidade_cronos", sql, conn, coerce_float=False).copy()
+    obrigatorias = {
+        "CodVendedor", "NomeVendedor", "NomeFilial", "IdImagem", "Qtd",
+        "PrecoLiquido", "CustoLiqU", "PercRetabilidadeItem",
+        "ValorRentabilidadeItem", "ItensSemReceita",
+    }
+    if not obrigatorias.issubset(df.columns):
+        raise ValueError("Consulta Cronos sem as colunas esperadas.")
+    problemas = pd.to_numeric(df["ItensSemReceita"], errors="raise")
+    if problemas.isna().any() or problemas.ne(0).any():
+        raise ValueError("Itens sem receita OPE no financeiro; cache anterior preservado.")
+    for origem, destino in [
+        ("PrecoLiquido", "ReceitaUnidades"),
+        ("CustoLiqU", "CustoUnidades"),
+        ("ValorRentabilidadeItem", "LucroUnidades"),
+    ]:
+        df[destino] = pd.array([_money_unidades(v) for v in df[origem]], dtype="Int64")
+    # Qtd ausente e diferente de zero: e o retorno original da subconsulta.
+    df["Qtd"] = pd.to_numeric(df["Qtd"], errors="raise").astype("Int64")
+    df["PercRetabilidadeItem"] = pd.to_numeric(
+        df["PercRetabilidadeItem"], errors="raise"
+    ).astype("Float64")
+    from math import isfinite
+    for receita_u, margem in zip(df["ReceitaUnidades"], df["PercRetabilidadeItem"]):
+        if (pd.isna(margem) and receita_u != 0) or (not pd.isna(margem) and not isfinite(margem)):
+            raise ValueError("Margem financeira incompleta; cache anterior preservado.")
+    df["CodVendedor"] = df["CodVendedor"].astype("string").str.strip()
+    df["NomeVendedor"] = df["NomeVendedor"].astype("string").str.strip()
+    df = df.drop(columns=["PrecoLiquido", "CustoLiqU", "ValorRentabilidadeItem", "ItensSemReceita"])
+    df["LinhaFinanceira"] = True
+    if df.empty:
+        # Registro de metadados para representar um periodo realmente sem vendas.
+        df = pd.DataFrame([{
+            "CodVendedor": pd.NA, "NomeVendedor": pd.NA,
+            "NomeFilial": pd.NA, "IdImagem": pd.NA, "Qtd": pd.NA,
+            "ReceitaUnidades": 0, "CustoUnidades": 0, "LucroUnidades": 0,
+            "PercRetabilidadeItem": pd.NA, "LinhaFinanceira": False,
+        }])
+        for coluna in ["ReceitaUnidades", "CustoUnidades", "LucroUnidades", "Qtd"]:
+            df[coluna] = df[coluna].astype("Int64")
+        df["PercRetabilidadeItem"] = df["PercRetabilidadeItem"].astype("Float64")
+        for coluna in ["CodVendedor", "NomeVendedor", "NomeFilial"]:
+            df[coluna] = df[coluna].astype("string")
+    df["VersaoFinanceiroCronos"] = VERSAO_FINANCEIRO_CRONOS
+    df["PeriodoInicio"] = inicio
+    df["PeriodoFimInclusivo"] = dia
+    df["DataReferencia"] = dia
+    df["AtualizadoEmUTC"] = pd.Timestamp.now(tz="UTC")
+    _salvar_parquet_atomico(df, CACHE_DIR / "rentabilidade_cronos.parquet")
+    receita_total = sum(int(v) for v in df["ReceitaUnidades"]) / Decimal(10000)
+    custo_total = sum(int(v) for v in df["CustoUnidades"]) / Decimal(10000)
+    qtd_total = df["Qtd"].sum(min_count=1)
+    logging.info(
+        "[rentabilidade_cronos] %s a %s; %d linhas; receita=%s; custo=%s; Qtd=%s",
+        inicio.date(), dia.date(), int(df["LinhaFinanceira"].sum()),
+        receita_total, custo_total, qtd_total,
+    )
 
 def _parse_datas(df: pd.DataFrame) -> pd.DataFrame:
     df["DataFaturamento"] = pd.to_datetime(df["DataFaturamento"])
@@ -296,50 +464,73 @@ def etl_radar_produtos(conn):
     """Produtos habituais por cliente/vendedor. Últimos 6 meses. Sempre full load (agregado)."""
     sql = """
     SELECT
-        M.CodCliFor,
+        M.IdEmpresa, M.CodCliFor,
         CF.CodFunc          AS CodVendedor,
         P.NOMEPRODUTO       AS Produto,
         SUM(IM.Qtd)         AS QtdTotal,
         COUNT(DISTINCT M.IdMov) AS Frequencia
     FROM Movimento M WITH (NOLOCK)
-    INNER JOIN Cli_For CF   WITH (NOLOCK) ON M.CodCliFor  = CF.CodCliFor
-    INNER JOIN ItensMov IM  WITH (NOLOCK) ON M.IdMov      = IM.IdMov
+    INNER JOIN Cli_For CF   WITH (NOLOCK) ON M.CodCliFor  = CF.CodCliFor AND M.IdEmpresa=CF.IdEmpresa
+    INNER JOIN ItensMov IM  WITH (NOLOCK) ON M.IdMov      = IM.IdMov AND M.IdEmpresa=IM.IdEmpresa
     INNER JOIN Produtos P   WITH (NOLOCK) ON IM.IdProduto = P.IdProduto
-    WHERE CF.Inativo = 'N'
+    WHERE M.IdEmpresa=1 AND CF.Inativo = 'N'
       AND CF.CodFunc IS NOT NULL
       AND M.DataFaturamento >= DATEADD(MONTH, -6, GETDATE())
       AND M.TipoMov IN ('2.4','2.1')
       AND M.Status NOT IN ('C','T')
-    GROUP BY M.CodCliFor, CF.CodFunc, P.NOMEPRODUTO
+    GROUP BY M.IdEmpresa, M.CodCliFor, CF.CodFunc, P.NOMEPRODUTO
     """
     df = _run("radar_produtos", sql, conn)
     df.to_parquet(CACHE_DIR / "radar_produtos.parquet", index=False)
 
 
 def etl_radar_rent_cli(conn):
-    """Rentabilidade por cliente/vendedor. Últimos 6 meses. Sempre full load (agregado)."""
-    sql = """
+    """Rentabilidade da carteira atual, em seis meses, com receita OPE por item."""
+    dia = _data_cronos()
+    inicio = dia - pd.DateOffset(months=6)
+    fim = dia + pd.Timedelta(days=1)
+    valor_ope = _sql_valor_ope()
+    sql = f"""
     SELECT
         M.CodCliFor,
         CF.CodFunc AS CodVendedor,
-        -- TotMov já embute PercDescontoItem (desconto por item, aplicado pelo Cronos antes de salvar).
-        -- PercDesconto é o desconto adicional de cabeçalho — único nível não refletido em TotMov.
-        -- Validado nota a nota: TotMov * (1 - PercDesconto/100) bate com o sistema ao centavo.
-        SUM(CASE WHEN M.TipoMov IN ('2.8','2.3') THEN (M.TotMov * (1 - ISNULL(M.PercDesconto, 0)/100.0) * -1) + ISNULL(M.ValorFrete, 0)
-                 ELSE (M.TotMov * (1 - ISNULL(M.PercDesconto, 0)/100.0)) + ISNULL(M.ValorFrete, 0) END) AS Faturamento,
-        SUM(IM.Qtd * IM.CustoUnitarioItem) AS CustoTotal
-    FROM Movimento M WITH (NOLOCK)
-    INNER JOIN Cli_For CF   WITH (NOLOCK) ON M.CodCliFor = CF.CodCliFor
-    INNER JOIN ItensMov IM  WITH (NOLOCK) ON M.IdMov     = IM.IdMov
-    WHERE CF.Inativo = 'N'
+        SUM(CONVERT(MONEY, dbo.MultV(M.TipoMov) * {valor_ope})) AS Faturamento,
+        SUM(CONVERT(MONEY, dbo.MultV(M.TipoMov) *
+            ISNULL(IM.CustoUnitarioItem * IM.Qtd, 0))) AS CustoTotal,
+        COUNT_BIG(*) - COUNT_BIG(dbo.MultV(M.TipoMov) * {valor_ope}) AS ItensSemReceita
+    FROM Movimento AS M
+    INNER JOIN Cli_For AS CF
+        ON M.CodCliFor = CF.CodCliFor AND M.IdEmpresa = CF.IdEmpresa
+    INNER JOIN ItensMov AS IM
+        ON M.IdMov = IM.IdMov AND M.IdEmpresa = IM.IdEmpresa
+    INNER JOIN Produtos AS P ON IM.IdProduto = P.IdProduto
+    WHERE M.IdEmpresa = 1 AND CF.Inativo = 'N'
       AND CF.CodFunc IS NOT NULL
-      AND M.DataFaturamento >= DATEADD(MONTH, -6, GETDATE())
+      AND M.CodFilial = '01' AND M.CodLocal = '01'
+      AND M.DataFaturamento >= '{inicio:%Y%m%d}'
+      AND M.DataFaturamento < '{fim:%Y%m%d}'
       AND M.TipoMov IN ('2.4','2.1','2.8','2.3')
       AND M.Status NOT IN ('C','T')
+      AND EXISTS (
+          SELECT 1 FROM CondPag AS CP
+          WHERE CP.CodCondPag = M.CodCondPag
+            AND CP.CodCondPag NOT IN ('28', '45', '80', '81', '84', '85')
+      )
     GROUP BY M.CodCliFor, CF.CodFunc
     """
     df = _run("radar_rent_cli", sql, conn)
-    df.to_parquet(CACHE_DIR / "radar_rent_cli.parquet", index=False)
+    for coluna in ["Faturamento", "CustoTotal", "ItensSemReceita"]:
+        df[coluna] = pd.to_numeric(df[coluna], errors="raise")
+        if df[coluna].isna().any() or not df[coluna].map(
+                lambda v: float('-inf') < v < float('inf')).all():
+            raise ValueError("Rentabilidade por cliente incompleta; cache anterior preservado.")
+    if df["ItensSemReceita"].ne(0).any():
+        raise ValueError("Itens sem receita OPE por cliente; cache anterior preservado.")
+    df = df.drop(columns=["ItensSemReceita"])
+    df["VersaoRentabilidadeCronos"] = 1
+    df["PeriodoInicio"] = inicio
+    df["PeriodoFimExclusivo"] = fim
+    _salvar_parquet_atomico(df, CACHE_DIR / "radar_rent_cli.parquet")
 
 
 def etl_vendedores(conn):
@@ -433,7 +624,7 @@ def etl_prevendas(conn):
     """Pré-vendas em aberto (Status='T'). Full load — estado corrente, muda o tempo todo."""
     sql = """
     SELECT
-        M.CodVendedor,
+        M.IdEmpresa, M.IdMov, M.CodVendedor, M.CodCliFor,
         V.NomeVendedor,
         CF.NomeCliFor AS Cliente,
         M.NumMov,
@@ -445,15 +636,19 @@ def etl_prevendas(conn):
             END, 2
         ) AS ValorLiquido
     FROM Movimento M WITH (NOLOCK)
-    INNER JOIN Cli_For CF WITH (NOLOCK) ON M.CodCliFor = CF.CodCliFor
-    INNER JOIN Vendedores V WITH (NOLOCK) ON V.CodVendedor = M.CodVendedor
-    WHERE CF.Inativo = 'N'
+    INNER JOIN Cli_For CF WITH (NOLOCK) ON M.CodCliFor = CF.CodCliFor AND M.IdEmpresa = CF.IdEmpresa
+    INNER JOIN Vendedores V WITH (NOLOCK) ON V.CodVendedor = M.CodVendedor AND V.IdEmpresa = M.IdEmpresa
+    WHERE M.IdEmpresa = 1 AND CF.Inativo = 'N'
       AND M.TipoMov IN ('2.4','2.1','2.8','2.3')
       AND M.Status = 'T'
       AND M.DtMov >= '2026-06-01'
     ORDER BY M.DtMov ASC
     """
     df = _run("prevendas", sql, conn)
+    if df.duplicated(["IdEmpresa", "IdMov"]).any():
+        raise ValueError("Documentos duplicados; confira os vínculos do cadastro e ZMovimentoCompl.")
+    df["VersaoDocumentosRadar"] = 2
+    df["AtualizadoEmUTC"] = pd.Timestamp.now(tz="UTC")
     df["DtMov"] = pd.to_datetime(df["DtMov"])
     df.to_parquet(CACHE_DIR / "prevendas.parquet", index=False)
 
@@ -462,7 +657,7 @@ def etl_orcamentos_abertos(conn):
     """Orçamentos em aberto (Status='T', TipoMov='2.7'). Full load — estado corrente."""
     sql = """
     SELECT
-        M.CodVendedor,
+        M.IdEmpresa, M.IdMov, M.CodVendedor,
         V.NomeVendedor,
         M.NumMov,
         M.DtMov,
@@ -474,17 +669,64 @@ def etl_orcamentos_abertos(conn):
         ) AS ValorLiquido
     FROM Movimento M WITH (NOLOCK)
     INNER JOIN ZMovimentoCompl Z ON Z.IdMov     = M.IdMov
-    INNER JOIN Cli_For CF        ON CF.CodCliFor = M.CodCliFor
-    LEFT  JOIN Vendedores V      ON V.CodVendedor = M.CodVendedor
-    WHERE M.TipoMov = '2.7'
+    INNER JOIN Cli_For CF        ON CF.CodCliFor = M.CodCliFor AND CF.IdEmpresa = M.IdEmpresa
+    LEFT  JOIN Vendedores V      ON V.CodVendedor = M.CodVendedor AND V.IdEmpresa = M.IdEmpresa
+    WHERE M.IdEmpresa = 1 AND M.TipoMov = '2.7'
       AND M.Status  = 'T'
       AND M.DtMov  >= '2026-06-01'
       AND Z.CodTd_PO IN ('Negociando', 'Faltas', 'Preço Concorren', 'Venda Perdida')
     ORDER BY M.DtMov DESC, ValorLiquido DESC
     """
     df = _run("orcamentos_abertos", sql, conn)
+    if df.duplicated(["IdEmpresa", "IdMov"]).any():
+        raise ValueError("Documentos duplicados; confira os vínculos do cadastro e ZMovimentoCompl.")
+    df["VersaoDocumentosRadar"] = 2
+    df["AtualizadoEmUTC"] = pd.Timestamp.now(tz="UTC")
     df["DtMov"] = pd.to_datetime(df["DtMov"])
     df.to_parquet(CACHE_DIR / "orcamentos_abertos.parquet", index=False)
+
+
+def _campo_data_cadastro(conn):
+    """Only use a field explicitly confirmed by the operator. Never guess."""
+    campo = os.getenv("RADAR_CAMPO_DATA_CADASTRO", "").strip()
+    if not campo:
+        logging.warning("Data de cadastro não configurada; aba exibirá informação indisponível.")
+        return None
+    import re
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", campo):
+        raise ValueError("RADAR_CAMPO_DATA_CADASTRO inválido.")
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT c.name FROM [dbCronos].sys.columns c
+            JOIN [dbCronos].sys.tables t ON t.object_id=c.object_id
+            JOIN [dbCronos].sys.schemas s ON s.schema_id=t.schema_id
+            JOIN [dbCronos].sys.types ty ON ty.user_type_id=c.user_type_id
+            WHERE s.name='dbo' AND t.name='Cli_For' AND c.name=%s
+              AND ty.name IN ('date','datetime','datetime2','smalldatetime')
+        """, (campo,))
+        if cursor.fetchone() is None:
+            raise ValueError("Campo de cadastro não encontrado ou não é data. Confirme no Cronos.")
+    finally:
+        cursor.close()
+    return campo
+
+
+def etl_radar_responsaveis(conn):
+    sql = """
+        SELECT V.IdEmpresa, V.CodVendedor, V.NomeVendedor AS Vendedor,
+               V.Tipo, ISNULL(V.CodSupervisor,'') AS CodSupervisor,
+               ISNULL(S.NomeVendedor,'Sem supervisor') AS Supervisor
+        FROM [dbCronos].[dbo].[Vendedores] V
+        LEFT JOIN [dbCronos].[dbo].[Vendedores] S
+          ON S.IdEmpresa=V.IdEmpresa AND S.CodVendedor=V.CodSupervisor
+        WHERE V.IdEmpresa=1 AND V.Inativo='N' AND V.Tipo IN ('V','S')
+    """
+    df = _run("radar_responsaveis", sql, conn)
+    if df.empty or df.CodVendedor.isna().any() or df.duplicated(["IdEmpresa","CodVendedor"]).any():
+        raise ValueError("Responsáveis vazios ou duplicados.")
+    df["AtualizadoEmUTC"] = pd.Timestamp.now(tz="UTC")
+    _salvar_parquet_atomico(df, CACHE_DIR / "radar_responsaveis.parquet")
 
 def etl_carteira_clientes(conn, data_referencia=None):
     """Carteira, receita OPE e curva global 20/30/50, com historico coerente.
@@ -508,11 +750,14 @@ def etl_carteira_clientes(conn, data_referencia=None):
     fim = dia + pd.Timedelta(days=1)
     inicio_sql, fim_sql = inicio.strftime("%Y%m%d"), fim.strftime("%Y%m%d")
 
+    campo_cadastro = _campo_data_cadastro(conn)
+    data_cadastro_sql = f"CF.[{campo_cadastro}]" if campo_cadastro else "CAST(NULL AS DATETIME)"
     sql = f"""
     ;WITH Carteira AS (
         SELECT
             CF.IdEmpresa, CF.CodCliFor, CF.NomeCliFor AS Cliente,
             CF.TipoCliente, CF.Inativo AS ClienteInativo,
+            {data_cadastro_sql} AS DataCadastro,
             CF.FoneCliFor AS Telefone, CF.CelCliFor AS Celular,
             CF.CodFunc AS CodVendedorCarteira,
             V.IdEmpresa AS IdEmpresaResponsavel,
@@ -535,6 +780,7 @@ def etl_carteira_clientes(conn, data_referencia=None):
         SELECT
             M.IdEmpresa, M.CodCliFor, M.IdMov, M.NumMov, M.TipoMov,
             M.DtMov, M.DataFaturamento,
+            [dbCronos].[dbo].[MultV](M.TipoMov) AS MultiplicadorMov,
             COUNT_BIG(*) - COUNT_BIG(F.ReceitaItem) AS ItensSemValor,
             CASE WHEN COUNT_BIG(*) = COUNT_BIG(F.ReceitaItem)
                 THEN CONVERT(DECIMAL(19, 2), SUM(F.ReceitaItem))
@@ -582,7 +828,7 @@ def etl_carteira_clientes(conn, data_referencia=None):
                  M.DtMov, M.DataFaturamento
     )
     SELECT CA.*, RM.IdMov, RM.NumMov, RM.TipoMov, RM.DtMov,
-           RM.DataFaturamento, RM.ItensSemValor,
+           RM.DataFaturamento, RM.MultiplicadorMov, RM.ItensSemValor,
            CASE
                WHEN CA.CarteiraVAtiva = 0 THEN NULL
                WHEN RM.IdMov IS NULL THEN CONVERT(DECIMAL(19, 2), 0)
@@ -597,11 +843,11 @@ def etl_carteira_clientes(conn, data_referencia=None):
         "IdEmpresa", "CodCliFor", "Cliente", "TipoCliente", "ClienteInativo",
         "Telefone", "Celular", "CodVendedorCarteira", "IdEmpresaResponsavel",
         "VendedorCarteira", "TipoResponsavel", "ResponsavelInativo",
-        "CodSupervisor", "CarteiraVAtiva",
+        "CodSupervisor", "CarteiraVAtiva", "DataCadastro",
     ]
     movimentos = [
         "IdMov", "NumMov", "TipoMov", "DtMov", "DataFaturamento",
-        "ItensSemValor", "ValorLiquido",
+        "ItensSemValor", "ValorLiquido", "MultiplicadorMov",
     ]
     obrigatorias = set(cadastro + movimentos + ["LinhasCadastro"])
     if bruto.empty or not obrigatorias.issubset(bruto.columns):
@@ -633,6 +879,10 @@ def etl_carteira_clientes(conn, data_referencia=None):
     hist = bruto.loc[bruto["CarteiraVAtiva"], cadastro + movimentos].copy()
     hist["IdMov"] = pd.to_numeric(hist["IdMov"], errors="raise").astype("Int64")
     reais = hist["IdMov"].notna()
+    hist["MultiplicadorMov"] = pd.to_numeric(hist["MultiplicadorMov"], errors="raise")
+    if hist.loc[reais, "MultiplicadorMov"].isna().any():
+        raise ValueError("Multiplicador de movimento ausente; não é possível identificar compras.")
+    df["DataCadastro"] = pd.to_datetime(df["DataCadastro"], errors="raise")
     if hist.loc[reais].duplicated(["IdEmpresa", "IdMov"]).any():
         raise ValueError("Movimento duplicado na carteira.")
     if hist.loc[reais, "ItensSemValor"].isna().any() or hist.loc[reais, "ItensSemValor"].ne(0).any():
@@ -674,6 +924,8 @@ def etl_carteira_clientes(conn, data_referencia=None):
     snapshot = uuid4().hex
     atualizado = pd.Timestamp.now(tz="UTC")
     for tabela in [df, hist]:
+        tabela["VersaoInterfaceCarteira"] = 2
+        tabela["CampoDataCadastro"] = campo_cadastro or ""
         tabela["SnapshotCarteira"] = snapshot
         tabela["QtdClientesCurva"] = n
         tabela["PeriodoInicio"] = inicio
@@ -701,25 +953,35 @@ def etl_carteira_clientes(conn, data_referencia=None):
 
         
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Atualiza os caches locais do Radar.")
+    parser.add_argument("--somente-financeiro", action="store_true",
+                        help="Atualiza apenas o mes corrente do relatorio Cronos.")
+    args = parser.parse_args()
     logging.info("=" * 60)
     logging.info("ETL GM LIMPEZA — INICIADO")
+    conn = None
     try:
         conn = get_conn()
-        etl_movimentos(conn)
-        etl_itens(conn)
-        etl_radar_clientes(conn)
-        etl_carteira_clientes(conn)
-        etl_radar_produtos(conn)
-        etl_radar_rent_cli(conn)
-        etl_vendedores(conn)
-        etl_supervisores(conn)
-        etl_clientes_info(conn)
-        etl_pedidos_pendentes(conn)
-        etl_prevendas(conn)
-        etl_orcamentos_abertos(conn)
-        conn.close()
+        etl_rentabilidade_cronos(conn)
+        if not args.somente_financeiro:
+            etl_movimentos(conn)
+            etl_itens(conn)
+            etl_radar_clientes(conn)
+            etl_carteira_clientes(conn)
+            etl_radar_responsaveis(conn)
+            etl_radar_produtos(conn)
+            etl_radar_rent_cli(conn)
+            etl_vendedores(conn)
+            etl_supervisores(conn)
+            etl_clientes_info(conn)
+            etl_pedidos_pendentes(conn)
+            etl_prevendas(conn)
+            etl_orcamentos_abertos(conn)
         logging.info("ETL CONCLUÍDO COM SUCESSO")
     except Exception as e:
         logging.error(f"ETL FALHOU: {e}", exc_info=True)
         sys.exit(1)
+    finally:
+        if conn is not None:
+            conn.close()
     logging.info("=" * 60)

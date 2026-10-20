@@ -1,0 +1,3880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radar Comercial — GM Limpezas </title>
+  <style>
+    :root {
+      --navy: #1B3A5C;
+      --navy-dark: #10243B;
+      --blue: #2E6BA6;
+      --blue-light: #EBF3FA;
+      --blue-border: #C4D9EC;
+      --green: #16794B;
+      --green-bg: #E8F6EF;
+      --green-border: #A8DFC4;
+      --amber: #9A5B00;
+      --amber-bg: #FEF5E7;
+      --amber-border: #F5D399;
+      --red-soft: #9E2A2B;
+      --red-bg: #FDF0F0;
+      --red-border: #F2B8B8;
+      --purple-abc: #5B4B8A;
+      --bg: #F3F6FA;
+      --surface: #FFFFFF;
+      --surface-alt: #F8FAFC;
+      --text: #182635;
+      --text-muted: #52657A;
+      --border: #D9E2EC;
+      --focus: #FF9800;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 3px rgba(27, 58, 92, 0.08);
+      --shadow-md: 0 6px 18px rgba(27, 58, 92, 0.11);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    button, input, select, summary, textarea, a {
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--focus) !important;
+      outline-offset: 2px !important;
+    }
+
+    .demo-banner {
+      background: var(--navy-dark);
+      color: #FFFFFF;
+      padding: 10px 16px;
+      border-bottom: 3px solid var(--blue);
+      font-size: 0.85rem;
+    }
+
+    .demo-banner-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .demo-badge-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .demo-tag {
+      background: #FFB74D;
+      color: #10243B;
+      font-weight: 800;
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .demo-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .demo-control-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-control-item label {
+      font-weight: 600;
+      color: #D9E2EC;
+      font-size: 0.82rem;
+    }
+
+    .demo-select {
+      min-height: 40px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #6282A3;
+      background: #1B3A5C;
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .app-header {
+      position: static !important;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 14px 16px;
+    }
+
+    .app-header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(27, 58, 92, 0.18);
+    }
+
+    .brand-titles h1 {
+      font-size: 1.3rem;
+      color: var(--navy);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+
+    .update-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      color: var(--navy);
+      font-size: 0.8rem;
+    }
+
+    .header-context {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .user-pill {
+      background: var(--blue-light);
+      border: 1px solid var(--blue-border);
+      color: var(--navy);
+      padding: 7px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.86rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-pill strong {
+      font-size: 0.95rem;
+      color: var(--navy-dark);
+    }
+
+    .competencia-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: var(--radius-md);
+    }
+
+    .competencia-box label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .competencia-select {
+      min-height: 40px;
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      color: var(--navy);
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .main-container {
+      max-width: 1240px;
+      margin: 20px auto 56px;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Barra de Escopo (Supervisor e Gestão) */
+    .scope-bar {
+      background: var(--surface);
+      border: 1px solid var(--blue-border);
+      border-left: 5px solid var(--navy);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .scope-bar-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .scope-bar-title strong {
+      color: var(--navy-dark);
+      font-size: 1rem;
+    }
+
+    .scope-bar-title span {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .scope-selectors {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .scope-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scope-field label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .scope-select {
+      min-height: 44px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--navy-dark);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Subnavegação das 4 áreas do Supervisor / Gestão */
+    .role-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--surface);
+      padding: 10px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .role-nav-btn {
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+
+    .role-nav-btn:hover {
+      background: var(--blue-light);
+      color: var(--navy);
+    }
+
+    .role-nav-btn.active {
+      background: var(--navy);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Cartão Principal de Meta e Indicadores Financeiros */
+    .goal-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--navy);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .goal-hero.status-exceeded {
+      border-top-color: var(--green);
+    }
+
+    .goal-hero.status-missing {
+      border-top-color: var(--amber);
+    }
+
+    .goal-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .goal-title-group h2 {
+      font-size: 1.15rem;
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .goal-title-group p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .status-pill.in-progress {
+      background: var(--blue-light);
+      color: var(--navy);
+      border: 1px solid var(--blue-border);
+    }
+
+    .status-pill.exceeded {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+
+    .status-pill.missing {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid var(--amber-border);
+    }
+
+    .goal-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-box {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+
+    .metric-box.highlight-green {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+    }
+
+    .metric-box.highlight-amber {
+      background: var(--amber-bg);
+      border-color: var(--amber-border);
+    }
+
+    .metric-box.highlight-blue {
+      background: var(--blue-light);
+      border-color: var(--blue-border);
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .metric-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--navy-dark);
+      word-break: break-word;
+    }
+
+    .metric-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .progress-wrapper {
+      margin-top: 8px;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--navy);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 14px;
+      background: #E2E8F0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--blue);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-fill.exceeded {
+      background: var(--green);
+    }
+
+    .goal-footnote {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .abc-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .abc-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .abc-header h2 {
+      font-size: 1.12rem;
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .abc-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .abc-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .abc-donut-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .abc-donut-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-align: center;
+    }
+
+    .donut-svg-wrap {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .donut-segment {
+      cursor: pointer;
+      transition: opacity 0.15s, stroke-width 0.15s;
+    }
+
+    .donut-segment:hover {
+      opacity: 0.85;
+    }
+
+    .donut-legend {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.83rem;
+    }
+
+    .donut-legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .donut-legend-item:hover {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    .donut-legend-item.active-curve {
+      border: 2px solid var(--navy);
+      background: var(--blue-light);
+    }
+
+    .legend-dot-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--navy-dark);
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .abc-bars-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .abc-curve-row {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .abc-curve-row.active-curve {
+      border: 2px solid var(--navy);
+      background: var(--blue-light);
+    }
+
+    .abc-curve-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .abc-curve-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .curve-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.84rem;
+      color: #FFFFFF;
+    }
+
+    .curve-badge.curve-A { background: var(--navy); }
+    .curve-badge.curve-B { background: var(--blue); }
+    .curve-badge.curve-C { background: #64748B; }
+
+    .abc-curve-summary-text {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--navy-dark);
+    }
+
+    .abc-curve-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-curve-filter {
+      min-height: 38px;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--navy);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-curve-filter:hover {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    .btn-curve-filter.warn {
+      color: var(--amber);
+      border-color: var(--amber-border);
+      background: var(--amber-bg);
+    }
+
+    .btn-curve-filter.warn:hover {
+      background: #FDEBD0;
+    }
+
+    .abc- accessible-details {
+      margin-top: 12px;
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+      font-size: 0.84rem;
+    }
+
+    .abc-accessible-details summary {
+      cursor: pointer;
+      color: var(--blue);
+      font-weight: 700;
+      padding: 4px 0;
+    }
+
+    .quick-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .summary-card-button {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.15s, background-color 0.15s;
+      min-height: 68px;
+    }
+
+    .summary-card-button:hover {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    .summary-card-button.active-drawer {
+      border: 2px solid var(--navy);
+      background: var(--blue-light);
+    }
+
+    .summary-info span {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .summary-info strong {
+      display: block;
+      font-size: 1.3rem;
+      color: var(--navy);
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    .summary-action-tag {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--blue);
+      background: #FFFFFF;
+      border: 1px solid var(--blue-border);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    .docs-drawer {
+      background: var(--surface);
+      border: 2px solid var(--navy);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .docs-drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .docs-drawer-header h3 {
+      color: var(--navy);
+      font-size: 1.02rem;
+    }
+
+    .btn-close-drawer {
+      min-height: 40px;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--navy);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .docs-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .doc-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      background: var(--surface-alt);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .doc-item-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .doc-item-client {
+      font-weight: 800;
+      color: var(--navy-dark);
+      font-size: 0.94rem;
+    }
+
+    .doc-item-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+      font-size: 0.86rem;
+    }
+
+    /* Abas da Carteira e Painel de Filtros Combináveis */
+    .clients-section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .tabs-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--blue);
+    }
+
+    .tab-btn.active {
+      background: var(--navy);
+      color: #FFFFFF;
+      border-color: var(--navy);
+    }
+
+    .tab-count {
+      background: rgba(255, 255, 255, 0.22);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+    }
+
+    .tab-btn:not(.active) .tab-count {
+      background: #E2E8F0;
+      color: var(--navy);
+    }
+
+    /* Painel de Filtros Baseados nas Planilhas */
+    .filters-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .filters-primary-row {
+      display: grid;
+      grid-template-columns: 2fr repeat(3, minmax(150px, 1fr)) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filter-group label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .filter-input, .filter-select {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: #FFFFFF;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    .btn-toggle-advanced {
+      min-height: 42px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--blue-border);
+      background: var(--blue-light);
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .filters-advanced-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .active-filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--blue-light);
+      border: 1px solid var(--blue-border);
+      border-radius: var(--radius-md);
+    }
+
+    .active-chips-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid var(--blue-border);
+      color: var(--navy-dark);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .btn-clear-filters {
+      min-height: 36px;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--navy);
+      background: var(--navy);
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .partial-month-banner {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--blue);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .clients-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .client-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--blue);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .client-card.reason-critico { border-left-color: var(--red-soft); }
+    .client-card.reason-atencao { border-left-color: var(--amber); }
+    .client-card.reason-novo { border-left-color: var(--green); }
+    .client-card.reason-retomar { border-left-color: #64748B; }
+
+    .client-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .client-identity {
+      flex: 1 1 260px;
+    }
+
+    .client-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .client-name {
+      font-size: 1.06rem;
+      font-weight: 800;
+      color: var(--navy-dark);
+    }
+
+    .client-code {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      background: #F1F5F9;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .rep-owner-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--navy);
+      background: var(--blue-light);
+      border: 1px solid var(--blue-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .reason-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .reason-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .reason-badge.critico {
+      background: var(--red-bg);
+      color: var(--red-soft);
+      border: 1px solid var(--red-border);
+    }
+
+    .reason-badge.atencao {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid var(--amber-border);
+    }
+
+    .reason-badge.novo {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+
+    .reason-badge.ativo {
+      background: var(--blue-light);
+      color: var(--navy);
+      border: 1px solid var(--blue-border);
+    }
+
+    .reason-badge.retomar {
+      background: #F1F5F9;
+      color: #334155;
+      border: 1px solid #CBD5E1;
+    }
+
+    .client-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+
+    .c-metric span {
+      display: block;
+      font-size: 0.77rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .c-metric strong {
+      display: block;
+      font-size: 0.98rem;
+      color: var(--navy-dark);
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    .c-metric small {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .client-actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .btn-whatsapp {
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      background: var(--green);
+      color: #FFFFFF;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: filter 0.15s;
+    }
+
+    .btn-whatsapp:hover {
+      filter: brightness(1.08);
+    }
+
+    .no-phone-badge {
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: #F1F5F9;
+      color: var(--text-muted);
+      border: 1px dashed #CBD5E1;
+      font-size: 0.86rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .client-details {
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+
+    .client-details summary {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    .client-details summary:hover {
+      background: var(--blue-light);
+    }
+
+    .details-body {
+      margin-top: 10px;
+      padding: 14px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .details-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    /* Tabelas Responsivas (Desempenho, Carteira Geral e Histórico) */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      min-width: 780px;
+    }
+
+    .data-table th,
+    .data-table td {
+      text-align: left;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .data-table th {
+      color: var(--navy);
+      font-weight: 800;
+      background: #F1F5F9;
+      white-space: nowrap;
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--blue-light);
+    }
+
+    .data-table tbody tr.clickable-row {
+      cursor: pointer;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    .history-table th,
+    .history-table td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-table th {
+      color: var(--text-muted);
+      font-weight: 700;
+      background: #F1F5F9;
+    }
+
+    /* Prévia de mensagem WhatsApp */
+    .msg-preview-box {
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg-preview-box label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .msg-textarea {
+      width: 100%;
+      min-height: 74px;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--green-border);
+      font-size: 0.9rem;
+      resize: vertical;
+    }
+
+    .msg-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-primary-navy {
+      min-height: 42px;
+      padding: 8px 14px;
+      background: var(--navy);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary-navy:hover {
+      background: var(--blue);
+    }
+
+    .btn-secondary-outline {
+      min-height: 42px;
+      padding: 8px 14px;
+      background: #FFFFFF;
+      color: var(--navy);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-secondary-outline:hover {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    .supervisor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 16px;
+    }
+
+    .rep-goal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--blue);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .rep-goal-card.exceeded { border-top-color: var(--green); }
+    .rep-goal-card.missing { border-top-color: var(--amber); }
+
+    .rep-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .rep-name {
+      font-size: 1.06rem;
+      font-weight: 800;
+      color: var(--navy-dark);
+    }
+
+    .rep-code {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .rep-numbers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: var(--surface-alt);
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .rep-edit-form {
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .rep-edit-form label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .rep-input-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .rep-goal-input {
+      flex: 1 1 140px;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      color: var(--navy-dark);
+    }
+
+    .feedback-toast {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .feedback-toast.ok {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+
+    .feedback-toast.err {
+      background: var(--red-bg);
+      color: var(--red-soft);
+      border: 1px solid var(--red-border);
+    }
+
+    .empty-state {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .empty-state h3 {
+      color: var(--navy);
+      font-size: 1.08rem;
+    }
+
+    .skeleton-box {
+      background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+      background-size: 200% 100%;
+      animation: skeletonPulse 1.4s infinite;
+      border-radius: var(--radius-md);
+      height: 110px;
+      width: 100%;
+    }
+
+    @keyframes skeletonPulse {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @media (max-width: 880px) {
+      .abc-layout {
+        grid-template-columns: 1fr;
+      }
+      .filters-primary-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .demo-banner-inner,
+      .app-header-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filters-primary-row {
+        grid-template-columns: 1fr;
+      }
+      .metric-value {
+        font-size: 1.2rem;
+      }
+      .rep-numbers {
+        grid-template-columns: 1fr;
+      }
+    }
+  
+    body {min-height:0 !important;} .main-container{padding-bottom:24px;}
+    .server-notice{margin:10px 0;padding:12px 16px;border-radius:12px;background:#fff7e8;color:#6c4c16;font-size:.88rem;}
+    .server-info{padding:10px;color:#475569;font-size:.82rem;line-height:1.5;}
+    .pagination{display:flex;justify-content:center;align-items:center;gap:16px;padding:16px;}
+    button:disabled{opacity:.55;cursor:wait;}
+    @media(max-width:700px){.app-header-inner{padding:12px}.main-container{padding:12px}.table-container{overflow:auto}}
+  </style>
+</head>
+<body>
+  <div id="radarRoot" style="display:flow-root;width:100%">
+
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="brand-block">
+        <div id="logoReal" style="font-size:32px;font-weight:900;color:#1b3a5c">GM</div>
+        <div class="brand-titles">
+          <h1>Radar Comercial — GM Limpezas</h1>
+          <div class="brand-subtitle">
+            <span class="update-pill" title="Horário da última extração de dados consolidada (America/Sao_Paulo)">
+              🕒 Dados atualizados em: <strong id="snapshotTimestamp">Carregando</strong> (Brasília)
+            </span>
+            <span id="pageLoadTimestamp" style="font-size:0.78rem;">Página aberta às 14:30</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-context">
+        <div class="user-pill" id="authenticatedUserBadge">
+          <span id="userRoleLabel">Vendedora</span>
+          <strong id="userNameLabel">Carregando</strong>
+        </div>
+
+        <div class="competencia-box">
+          <label for="competenciaSelect">Mês:</label>
+          <select disabled title="Dados do mês corrente; outros meses disponíveis na edição de metas" id="competenciaSelect" class="competencia-select" aria-label="Selecionar mês de referência">
+            </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-container" id="mainContent">
+    <section class="empty-state" aria-live="polite" aria-busy="true"><h3>Carregando informações comerciais...</h3><p>Aguarde enquanto preparamos os indicadores da carteira e das metas do mês.</p><div class="skeleton-box" style="margin-top:12px"></div><div class="skeleton-box"></div></section>
+  </main>
+
+  </div>
+  <script>
+    // Dados recebidos do servidor após autenticação.
+    const EMPRESA_ID = 1;
+    let DATA_ATUALIZACAO_DADOS = "Carregando";
+    let SUPERVISORES = [], VENDEDORAS = [], CARTEIRA_CLIENTES = [];
+    let DESEMPENHO_FINANCEIRO = {}, ORCAMENTOS = [], PREVENDAS = [];
+    let servidor = null;
+    let pending = false;
+    let CADASTROS_MES = [];
+    let pendingPdf = false;
+    let ultimoPdf = null;
+    let linkPdf = null;
+    const state = {
+      visaoAtual: "",
+      estadoTela: "normal",          // 'normal' | 'sem_data_cadastro' | 'loading' | 'empty' | 'error'
+      competencia: "", competenciaMeta: "", pagina: 0,
+
+      // Navegação do Supervisor / Gestão
+      areaSupervisor: "visao_geral", // 'visao_geral' | 'desempenho' | 'carteira_geral' | 'metas'
+      filtroEquipeGestao: "TODAS",   // 'TODAS' | 'EQ1' | 'EQ2'
+      filtroVendedoraEscopo: "TODAS",// 'TODAS' ou CodVendedor ('0101', etc.)
+      modoExibicaoCarteiraSup: "tabela", // 'tabela' | 'cartoes'
+
+      // Navegação de Abas da Carteira
+      abaClientes: "prioridades",    // 'prioridades' | 'retomar' | 'cadastrados_mes' | 'todos'
+      subfiltroCadastrados: "todos", // 'todos' | 'ja_compraram' | 'sem_primeira_compra'
+
+      // Filtros Combináveis baseados nas planilhas
+      mostrarFiltrosAvancados: false,
+      termoBusca: "",
+      filtroCurva: "TODAS",          // 'TODAS' | 'A' | 'B' | 'C'
+      filtroSituacaoMes: "TODAS",    // 'TODAS' | 'NAO_COMPROU' | 'ABAIXO_MEDIA' | 'QUEDA_20' | 'NA_MEDIA' | 'ACIMA_MEDIA'
+      filtroAtividade2M: "TODOS",    // 'TODOS' | 'ATIVO_2M' | 'INATIVO_2M'
+      filtroPeriodoUltCompra: "TODOS",// 'TODOS' | 'MES_ATUAL' | 'MES_PASSADO' | '2_A_4_MESES' | 'MAIS_4_MESES' | 'SEM_12M'
+      filtroDiasSemComprar: "TODOS", // 'TODOS' | 'ATE_30' | '31_60' | '61_120' | 'MAIS_120' | 'SEM_12M'
+      filtroFaixaMedia: "TODAS",     // 'TODAS' | 'ATE_1500' | '1500_3500' | 'ACIMA_3500'
+      filtroFaixaUltCompra: "TODAS", // 'TODAS' | 'ATE_1500' | '1500_3500' | 'ACIMA_3500'
+      filtroDiferencaMedia: "TODAS", // 'TODAS' | 'MAIS_2000_ABAIXO' | 'ATE_2000_ABAIXO' | 'IGUAL_OU_ACIMA'
+      ordenacao: "PRIORIDADE",       // 'PRIORIDADE' | 'MAIOR_MEDIA' | 'MAIOR_TEMPO_SEM_COMPRAR' | 'MAIOR_DIF_ABAIXO_MEDIA'
+
+      // Interações locais
+      gavetaDocAberta: null,         // null | 'orcamentos' | 'prevendas'
+      whatsappAbertoCod: null,
+      avisoSupervisor: null
+    };
+
+    const formatadorMoeda = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    function formatarReais(valor) {
+      if (valor === null || valor === undefined || Number.isNaN(valor)) {
+        return "Indisponível";
+      }
+      return formatadorMoeda.format(valor);
+    }
+
+    function formatarPercentual(valor) {
+      if (valor === null || valor === undefined || Number.isNaN(valor)) {
+        return "—";
+      }
+      return valor.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + "%";
+    }
+
+    function normalizarTextoBusca(str) {
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    function escaparHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatarCompetenciaLegivel(comp) {
+      const mapa = {
+        "2026-10": "Outubro / 2026",
+        "2026-11": "Novembro / 2026"
+      };
+      return mapa[comp] || comp;
+    }
+
+    function calcularEstadoMeta(registro) {
+      const realizado = registro ? registro.RealizadoMeta : null;
+      const meta = registro ? registro.MetaValor : null;
+      const rentabilidade = registro ? registro.RentabilidadePct : null;
+      const realizadoDisponivel = typeof realizado === "number" && !Number.isNaN(realizado);
+      const temMetaValida = typeof meta === "number" && meta > 0;
+
+      if (!temMetaValida) {
+        return {
+          temMeta: false,
+          realizadoDisponivel,
+          realizado,
+          meta: null,
+          rentabilidade,
+          percentualReal: null,
+          larguraBarra: 0,
+          falta: null,
+          superou: null,
+          statusClasse: "missing",
+          statusTexto: "Meta não definida"
+        };
+      }
+
+      if (!realizadoDisponivel) {
+        return {
+          temMeta: true,
+          realizadoDisponivel: false,
+          realizado: null,
+          meta,
+          rentabilidade,
+          percentualReal: null,
+          larguraBarra: 0,
+          falta: null,
+          superou: null,
+          statusClasse: "in-progress",
+          statusTexto: "Realizado indisponível"
+        };
+      }
+
+      const percentualReal = (realizado / meta) * 100;
+      const larguraBarra = Math.max(0, Math.min(100, percentualReal));
+      const falta = Math.max(meta - realizado, 0);
+      const superou = realizado > meta ? (realizado - meta) : 0;
+      const atingiuOuSuperou = realizado >= meta;
+
+      return {
+        temMeta: true,
+        realizadoDisponivel: true,
+        realizado,
+        meta,
+        rentabilidade,
+        percentualReal,
+        larguraBarra,
+        falta,
+        superou,
+        statusClasse: atingiuOuSuperou ? "exceeded" : "in-progress",
+        statusTexto: superou > 0
+          ? "Meta ultrapassada!"
+          : (atingiuOuSuperou ? "Meta atingida!" : "Meta em andamento")
+      };
+    }
+
+    /*
+     * Cálculo consolidado para uma lista de vendedoras (Supervisor ou Gestão):
+     * - Rentabilidade consolidada = (SomaReceita - SomaCusto) / SomaReceita * 100
+     * - Progresso da meta da equipe = SomaRealizado / SomaMeta (somente quando TODAS têm meta definida)
+     */
+    function calcularConsolidadoVendedoras(listaVendedoras, competencia) {
+      let somaRealizado = 0;
+      let somaCusto = 0;
+      let somaMeta = 0;
+      const vendedorasSemMeta = [];
+
+      listaVendedoras.forEach(v => {
+        const reg = DESEMPENHO_FINANCEIRO[`${EMPRESA_ID}|${v.CodVendedor}|${competencia}`];
+        if (reg && typeof reg.RealizadoMeta === "number") {
+          somaRealizado += reg.RealizadoMeta;
+          somaCusto += (reg.CustoValido || 0);
+        }
+        if (reg && typeof reg.MetaValor === "number" && reg.MetaValor > 0) {
+          somaMeta += reg.MetaValor;
+        } else {
+          vendedorasSemMeta.push(v);
+        }
+      });
+
+      const todasTemMeta = listaVendedoras.length > 0 && vendedorasSemMeta.length === 0;
+      const rentabilidadeConsolidada = somaRealizado > 0
+        ? ((somaRealizado - somaCusto) / somaRealizado) * 100
+        : null;
+
+      const percentualMeta = (todasTemMeta && somaMeta > 0)
+        ? (somaRealizado / somaMeta) * 100
+        : null;
+
+      const larguraBarra = percentualMeta !== null
+        ? Math.max(0, Math.min(100, percentualMeta))
+        : 0;
+
+      const falta = todasTemMeta ? Math.max(somaMeta - somaRealizado, 0) : null;
+      const superou = (todasTemMeta && somaRealizado > somaMeta) ? (somaRealizado - somaMeta) : 0;
+
+      return {
+        somaRealizado,
+        somaMeta: todasTemMeta ? somaMeta : null,
+        somaMetaParcial: somaMeta,
+        todasTemMeta,
+        vendedorasSemMeta,
+        rentabilidadeConsolidada,
+        percentualMeta,
+        larguraBarra,
+        falta,
+        superou
+      };
+    }
+
+    /*
+     * Cálculo de Progresso por Curva ABC (sempre sobre a carteira selecionada antes dos filtros de busca/situação)
+     */
+    function calcularProgressoCurvaABC(clientesCarteira) {
+      const totalCarteira = clientesCarteira.length;
+      const curvas = ["A", "B", "C"];
+      const resultado = {};
+
+      curvas.forEach(c => {
+        const daCurva = clientesCarteira.filter(cli => cli.CurvaABC === c);
+        const total = daCurva.length;
+        const compraram = daCurva.filter(cli => cli.ComprouNoMes === true).length;
+        const naoCompraram = total - compraram;
+        const pctCompradores = total > 0 ? (compraram / total) * 100 : null;
+        const pctParticipacaoCarteira = totalCarteira > 0 ? (total / totalCarteira) * 100 : 0;
+
+        resultado[c] = {
+          curva: c,
+          total,
+          compraram,
+          naoCompraram,
+          pctCompradores,
+          pctParticipacaoCarteira
+        };
+      });
+
+      return {
+        totalCarteira,
+        A: resultado.A,
+        B: resultado.B,
+        C: resultado.C
+      };
+    }
+
+    const ORDEM_STATUS = {
+      CRITICO: 1,
+      ATENCAO: 2,
+      NOVO: 3,
+      ATIVO: 4,
+      PERDIDO: 5
+    };
+
+    function obterDiferencaMedia(cliente) {
+      const fat = cliente.FatMesAtual || 0;
+      const media = cliente.MediaMensal || 0;
+      return fat - media; // Negativo = abaixo da média
+    }
+
+    function ehPrioridade(cliente) {
+      if (cliente.Status === "CRITICO" || cliente.Status === "ATENCAO" || cliente.Status === "NOVO") {
+        return true;
+      }
+      if (cliente.ComprouNoMes && (cliente.FatMesAtual < cliente.MediaMensal || cliente.AbaixoMedia)) {
+        return true;
+      }
+      if (cliente.CadastradoNoMes && !cliente.ComprouNoMes) {
+        return true;
+      }
+      return false;
+    }
+
+    function ehRetomarContato(cliente) {
+      return cliente.Status === "PERDIDO" || cliente.DiasUltimaCompra >= 120;
+    }
+
+    function ehCadastradoNoMes(cliente) {
+      return cliente.CadastradoNoMes === true;
+    }
+
+    function classificarSituacaoMesCliente(cliente) {
+      if (!cliente.ComprouNoMes) return "NAO_COMPROU";
+      const media = cliente.MediaMensal || 0;
+      const fat = cliente.FatMesAtual || 0;
+      if (media <= 0) return "SEM_MEDIA";
+      if (Math.round(fat*100) < Math.round(media*100)) return "ABAIXO_MEDIA";
+      if (Math.round(fat*100) === Math.round(media*100)) return "NA_MEDIA";
+      return "ACIMA_MEDIA";
+    }
+
+    function passaPelosFiltrosPlanilha(cliente) {
+      // 1. Busca por nome ou código
+      const termo = normalizarTextoBusca(state.termoBusca.trim());
+      if (termo) {
+        const matchNome = normalizarTextoBusca(cliente.Cliente).includes(termo);
+        const matchCod = normalizarTextoBusca(cliente.CodCliFor).includes(termo);
+        if (!matchNome && !matchCod) return false;
+      }
+
+      // 2. Curva ABC
+      if (state.filtroCurva !== "TODAS" && cliente.CurvaABC !== state.filtroCurva) {
+        return false;
+      }
+
+      // 3. Situação no mês
+      if (state.filtroSituacaoMes !== "TODAS") {
+        if (state.filtroSituacaoMes === "QUEDA_20") {
+          if (!(cliente.ComprouNoMes && cliente.AbaixoMedia === true)) return false;
+        } else {
+          const sit = classificarSituacaoMesCliente(cliente);
+          if (sit !== state.filtroSituacaoMes) return false;
+        }
+      }
+
+      // 4. Atividade nos últimos 2 meses (diferente de corte fixo de 60 dias)
+      if (state.filtroAtividade2M === "ATIVO_2M" && !cliente.AtivoUltimos2Meses) return false;
+      if (state.filtroAtividade2M === "INATIVO_2M" && cliente.AtivoUltimos2Meses) return false;
+
+      if (state.filtroPeriodoUltCompra !== "TODOS") {
+        const m=cliente.MesesUltimaCompra;
+        if (state.filtroPeriodoUltCompra === "SEM_12M" && m !== null) return false;
+        if (state.filtroPeriodoUltCompra === "MES_ATUAL" && m !== 0) return false;
+        if (state.filtroPeriodoUltCompra === "MES_PASSADO" && m !== 1) return false;
+        if (state.filtroPeriodoUltCompra === "2_A_4_MESES" && !(m>=2 && m<=4)) return false;
+        if (state.filtroPeriodoUltCompra === "MAIS_4_MESES" && !(m!==null && m>4)) return false;
+      }
+
+      // 6. Dias sem comprar
+      if (state.filtroDiasSemComprar !== "TODOS") {
+        const d = cliente.DiasUltimaCompra;
+        if (state.filtroDiasSemComprar === "SEM_12M" && d !== 999) return false;
+        if (state.filtroDiasSemComprar === "ATE_30" && d > 30) return false;
+        if (state.filtroDiasSemComprar === "31_60" && (d <= 30 || d > 60)) return false;
+        if (state.filtroDiasSemComprar === "61_120" && (d <= 60 || d > 120)) return false;
+        if (state.filtroDiasSemComprar === "MAIS_120" && (d <= 120 || d === 999)) return false;
+      }
+
+      // 7. Faixa de média mensal
+      if (state.filtroFaixaMedia !== "TODAS") {
+        const m = cliente.MediaMensal || 0;
+        if (state.filtroFaixaMedia === "ATE_1500" && m > 1500) return false;
+        if (state.filtroFaixaMedia === "1500_3500" && (m <= 1500 || m > 3500)) return false;
+        if (state.filtroFaixaMedia === "ACIMA_3500" && m <= 3500) return false;
+      }
+
+      // 8. Faixa de valor da última compra
+      if (state.filtroFaixaUltCompra !== "TODAS") {
+        const v = cliente.ValorUltimaCompra;
+        if (v === null || v === undefined) return false;
+        if (state.filtroFaixaUltCompra === "ATE_1500" && v > 1500) return false;
+        if (state.filtroFaixaUltCompra === "1500_3500" && (v <= 1500 || v > 3500)) return false;
+        if (state.filtroFaixaUltCompra === "ACIMA_3500" && v <= 3500) return false;
+      }
+
+      // 9. Diferença em reais em relação à média
+      if (state.filtroDiferencaMedia !== "TODAS") {
+        const dif = obterDiferencaMedia(cliente); // FatMesAtual - MediaMensal
+        if (state.filtroDiferencaMedia === "MAIS_2000_ABAIXO" && dif >= -2000) return false;
+        if (state.filtroDiferencaMedia === "ATE_2000_ABAIXO" && (dif < -2000 || dif >= 0)) return false;
+        if (state.filtroDiferencaMedia === "IGUAL_OU_ACIMA" && dif < 0) return false;
+      }
+
+      return true;
+    }
+
+    function ordenarListaClientes(clientes) {
+      const copia = [...clientes];
+      if (state.ordenacao === "MAIOR_MEDIA") {
+        return copia.sort((a, b) => (b.MediaMensal || 0) - (a.MediaMensal || 0));
+      }
+      if (state.ordenacao === "MAIOR_TEMPO_SEM_COMPRAR") {
+        return copia.sort((a, b) => (b.DiasUltimaCompra || 0) - (a.DiasUltimaCompra || 0));
+      }
+      if (state.ordenacao === "MAIOR_DIF_ABAIXO_MEDIA") {
+        // Mais negativo primeiro (maior diferença abaixo da média)
+        return copia.sort((a, b) => obterDiferencaMedia(a) - obterDiferencaMedia(b));
+      }
+      // Padrão: Prioridade comercial + Receita em risco
+      return copia.sort((a, b) => {
+        const pA = ORDEM_STATUS[a.Status] ?? 99;
+        const pB = ORDEM_STATUS[b.Status] ?? 99;
+        if (pA !== pB) return pA - pB;
+        return (b.ReceitaEmRisco || 0) - (a.ReceitaEmRisco || 0);
+      });
+    }
+
+    function obterAvisosExplicativosCliente(cliente) {
+      const avisos = [];
+
+      if (cliente.Status === "CRITICO") {
+        avisos.push({
+          classe: "critico",
+          texto: `Prioridade alta • ${cliente.DiasUltimaCompra} dias sem comprar`
+        });
+      }
+
+      if (!cliente.ComprouNoMes && cliente.Status !== "CRITICO" && cliente.Status !== "PERDIDO") {
+        avisos.push({
+          classe: "atencao",
+          texto: `Curva ${cliente.CurvaABC} • Ainda não comprou neste mês`
+        });
+      } else if (!cliente.ComprouNoMes && cliente.CurvaABC === "A") {
+        avisos.push({
+          classe: "atencao",
+          texto: `Curva A • Ainda não comprou neste mês`
+        });
+      }
+
+      if (cliente.ComprouNoMes && cliente.FatMesAtual < cliente.MediaMensal) {
+        avisos.push({
+          classe: "atencao",
+          texto: "Compra do mês abaixo da média"
+        });
+      }
+
+      if (cliente.ComprouNoMes && cliente.AbaixoMedia) {
+        avisos.push({
+          classe: "critico",
+          texto: "Alerta: queda superior a 20% em relação à média"
+        });
+      }
+
+      if (cliente.CadastradoNoMes) {
+        if (!cliente.ComprouNoMes) {
+          avisos.push({
+            classe: "novo",
+            texto: "Cadastrado neste mês • Sem primeira compra"
+          });
+        } else {
+          avisos.push({
+            classe: "novo",
+            texto: "Cadastrado neste mês • 1ª compra realizada"
+          });
+        }
+      }
+
+      if (cliente.Status === "PERDIDO") {
+        if (cliente.DiasUltimaCompra === 999 || !cliente.UltimaCompra) {
+          avisos.push({
+            classe: "retomar",
+            texto: "Retomar contato • Sem compra nos 12 meses analisados"
+          });
+        } else {
+          avisos.push({
+            classe: "retomar",
+            texto: `Retomar contato • ${cliente.DiasUltimaCompra} dias sem comprar`
+          });
+        }
+      }
+
+      if (avisos.length === 0) {
+        avisos.push({
+          classe: "ativo",
+          texto: "Compra no mês igual ou acima da média"
+        });
+      }
+
+      return avisos;
+    }
+
+    function formatarUltimaCompraTexto(cliente) {
+      if (cliente.DiasUltimaCompra === 999 || !cliente.UltimaCompra) {
+        return "Sem compra nos 12 meses analisados";
+      }
+      const valorTxt = cliente.ValorUltimaCompra ? ` • Valor: ${formatarReais(cliente.ValorUltimaCompra)}` : "";
+      return `${cliente.UltimaCompra} (${cliente.DiasUltimaCompra} dias atrás)${valorTxt}`;
+    }
+
+    function formatarDiferencaMediaTexto(cliente) {
+      const media = cliente.MediaMensal || 0;
+      const fat = cliente.FatMesAtual || 0;
+      const dif = fat - media;
+
+      if (media === 0 && fat === 0) {
+        return { valor: "R$ 0,00", sub: "Sem média histórica de 12 meses" };
+      }
+      if (dif < 0) {
+        return {
+          valor: `-${formatarReais(Math.abs(dif))}`,
+          sub: `${formatarReais(Math.abs(dif))} abaixo da média (mês em andamento)`
+        };
+      }
+      if (dif > 0) {
+        return {
+          valor: `+${formatarReais(dif)}`,
+          sub: `${formatarReais(dif)} acima da média histórica`
+        };
+      }
+      return { valor: "R$ 0,00", sub: "Exatamente na média mensal" };
+    }
+
+    function gerarMensagemSugerida(cliente, nomeVendedora) {
+      const primeiroNomeVend = (nomeVendedora || "Consultora").split(" ")[0];
+      if (cliente.CadastradoNoMes && !cliente.ComprouNoMes) {
+        return `Olá! Aqui é a ${primeiroNomeVend}, da GM Limpezas. Seja muito bem-vindo(a)! Vi que concluímos seu cadastro neste mês e quero ajudar a montar seu primeiro pedido com os produtos de que você precisa.`;
+      }
+      if (cliente.Status === "NOVO" || (cliente.CadastradoNoMes && cliente.ComprouNoMes)) {
+        return `Olá! Aqui é a ${primeiroNomeVend}, da GM Limpezas. Tudo bem? Passando para acompanhar como foi a entrega do seu primeiro pedido e se precisam de algum apoio!`;
+      }
+      if (cliente.ComprouNoMes && cliente.FatMesAtual < cliente.MediaMensal) {
+        return `Olá! Aqui é a ${primeiroNomeVend}, da GM Limpezas. Tudo bem? Vi que já atendemos vocês neste mês e passei para conferir se precisam repor mais algum item da linha de higiene e limpeza.`;
+      }
+      return `Olá! Aqui é a ${primeiroNomeVend}, da GM Limpezas. Tudo bem? Estou organizando as entregas da semana e gostaria de verificar como está o estoque de vocês para programarmos a próxima reposição.`;
+    }
+
+    function renderizarSecaoProgressoCurvaABC(clientesCarteiraEscopo, tituloContexto) {
+      const abc = calcularProgressoCurvaABC(clientesCarteiraEscopo);
+      const total = abc.totalCarteira;
+
+      return `
+        <section class="abc-section" aria-label="Progresso da carteira por curva">
+          <div class="abc-header">
+            <div>
+              <h2>Progresso da carteira por curva</h2>
+              <p>Clientes com compra nos 12 meses do período salvo • ${escaparHtml(tituloContexto)}. Veja quantos já compraram neste mês.</p>
+            </div>
+            <button type="button" class="btn-secondary-outline" data-action="pdf-pendentes" data-curva="TODAS" ${pendingPdf ? 'disabled' : ''}>${pendingPdf ? 'Preparando PDF…' : 'Baixar pendências em PDF'}</button>
+            ${state.filtroCurva !== "TODAS" || state.filtroSituacaoMes !== "TODAS" ? `
+              <button type="button" class="btn-secondary-outline" data-action="limpar-filtros">
+                Limpar seleção de curva (${escaparHtml(state.filtroCurva)}) ✕
+              </button>
+            ` : ""}
+          </div>
+
+          <div class="abc-layout" style="grid-template-columns:1fr">
+            <!-- Barras de Progresso de Compras por Curva -->
+            <div class="abc-bars-list">
+              ${["A", "B", "C"].map(letra => {
+                const d = abc[letra];
+                const ativa = state.filtroCurva === letra;
+
+                if (d.total === 0) {
+                  return `
+                    <div class="abc-curve-row">
+                      <div class="abc-curve-top">
+                        <div class="abc-curve-title-group">
+                          <span class="curve-badge curve-${letra}">Curva ${letra}</span>
+                          <span class="abc-curve-summary-text" style="color:var(--text-muted);">
+                            Curva ${letra}: Sem clientes nesta carteira
+                          </span>
+                        </div>
+                      </div>
+                      <div class="progress-track">
+                        <div class="progress-fill" style="width: 0%;"></div>
+                      </div>
+                    </div>
+                  `;
+                }
+
+                const largura = Math.max(0, Math.min(100, d.pctCompradores || 0));
+                return `
+                  <div class="abc-curve-row ${ativa ? "active-curve" : ""}">
+                    <div class="abc-curve-top">
+                      <div class="abc-curve-title-group">
+                        <span class="curve-badge curve-${letra}">Curva ${letra}</span>
+                        <span class="abc-curve-summary-text">
+                          Curva ${letra}: ${d.compraram} de ${d.total} clientes compraram • ${formatarPercentual(d.pctCompradores)} • ${d.naoCompraram} ainda não compraram
+                        </span>
+                      </div>
+
+                      <div class="abc-curve-actions">
+                        <button
+                          type="button"
+                          class="btn-curve-filter"
+                          data-action="filtrar-curva"
+                          data-curva="${letra}"
+                        >
+                          Ver Curva ${letra} (${d.total})
+                        </button>
+                        ${d.naoCompraram > 0 ? `
+                          <button
+                            type="button"
+                            class="btn-curve-filter warn"
+                            data-action="filtrar-curva-nao-compraram"
+                            data-curva="${letra}"
+                          >
+                            Ainda não compraram (${d.naoCompraram})
+                          </button>
+                          <button type="button" class="btn-curve-filter" data-action="pdf-pendentes" data-curva="${letra}" ${pendingPdf ? 'disabled' : ''}>Baixar PDF · Curva ${letra}</button>
+                        ` : ""}
+                      </div>
+                    </div>
+
+                    <div class="progress-track" role="progressbar" aria-valuenow="${Math.round(d.pctCompradores)}" aria-valuemin="0" aria-valuemax="100">
+                      <div class="progress-fill ${d.pctCompradores >= 100 ? "exceeded" : ""}" style="width: ${largura}%;"></div>
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+
+          <details class="abc-accessible-details">
+            <summary>Ver tabela textual acessível do progresso por Curva ABC</summary>
+            <div style="margin-top:8px; overflow-x:auto;">
+              <table class="history-table" aria-label="Tabela textual de composição e progresso por curva ABC">
+                <thead>
+                  <tr>
+                    <th>Curva (Classificação Global 20/30/50)</th>
+                    <th>Clientes na Carteira</th>
+                    <th>Participação na Carteira</th>
+                    <th>Compraram no Mês</th>
+                    <th>Ainda Não Compraram</th>
+                    <th>Progresso de Compradores</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${["A", "B", "C"].map(l => {
+                    const d = abc[l];
+                    return `
+                      <tr>
+                        <td><strong>Curva ${l}</strong></td>
+                        <td>${d.total > 0 ? d.total : "Sem clientes"}</td>
+                        <td>${d.total > 0 ? formatarPercentual(d.pctParticipacaoCarteira) : "—"}</td>
+                        <td>${d.total > 0 ? d.compraram : "—"}</td>
+                        <td>${d.total > 0 ? d.naoCompraram : "—"}</td>
+                        <td><strong>${d.total > 0 ? formatarPercentual(d.pctCompradores) : "Sem clientes"}</strong></td>
+                      </tr>
+                    `;
+                  }).join("")}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+      `;
+    }
+
+    function renderizarEstadosEspeciais() {
+      if (state.estadoTela === "loading") {
+        return `
+          <section class="empty-state" aria-live="polite">
+            <h3>Carregando informações comerciais...</h3>
+            <p>Aguarde enquanto preparamos os indicadores da carteira e das metas do mês.</p>
+            <div class="skeleton-box" style="margin-top:12px;"></div>
+            <div class="skeleton-box"></div>
+          </section>
+        `;
+      }
+      if (state.estadoTela === "error") {
+        return `
+          <section class="empty-state" style="border-color:var(--red-border); background:var(--red-bg); color:var(--red-soft);" role="alert">
+            <h3 style="color:var(--red-soft);">Não foi possível carregar a atualização mais recente</h3>
+            <p>Ocorreu uma indisponibilidade temporária na leitura dos arquivos de dados. Nenhum valor foi zerado ou substituído.</p>
+            <button type="button" class="btn-primary-navy" data-action="restaurar-estado-normal">
+              Tentar novamente (Voltar à operação normal)
+            </button>
+          </section>
+        `;
+      }
+      if (state.estadoTela === "empty") {
+        return `
+          <section class="empty-state">
+            <h3>Nenhum cliente vinculado a este recorte no momento</h3>
+            <p>Não encontramos clientes ativos para a seleção atual na competência ${formatarCompetenciaLegivel(state.competencia)}.</p>
+            <button type="button" class="btn-secondary-outline" data-action="restaurar-estado-normal">
+              Voltar à carteira
+            </button>
+          </section>
+        `;
+      }
+      return null;
+    }
+
+    function renderizarAplicacao() {
+      const main = document.getElementById("mainContent");
+      const userRoleLabel = document.getElementById("userRoleLabel");
+      const userNameLabel = document.getElementById("userNameLabel");
+
+      // Atualiza rótulo do perfil no cabeçalho
+      if (state.visaoAtual.startsWith("vendedora_")) {
+        const cod = state.visaoAtual.replace("vendedora_", "");
+        const vend = VENDEDORAS.find(v => v.CodVendedor === cod) || VENDEDORAS[0];
+        userRoleLabel.textContent = "Perfil: Vendedora";
+        userNameLabel.textContent = `${vend.Nome} (Cód. ${vend.CodVendedor})`;
+      } else if (state.visaoAtual.startsWith("supervisor_")) {
+        const idEq = state.visaoAtual.replace("supervisor_", "");
+        const sup = SUPERVISORES.find(s => s.IdEquipe === idEq) || SUPERVISORES[0];
+        userRoleLabel.textContent = "Perfil: Supervisor";
+        userNameLabel.textContent = `${sup.Nome}`;
+      } else {
+        userRoleLabel.textContent = "Perfil: Gestão";
+        userNameLabel.textContent = "Diretoria / Gestão Comercial";
+      }
+
+      // Verifica se há simulação de estado de carregamento/erro/vazio
+      const htmlEstadoEspecial = renderizarEstadosEspeciais();
+      if (htmlEstadoEspecial) {
+        main.innerHTML = htmlEstadoEspecial;
+        return;
+      }
+
+      if (state.visaoAtual.startsWith("vendedora_")) {
+        const cod = state.visaoAtual.replace("vendedora_", "");
+        const vend = VENDEDORAS.find(v => v.CodVendedor === cod) || VENDEDORAS[0];
+        main.innerHTML = renderizarVisaoVendedora(vend, false);
+      } else if (state.visaoAtual.startsWith("supervisor_")) {
+        const idEq = state.visaoAtual.replace("supervisor_", "");
+        const sup = SUPERVISORES.find(s => s.IdEquipe === idEq) || SUPERVISORES[0];
+        main.innerHTML = renderizarVisaoSupervisaoOuGestao("supervisor", sup);
+      } else {
+        main.innerHTML = renderizarVisaoSupervisaoOuGestao("gestao", null);
+      }
+    }
+
+    function renderizarVisaoVendedora(vendedora, dentroDaSupervisao = false) {
+      const chaveFin = `${EMPRESA_ID}|${vendedora.CodVendedor}|${state.competencia}`;
+      const regFin = DESEMPENHO_FINANCEIRO[chaveFin] || null;
+      const calcMeta = calcularEstadoMeta(regFin);
+
+      const carteiraAutorizada = CARTEIRA_CLIENTES.filter(
+        c => c.CodVendedorCarteira === vendedora.CodVendedor
+      );
+
+      const clientesCompraramMes = carteiraAutorizada.filter(c => c.ComprouNoMes).length;
+      const clientesNaoCompraramMes = carteiraAutorizada.length - clientesCompraramMes;
+      const listaPrioridades = carteiraAutorizada.filter(ehPrioridade);
+      const listaRetomar = carteiraAutorizada.filter(ehRetomarContato);
+      const listaCadastradosMes = CADASTROS_MES.filter(c => c.CodVendedorCarteira === vendedora.CodVendedor);
+
+      const meusOrcamentos = ORCAMENTOS.filter(o => o.CodVendedor === vendedora.CodVendedor);
+      const minhasPrevendas = PREVENDAS.filter(p => p.CodVendedor === vendedora.CodVendedor);
+
+      // Bloco de valor restante / excedente
+      let htmlRestanteMeta = "";
+      if (!calcMeta.temMeta) {
+        htmlRestanteMeta = `
+          <div class="metric-box highlight-amber">
+            <span class="metric-label">Valor restante para a meta</span>
+            <div class="metric-value">Meta não definida</div>
+            <div class="metric-sub">Aguardando cadastro pela supervisão para ${formatarCompetenciaLegivel(state.competencia)}.</div>
+          </div>
+        `;
+      } else if (calcMeta.superou > 0) {
+        htmlRestanteMeta = `
+          <div class="metric-box highlight-green">
+            <span class="metric-label">Valor restante para a meta</span>
+            <div class="metric-value">R$ 0,00</div>
+            <div class="metric-sub">Meta ultrapassada em <strong>+${formatarReais(calcMeta.superou)}</strong>!</div>
+          </div>
+        `;
+      } else {
+        htmlRestanteMeta = `
+          <div class="metric-box">
+            <span class="metric-label">Valor restante para a meta</span>
+            <div class="metric-value">${formatarReais(calcMeta.falta)}</div>
+            <div class="metric-sub">Atingido até agora: <strong>${formatarPercentual(calcMeta.percentualReal)}</strong></div>
+          </div>
+        `;
+      }
+
+      return `
+        <!-- TOPO: META, FATURAMENTO, RENTABILIDADE E ATUALIZAÇÃO -->
+        <section class="goal-hero status-${calcMeta.statusClasse}" aria-label="Resumo financeiro e meta mensal">
+          <div class="goal-header">
+            <div class="goal-title-group">
+              <h2>${dentroDaSupervisao ? `Visão individual: ${escaparHtml(vendedora.Nome)}` : `Seu resultado em ${formatarCompetenciaLegivel(state.competencia)}`}</h2>
+              <p>Acompanhamento de faturamento realizado, meta mensal e rentabilidade • Atualizado em ${DATA_ATUALIZACAO_DADOS}</p>
+            </div>
+            <span class="status-pill ${calcMeta.statusClasse}">
+              ${escaparHtml(calcMeta.statusTexto)}
+            </span>
+          </div>
+
+          <div class="goal-metrics-grid">
+            <div class="metric-box">
+              <span class="metric-label">Faturamento realizado</span>
+              <div class="metric-value">${formatarReais(calcMeta.realizado)}</div>
+              <div class="metric-sub">Vendas faturadas no mês</div>
+            </div>
+
+            <div class="metric-box">
+              <span class="metric-label">Meta mensal</span>
+              <div class="metric-value">${calcMeta.temMeta ? formatarReais(calcMeta.meta) : "Meta não definida"}</div>
+              <div class="metric-sub">${calcMeta.temMeta ? `Percentual atingido: <strong>${formatarPercentual(calcMeta.percentualReal)}</strong>` : "Definida pela supervisão"}</div>
+            </div>
+
+            ${htmlRestanteMeta}
+
+            <div class="metric-box highlight-blue">
+              <span class="metric-label">Rentabilidade no mês</span>
+              <div class="metric-value">${calcMeta.rentabilidade !== null ? formatarPercentual(calcMeta.rentabilidade) : "—"}</div>
+              <div class="metric-sub">Indicador validado sobre vendas realizadas</div>
+            </div>
+          </div>
+
+          ${calcMeta.temMeta && calcMeta.realizadoDisponivel ? `
+            <div class="progress-wrapper">
+              <div class="progress-labels">
+                <span>Progresso da meta mensal</span>
+                <span>${formatarPercentual(calcMeta.percentualReal)} ${calcMeta.superou > 0 ? `(Excedente: +${formatarReais(calcMeta.superou)})` : ""}</span>
+              </div>
+              <div class="progress-track" role="progressbar" aria-valuenow="${Math.round(calcMeta.percentualReal)}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-fill ${calcMeta.percentualReal >= 100 ? "exceeded" : ""}" style="width: ${calcMeta.larguraBarra}%;"></div>
+              </div>
+            </div>
+          ` : ""}
+
+          <div class="goal-footnote">
+            <span>Orçamentos e pré-vendas são exibidos separadamente abaixo e não compõem o faturamento realizado.</span>
+            ${regFin && regFin.AtualizadoEm ? `<span>Meta registrada por ${escaparHtml(regFin.AtualizadoPor)} em ${escaparHtml(regFin.AtualizadoEm)}</span>` : ""}
+          </div>
+        </section>
+
+        <!-- RESUMO RÁPIDO DA CARTEIRA + ACESSO A ORÇAMENTOS E PRÉ-VENDAS -->
+        <section class="quick-summary-grid" aria-label="Resumo rápido da carteira e documentos em aberto">
+          <div class="summary-card">
+            <div class="summary-info">
+              <span>Compraram neste mês</span>
+              <strong>${clientesCompraramMes} de ${carteiraAutorizada.length}</strong>
+            </div>
+            <span style="font-size:0.78rem; color:var(--text-muted); font-weight:700;">${clientesNaoCompraramMes} sem compra</span>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-info">
+              <span>Clientes em Prioridades</span>
+              <strong>${listaPrioridades.length}</strong>
+            </div>
+            <span style="font-size:0.78rem; color:var(--amber); font-weight:700;">Contatar agora</span>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-info">
+              <span>Cadastrados neste mês</span>
+              <strong>${servidor.cadastroDisponivel ? listaCadastradosMes.length : "—"}</strong>
+            </div>
+            <span style="font-size:0.78rem; color:var(--green); font-weight:700;">Novos cadastros</span>
+          </div>
+
+          <button type="button" class="summary-card summary-card-button ${state.gavetaDocAberta === "orcamentos" ? "active-drawer" : ""}" data-action="toggle-drawer" data-drawer="orcamentos" aria-expanded="${state.gavetaDocAberta === "orcamentos"}">
+            <div class="summary-info">
+              <span>Orçamentos em aberto</span>
+              <strong>${servidor.documentosDisponiveis.orcamentos ? meusOrcamentos.length : "—"}</strong>
+            </div>
+            <span class="summary-action-tag">${state.gavetaDocAberta === "orcamentos" ? "Fechar" : "Consultar"}</span>
+          </button>
+
+          <button type="button" class="summary-card summary-card-button ${state.gavetaDocAberta === "prevendas" ? "active-drawer" : ""}" data-action="toggle-drawer" data-drawer="prevendas" aria-expanded="${state.gavetaDocAberta === "prevendas"}">
+            <div class="summary-info">
+              <span>Pré-vendas em aberto</span>
+              <strong>${servidor.documentosDisponiveis.prevendas ? minhasPrevendas.length : "—"}</strong>
+            </div>
+            <span class="summary-action-tag">${state.gavetaDocAberta === "prevendas" ? "Fechar" : "Consultar"}</span>
+          </button>
+        </section>
+
+        ${renderizarGavetaDocumentos(meusOrcamentos, minhasPrevendas)}
+
+        <!-- SEÇÃO 5: PROGRESSO DA CARTEIRA POR CURVA ABC -->
+        ${renderizarSecaoProgressoCurvaABC(carteiraAutorizada, vendedora.Nome)}
+
+        <!-- NAVEGAÇÃO DA CARTEIRA, FILTROS DA PLANILHA E LISTA DE CLIENTES -->
+        ${renderizarBlocoNavegacaoECarteira(carteiraAutorizada, false)}
+      `;
+    }
+
+    function renderizarBlocoNavegacaoECarteira(carteiraEscopo, exibirResponsavelObrigatorio) {
+      // Calcula contadores das abas aplicando os filtros ativos da planilha para manter total coerência
+      const carteiraFiltradaPlanilha = carteiraEscopo.filter(passaPelosFiltrosPlanilha);
+      const cadastrosFiltrados = cadastrosNoEscopo().filter(passaPelosFiltrosPlanilha);
+
+      const contPrioridades = carteiraFiltradaPlanilha.filter(ehPrioridade).length;
+      const contRetomar = carteiraFiltradaPlanilha.filter(ehRetomarContato).length;
+      const contCadastrados = cadastrosFiltrados.length;
+      const contTodos = carteiraFiltradaPlanilha.length;
+
+      // Seleciona lista da aba ativa
+      let clientesDaAba = carteiraFiltradaPlanilha;
+      if (state.abaClientes === "prioridades") {
+        clientesDaAba = carteiraFiltradaPlanilha.filter(ehPrioridade);
+      } else if (state.abaClientes === "retomar") {
+        clientesDaAba = carteiraFiltradaPlanilha.filter(ehRetomarContato);
+      } else if (state.abaClientes === "cadastrados_mes") {
+        clientesDaAba = cadastrosFiltrados;
+        if (state.subfiltroCadastrados === "ja_compraram") {
+          clientesDaAba = clientesDaAba.filter(c => c.ComprouNoMes);
+        } else if (state.subfiltroCadastrados === "sem_primeira_compra") {
+          clientesDaAba = clientesDaAba.filter(c => !c.ComprouNoMes);
+        }
+      }
+
+      const clientesOrdenados = ordenarListaClientes(clientesDaAba);
+      const chipsAtivos = obterChipsFiltrosAtivos();
+
+      return `
+        <section class="clients-section" id="secaoCarteiraClientes" aria-label="Navegação e filtros da carteira de clientes">
+          <!-- 4 Abas Principais da Carteira -->
+          <div class="tabs-bar">
+            <div class="filter-tabs" role="tablist" aria-label="Recortes da carteira de clientes">
+              <button type="button" role="tab" class="tab-btn ${state.abaClientes === "prioridades" ? "active" : ""}" data-action="mudar-aba" data-aba="prioridades" aria-selected="${state.abaClientes === "prioridades"}">
+                Prioridades <span class="tab-count">${contPrioridades}</span>
+              </button>
+              <button type="button" role="tab" class="tab-btn ${state.abaClientes === "retomar" ? "active" : ""}" data-action="mudar-aba" data-aba="retomar" aria-selected="${state.abaClientes === "retomar"}">
+                Retomar contato <span class="tab-count">${contRetomar}</span>
+              </button>
+              <button type="button" role="tab" class="tab-btn ${state.abaClientes === "cadastrados_mes" ? "active" : ""}" data-action="mudar-aba" data-aba="cadastrados_mes" aria-selected="${state.abaClientes === "cadastrados_mes"}">
+                Clientes cadastrados no mês <span class="tab-count">${servidor.cadastroDisponivel ? contCadastrados : "—"}</span>
+              </button>
+              <button type="button" role="tab" class="tab-btn ${state.abaClientes === "todos" ? "active" : ""}" data-action="mudar-aba" data-aba="todos" aria-selected="${state.abaClientes === "todos"}">
+                Todos os clientes <span class="tab-count">${contTodos}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Painel de Filtros Combináveis baseados nas planilhas -->
+          <div class="filters-panel">
+            <div class="filters-primary-row">
+              <div class="filter-group">
+                <label for="buscaClienteInput">Buscar cliente por nome ou código:</label>
+                <input
+                  type="search"
+                  id="buscaClienteInput"
+                  class="filter-input"
+                  placeholder="Ex.: São Lucas, Mar Azul, 004812..."
+                  value="${escaparHtml(state.termoBusca)}"
+                />
+              </div>
+
+              <div class="filter-group">
+                <label for="selectFiltroCurva">Curva ABC:</label>
+                <select id="selectFiltroCurva" class="filter-select" data-filter="filtroCurva">
+                  <option value="TODAS" ${state.filtroCurva === "TODAS" ? "selected" : ""}>Todas as curvas</option>
+                  <option value="A" ${state.filtroCurva === "A" ? "selected" : ""}>Curva A</option>
+                  <option value="B" ${state.filtroCurva === "B" ? "selected" : ""}>Curva B</option>
+                  <option value="C" ${state.filtroCurva === "C" ? "selected" : ""}>Curva C</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="selectFiltroSituacao">Situação no mês:</label>
+                <select id="selectFiltroSituacao" class="filter-select" data-filter="filtroSituacaoMes">
+                  <option value="TODAS" ${state.filtroSituacaoMes === "TODAS" ? "selected" : ""}>Todas as situações</option>
+                  <option value="NAO_COMPROU" ${state.filtroSituacaoMes === "NAO_COMPROU" ? "selected" : ""}>Ainda não comprou no mês</option>
+                  <option value="ABAIXO_MEDIA" ${state.filtroSituacaoMes === "ABAIXO_MEDIA" ? "selected" : ""}>Comprou abaixo da média</option>
+                  <option value="QUEDA_20" ${state.filtroSituacaoMes === "QUEDA_20" ? "selected" : ""}>Alerta: mais de 20% abaixo da média</option>
+                  <option value="NA_MEDIA" ${state.filtroSituacaoMes === "NA_MEDIA" ? "selected" : ""}>Na faixa da média</option>
+                  <option value="ACIMA_MEDIA" ${state.filtroSituacaoMes === "ACIMA_MEDIA" ? "selected" : ""}>Acima da média</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="selectOrdenacao">Ordenar por:</label>
+                <select id="selectOrdenacao" class="filter-select" data-filter="ordenacao">
+                  <option value="PRIORIDADE" ${state.ordenacao === "PRIORIDADE" ? "selected" : ""}>Prioridade comercial</option>
+                  <option value="MAIOR_MEDIA" ${state.ordenacao === "MAIOR_MEDIA" ? "selected" : ""}>Maior média mensal</option>
+                  <option value="MAIOR_TEMPO_SEM_COMPRAR" ${state.ordenacao === "MAIOR_TEMPO_SEM_COMPRAR" ? "selected" : ""}>Maior tempo sem comprar</option>
+                  <option value="MAIOR_DIF_ABAIXO_MEDIA" ${state.ordenacao === "MAIOR_DIF_ABAIXO_MEDIA" ? "selected" : ""}>Maior diferença abaixo da média</option>
+                </select>
+              </div>
+
+              <button type="button" class="btn-toggle-advanced" data-action="toggle-filtros-avancados" aria-expanded="${state.mostrarFiltrosAvancados}">
+                ${state.mostrarFiltrosAvancados ? "Ocultar filtros ▲" : "Mais filtros da planilha ▼"}
+              </button>
+            </div>
+
+            ${state.mostrarFiltrosAvancados ? `
+              <div class="filters-advanced-grid">
+                <div class="filter-group">
+                  <label for="selectAtividade2M">Atividade nos últimos 2 meses (calendário):</label>
+                  <select id="selectAtividade2M" class="filter-select" data-filter="filtroAtividade2M">
+                    <option value="TODOS" ${state.filtroAtividade2M === "TODOS" ? "selected" : ""}>Todos</option>
+                    <option value="ATIVO_2M" ${state.filtroAtividade2M === "ATIVO_2M" ? "selected" : ""}>Com compra nos últimos 2 meses</option>
+                    <option value="INATIVO_2M" ${state.filtroAtividade2M === "INATIVO_2M" ? "selected" : ""}>Sem compra nos últimos 2 meses</option>
+                  </select>
+                </div>
+
+                <div class="filter-group">
+                  <label for="selectPeriodoUltCompra">Período da última compra:</label>
+                  <select id="selectPeriodoUltCompra" class="filter-select" data-filter="filtroPeriodoUltCompra">
+                    <option value="TODOS" ${state.filtroPeriodoUltCompra === "TODOS" ? "selected" : ""}>Qualquer período</option>
+                    <option value="MES_ATUAL" ${state.filtroPeriodoUltCompra === "MES_ATUAL" ? "selected" : ""}>Neste mês</option>
+                    <option value="MES_PASSADO" ${state.filtroPeriodoUltCompra === "MES_PASSADO" ? "selected" : ""}>No mês passado</option>
+                    <option value="2_A_4_MESES" ${state.filtroPeriodoUltCompra === "2_A_4_MESES" ? "selected" : ""}>Entre 2 e 4 meses atrás</option>
+                    <option value="MAIS_4_MESES" ${state.filtroPeriodoUltCompra === "MAIS_4_MESES" ? "selected" : ""}>Mais de 4 meses atrás</option>
+                    <option value="SEM_12M" ${state.filtroPeriodoUltCompra === "SEM_12M" ? "selected" : ""}>Sem compra nos 12 meses</option>
+                  </select>
+                </div>
+
+                <div class="filter-group">
+                  <label for="selectDiasSemComprar">Dias sem comprar (corte de dias):</label>
+                  <select id="selectDiasSemComprar" class="filter-select" data-filter="filtroDiasSemComprar">
+                    <option value="TODOS" ${state.filtroDiasSemComprar === "TODOS" ? "selected" : ""}>Qualquer quantidade de dias</option>
+                    <option value="ATE_30" ${state.filtroDiasSemComprar === "ATE_30" ? "selected" : ""}>Até 30 dias</option>
+                    <option value="31_60" ${state.filtroDiasSemComprar === "31_60" ? "selected" : ""}>De 31 a 60 dias</option>
+                    <option value="61_120" ${state.filtroDiasSemComprar === "61_120" ? "selected" : ""}>De 61 a 120 dias</option>
+                    <option value="MAIS_120" ${state.filtroDiasSemComprar === "MAIS_120" ? "selected" : ""}>Mais de 120 dias</option>
+                    <option value="SEM_12M" ${state.filtroDiasSemComprar === "SEM_12M" ? "selected" : ""}>Sem compra nos 12 meses</option>
+                  </select>
+                </div>
+
+                <div class="filter-group">
+                  <label for="selectFaixaMedia">Faixa de média mensal (12m):</label>
+                  <select id="selectFaixaMedia" class="filter-select" data-filter="filtroFaixaMedia">
+                    <option value="TODAS" ${state.filtroFaixaMedia === "TODAS" ? "selected" : ""}>Todas as faixas</option>
+                    <option value="ATE_1500" ${state.filtroFaixaMedia === "ATE_1500" ? "selected" : ""}>Até R$ 1.500,00</option>
+                    <option value="1500_3500" ${state.filtroFaixaMedia === "1500_3500" ? "selected" : ""}>De R$ 1.500,01 a R$ 3.500,00</option>
+                    <option value="ACIMA_3500" ${state.filtroFaixaMedia === "ACIMA_3500" ? "selected" : ""}>Acima de R$ 3.500,00</option>
+                  </select>
+                </div>
+
+                <div class="filter-group">
+                  <label for="selectFaixaUltCompra">Faixa de valor da última compra:</label>
+                  <select id="selectFaixaUltCompra" class="filter-select" data-filter="filtroFaixaUltCompra">
+                    <option value="TODAS" ${state.filtroFaixaUltCompra === "TODAS" ? "selected" : ""}>Qualquer valor</option>
+                    <option value="ATE_1500" ${state.filtroFaixaUltCompra === "ATE_1500" ? "selected" : ""}>Até R$ 1.500,00</option>
+                    <option value="1500_3500" ${state.filtroFaixaUltCompra === "1500_3500" ? "selected" : ""}>De R$ 1.500,01 a R$ 3.500,00</option>
+                    <option value="ACIMA_3500" ${state.filtroFaixaUltCompra === "ACIMA_3500" ? "selected" : ""}>Acima de R$ 3.500,00</option>
+                  </select>
+                </div>
+
+                <div class="filter-group">
+                  <label for="selectDifMedia">Diferença em R$ para a média:</label>
+                  <select id="selectDifMedia" class="filter-select" data-filter="filtroDiferencaMedia">
+                    <option value="TODAS" ${state.filtroDiferencaMedia === "TODAS" ? "selected" : ""}>Qualquer diferença</option>
+                    <option value="MAIS_2000_ABAIXO" ${state.filtroDiferencaMedia === "MAIS_2000_ABAIXO" ? "selected" : ""}>Mais de R$ 2.000 abaixo da média</option>
+                    <option value="ATE_2000_ABAIXO" ${state.filtroDiferencaMedia === "ATE_2000_ABAIXO" ? "selected" : ""}>Até R$ 2.000 abaixo da média</option>
+                    <option value="IGUAL_OU_ACIMA" ${state.filtroDiferencaMedia === "IGUAL_OU_ACIMA" ? "selected" : ""}>Igual ou acima da média</option>
+                  </select>
+                </div>
+              </div>
+            ` : ""}
+
+            ${chipsAtivos.length > 0 ? `
+              <div class="active-filters-bar" role="status">
+                <div class="active-chips-list">
+                  <strong>Filtros ativos:</strong>
+                  ${chipsAtivos.map(ch => `<span class="filter-chip">${escaparHtml(ch)}</span>`).join("")}
+                </div>
+                <button type="button" class="btn-clear-filters" data-action="limpar-filtros">
+                  Limpar todos os filtros ✕
+                </button>
+              </div>
+            ` : ""}
+
+            <div class="partial-month-banner">
+              <span>ℹ️ <strong>Mês em andamento:</strong> A comparação com a média mensal de 12 meses reflete o acumulado até ${DATA_ATUALIZACAO_DADOS}, servindo de apoio comercial (não representa projeção ou perda definitiva).</span>
+            </div>
+          </div>
+
+          <!-- CONTEÚDO ESPECÍFICO DA ABA SELECIONADA -->
+          ${state.abaClientes === "cadastrados_mes"
+            ? renderizarAbaCadastradosNoMes(clientesOrdenados, cadastrosFiltrados)
+            : renderizarListaCartoesClientes(clientesOrdenados, exibirResponsavelObrigatorio)}
+        </section>
+      `;
+    }
+
+    function obterChipsFiltrosAtivos() {
+      const chips = [];
+      if (state.termoBusca.trim()) chips.push(`Busca: "${state.termoBusca.trim()}"`);
+      if (state.filtroCurva !== "TODAS") chips.push(`Curva ${state.filtroCurva}`);
+      if (state.filtroSituacaoMes !== "TODAS") {
+        const mapaSit = {
+          NAO_COMPROU: "Ainda não comprou no mês",
+          ABAIXO_MEDIA: "Comprou abaixo da média",
+          QUEDA_20: "Alerta: queda > 20%",
+          NA_MEDIA: "Na faixa da média",
+          ACIMA_MEDIA: "Acima da média"
+        };
+        chips.push(mapaSit[state.filtroSituacaoMes] || state.filtroSituacaoMes);
+      }
+      if (state.filtroAtividade2M !== "TODOS") {
+        chips.push(state.filtroAtividade2M === "ATIVO_2M" ? "Ativo nos últimos 2 meses" : "Sem compra nos últimos 2 meses");
+      }
+      if (state.filtroPeriodoUltCompra !== "TODOS") chips.push(`Período últ. compra: ${state.filtroPeriodoUltCompra}`);
+      if (state.filtroDiasSemComprar !== "TODOS") chips.push(`Dias sem comprar: ${state.filtroDiasSemComprar}`);
+      if (state.filtroFaixaMedia !== "TODAS") chips.push(`Faixa média: ${state.filtroFaixaMedia}`);
+      if (state.filtroFaixaUltCompra !== "TODAS") chips.push(`Valor últ. compra: ${state.filtroFaixaUltCompra}`);
+      if (state.filtroDiferencaMedia !== "TODAS") chips.push(`Diferença média: ${state.filtroDiferencaMedia}`);
+      return chips;
+    }
+
+    function renderizarAbaCadastradosNoMes(clientesVisiveis, todosCadastradosNoRecorte) {
+      if (!servidor.cadastroDisponivel) return '<div class="empty-state"><h3>Data de cadastro indisponível ou incompleta</h3><p>Precisamos confirmar o campo de cadastro no Cronos e atualizar a base. A primeira compra não substitui a data de cadastro.</p></div>';
+      const qtdTodos = todosCadastradosNoRecorte.length;
+      const qtdJaCompraram = todosCadastradosNoRecorte.filter(c => c.ComprouNoMes).length;
+      const qtdSemPrimeira = qtdTodos - qtdJaCompraram;
+      const simularSemDataCadastro = state.estadoTela === "sem_data_cadastro";
+
+      return `
+        <div class="filters-panel" style="background:var(--surface-alt);">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px;">
+            <div>
+              <h3 style="color:var(--navy); font-size:1.02rem;">Acompanhamento de Clientes Cadastrados no Mês</h3>
+              <p style="font-size:0.84rem; color:var(--text-muted);">
+                Data de cadastro lida do campo próprio do cadastro de clientes (nunca substituída pela data da 1ª compra).
+              </p>
+            </div>
+            <div class="filter-tabs">
+              <button type="button" class="tab-btn ${state.subfiltroCadastrados === "todos" ? "active" : ""}" data-action="mudar-subfiltro-cad" data-sub="todos">
+                Todos <span class="tab-count">${qtdTodos}</span>
+              </button>
+              <button type="button" class="tab-btn ${state.subfiltroCadastrados === "ja_compraram" ? "active" : ""}" data-action="mudar-subfiltro-cad" data-sub="ja_compraram">
+                Já compraram <span class="tab-count">${qtdJaCompraram}</span>
+              </button>
+              <button type="button" class="tab-btn ${state.subfiltroCadastrados === "sem_primeira_compra" ? "active" : ""}" data-action="mudar-subfiltro-cad" data-sub="sem_primeira_compra">
+                Ainda sem primeira compra <span class="tab-count">${qtdSemPrimeira}</span>
+              </button>
+            </div>
+          </div>
+
+          ${simularSemDataCadastro ? `
+            <div class="feedback-toast err" style="margin-top:8px;">
+              ⚠️ Simulação ativa: Campo de data real de cadastro indisponível na base. O sistema exibe "Data de cadastro indisponível" sem usar a 1ª compra como substituta.
+            </div>
+          ` : ""}
+        </div>
+
+        ${clientesVisiveis.length === 0 ? `
+          <div class="empty-state">
+            <h3>Nenhum cliente cadastrado no mês para este filtro</h3>
+            <p>Altere o subfiltro acima ou limpe os filtros ativos para visualizar toda a carteira.</p>
+          </div>
+        ` : `
+          <div class="table-container">
+            <table class="data-table" aria-label="Clientes cadastrados no mês">
+              <thead>
+                <tr>
+                  <th>Cliente / Código</th>
+                  <th>Data real de cadastro</th>
+                  <th>Vendedora responsável</th>
+                  <th>Situação da 1ª compra</th>
+                  <th>Data e valor da 1ª compra</th>
+                  <th>Contato / Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${clientesVisiveis.map(c => {
+                  const dataCadTexto = (simularSemDataCadastro || !c.DataCadastro)
+                    ? "Data de cadastro indisponível"
+                    : c.DataCadastro;
+                  const temCel = Boolean(c.Celular && c.Celular.trim());
+                  return `
+                    <tr>
+                      <td>
+                        <strong>${escaparHtml(c.Cliente)}</strong><br/>
+                        <span style="font-size:0.78rem; color:var(--text-muted);">Cód. ${escaparHtml(c.CodCliFor)} • Curva ${escaparHtml(c.CurvaABC)}</span>
+                      </td>
+                      <td><strong>${escaparHtml(dataCadTexto)}</strong></td>
+                      <td>${escaparHtml(c.VendedorCarteira)} (${escaparHtml(c.CodVendedorCarteira)})</td>
+                      <td>
+                        ${c.ComprouNoMes
+                          ? `<span class="reason-badge novo">Já realizou a 1ª compra</span>`
+                          : `<span class="reason-badge atencao">Ainda sem primeira compra</span>`}
+                      </td>
+                      <td>
+                        ${c.PrimeiraCompraData
+                          ? `<strong>${escaparHtml(c.PrimeiraCompraData)}</strong> • ${formatarReais(c.PrimeiraCompraValor)}`
+                          : `<span style="color:var(--text-muted);">Sem compra registrada</span>`}
+                      </td>
+                      <td>
+                        ${temCel ? `
+                          <button type="button" class="btn-whatsapp" style="min-height:36px; padding:6px 12px; font-size:0.82rem;" data-action="abrir-whatsapp-demo" data-cod="${escaparHtml(c.CodCliFor)}">
+                            WhatsApp • ${escaparHtml(c.Celular)}
+                          </button>
+                        ` : `
+                          <span style="font-size:0.82rem; color:var(--text-muted);">
+                            ${c.Telefone ? `Fixo: ${escaparHtml(c.Telefone)}` : "Contato indisponível"}
+                          </span>
+                        `}
+                      </td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+          ${renderizarListaCartoesClientes(clientesVisiveis, true)}
+        `}
+      `;
+    }
+
+    function renderizarListaCartoesClientes(clientesVisiveis, exibirResponsavelObrigatorio) {
+      if (clientesVisiveis.length === 0) {
+        return `
+          <div class="empty-state">
+            <h3>Nenhum cliente encontrado com os filtros selecionados</h3>
+            <p>Revise os filtros combinados acima ou clique no botão abaixo para redefinir a busca.</p>
+            <button type="button" class="btn-primary-navy" data-action="limpar-filtros">
+              Limpar todos os filtros
+            </button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="clients-grid">
+          ${clientesVisiveis.map(c => renderizarCartaoCliente(c, exibirResponsavelObrigatorio)).join("")}
+        </div>
+      `;
+    }
+
+    function renderizarCartaoCliente(cliente, exibirResponsavelObrigatorio) {
+      const avisos = obterAvisosExplicativosCliente(cliente);
+      const classeBorda = avisos[0] ? avisos[0].classe : "ativo";
+      const difInfo = formatarDiferencaMediaTexto(cliente);
+      const temCelular = Boolean(cliente.Celular && cliente.Celular.trim() !== "");
+      const whatsappAberto = state.whatsappAbertoCod === cliente.CodCliFor;
+      const msgSugerida = gerarMensagemSugerida(cliente, cliente.VendedorCarteira);
+      const orcamentosCliente = ORCAMENTOS.filter(o => o.CodCliFor === cliente.CodCliFor);
+      const prevendasCliente = PREVENDAS.filter(p => p.CodCliFor === cliente.CodCliFor);
+
+      return `
+        <article class="client-card reason-${classeBorda}" id="card-cli-${escaparHtml(cliente.CodCliFor)}">
+          <div class="client-top">
+            <div class="client-identity">
+              <div class="client-name-row">
+                <span class="curve-badge curve-${escaparHtml(cliente.CurvaABC)}">Curva ${escaparHtml(cliente.CurvaABC)}</span>
+                <h3 class="client-name">${escaparHtml(cliente.Cliente)}</h3>
+                <span class="client-code">Cód. ${escaparHtml(cliente.CodCliFor)}</span>
+                ${exibirResponsavelObrigatorio ? `
+                  <span class="rep-owner-tag">Vendedora: ${escaparHtml(cliente.VendedorCarteira)}</span>
+                ` : ""}
+              </div>
+              <div class="reason-badges">
+                ${avisos.map(av => `<span class="reason-badge ${av.classe}">${escaparHtml(av.texto)}</span>`).join("")}
+                ${orcamentosCliente.length > 0 ? `<span class="reason-badge ativo">${orcamentosCliente.length} orçamento(s) em aberto</span>` : ""}
+              </div>
+            </div>
+          </div>
+
+          <div class="client-metrics">
+            <div class="c-metric">
+              <span>Valor comprado no mês</span>
+              <strong>${formatarReais(cliente.FatMesAtual)}</strong>
+              <small>${cliente.ComprouNoMes ? "Com compra válida no mês" : "Ainda sem compra neste mês"}</small>
+            </div>
+            <div class="c-metric">
+              <span>Média mensal (12 meses)</span>
+              <strong>${formatarReais(cliente.MediaMensal)}</strong>
+              <small>Total 12m: ${formatarReais(cliente.TotalPeriodo)}</small>
+            </div>
+            <div class="c-metric">
+              <span>Diferença para a média</span>
+              <strong style="color:${cliente.FatMesAtual < cliente.MediaMensal ? "var(--amber)" : "var(--green)"};">
+                ${escaparHtml(difInfo.valor)}
+              </strong>
+              <small>${escaparHtml(difInfo.sub)}</small>
+            </div>
+            <div class="c-metric">
+              <span>Última compra e dias decorridos</span>
+              <strong>${escaparHtml(formatarUltimaCompraTexto(cliente))}</strong>
+              <small>${cliente.AtivoUltimos2Meses ? "Ativo nos últimos 2 meses" : "Sem compra nos últimos 2 meses"}</small>
+            </div>
+          </div>
+
+          <div class="client-actions-row">
+            ${temCelular ? `
+              <button
+                type="button"
+                class="btn-whatsapp"
+                data-action="abrir-whatsapp-demo"
+                data-cod="${escaparHtml(cliente.CodCliFor)}"
+              >
+                <span>Chamar no WhatsApp • ${escaparHtml(cliente.Celular)}</span>
+              </button>
+            ` : `
+              <span class="no-phone-badge">
+                ${cliente.Telefone ? `Sem celular • Telefone fixo: ${escaparHtml(cliente.Telefone)}` : "Contato indisponível"}
+              </span>
+            `}
+          </div>
+
+          ${whatsappAberto && temCelular ? `
+            <div class="msg-preview-box" role="region" aria-label="Ação de contato manual via WhatsApp">
+              <label for="msg-${escaparHtml(cliente.CodCliFor)}">
+                Mensagem sugerida para ação humana (editável • sem envio automático):
+              </label>
+              <textarea id="msg-${escaparHtml(cliente.CodCliFor)}" class="msg-textarea">${escaparHtml(msgSugerida)}</textarea>
+              <div class="msg-actions">
+                <button type="button" class="btn-primary-navy" data-action="copiar-msg-demo" data-cod="${escaparHtml(cliente.CodCliFor)}">
+                  Copiar texto da mensagem
+                </button>
+                <button type="button" class="btn-whatsapp" data-action="abrir-wa-real" data-cod="${escaparHtml(cliente.CodCliFor)}">Abrir WhatsApp</button>
+                <button type="button" class="btn-secondary-outline" data-action="fechar-whatsapp-demo">
+                  Fechar
+                </button>
+                <span id="copy-feedback-${escaparHtml(cliente.CodCliFor)}" style="font-size:0.82rem; font-weight:700; color:var(--green);"></span>
+              </div>
+            </div>
+          ` : ""}
+
+          <details class="client-details">
+            <summary>Ver histórico de compras, cadastro e orçamentos disponíveis</summary>
+            <div class="details-body">
+              <div class="details-meta-grid">
+                <div><strong>Vendedora responsável:</strong> ${escaparHtml(cliente.VendedorCarteira)} (${escaparHtml(cliente.CodVendedorCarteira)})</div>
+                <div><strong>Curva ABC (Global):</strong> Curva ${escaparHtml(cliente.CurvaABC)}</div>
+                <div><strong>Data de cadastro:</strong> ${state.estadoTela === "sem_data_cadastro" || !cliente.DataCadastro ? "Data de cadastro indisponível" : escaparHtml(cliente.DataCadastro)}</div>
+                <div><strong>1ª compra registrada:</strong> ${cliente.PrimeiraCompraData ? `${escaparHtml(cliente.PrimeiraCompraData)} (${formatarReais(cliente.PrimeiraCompraValor)})` : "Primeira compra não identificada no histórico disponível"}</div>
+                <div><strong>Rentabilidade (6 meses):</strong> ${formatarPercentual(cliente.RentPerc)}</div><div><strong>Produtos habituais (6 meses):</strong> ${(cliente.ProdutosHabituais || []).map(p => escaparHtml(p.Produto)).join(", ") || "Indisponível"}</div><div><strong>Contato fixo:</strong> ${cliente.Telefone ? escaparHtml(cliente.Telefone) : "Não informado"}</div>
+              </div>
+
+              ${orcamentosCliente.length > 0 || prevendasCliente.length > 0 ? `
+                <div style="padding:10px; background:#FFFFFF; border:1px solid var(--blue-border); border-radius:var(--radius-sm);">
+                  <strong style="color:var(--navy); font-size:0.84rem;">Orçamentos / Pré-vendas em aberto deste cliente (não somados ao faturamento):</strong>
+                  <ul style="margin-top:6px; padding-left:18px; font-size:0.84rem;">
+                    ${orcamentosCliente.map(o => `<li>Orçamento <strong>${escaparHtml(o.NumMov)}</strong> (${escaparHtml(o.DtMov)}) — ${formatarReais(o.ValorLiquido)} (${o.DiasAberto} dias em aberto)</li>`).join("")}
+                    ${prevendasCliente.map(p => `<li>Pré-venda <strong>${escaparHtml(p.NumMov)}</strong> (${escaparHtml(p.DtMov)}) — ${formatarReais(p.ValorLiquido)} (${p.DiasAberto} dias em aberto)</li>`).join("")}
+                  </ul>
+                </div>
+              ` : ""}
+
+              ${cliente.Historico && cliente.Historico.length > 0 ? `
+                <table class="history-table" aria-label="Histórico recente de compras do cliente">
+                  <thead>
+                    <tr>
+                      <th>Mês / Referência</th>
+                      <th>Documento</th>
+                      <th>Valor Faturado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${cliente.Historico.map(h => `
+                      <tr>
+                        <td>${escaparHtml(h.mes)}</td>
+                        <td>${escaparHtml(h.doc)}</td>
+                        <td><strong>${formatarReais(h.valor)}</strong></td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              ` : `
+                <p style="font-size:0.85rem; color:var(--text-muted);">
+                  Sem compra nos 12 meses analisados.
+                </p>
+              `}
+            </div>
+          </details>
+        </article>
+      `;
+    }
+
+    function renderizarGavetaDocumentos(orcamentos, prevendas) {
+      if (!state.gavetaDocAberta) return "";
+      if (!servidor.documentosDisponiveis[state.gavetaDocAberta]) return '<div class="empty-state">Documentos indisponíveis. Atualize a base para consultar esta lista.</div>';
+      const ehOrc = state.gavetaDocAberta === "orcamentos";
+      const lista = ehOrc ? orcamentos : prevendas;
+      const titulo = ehOrc
+        ? "Orçamentos em aberto (Apresentados separadamente — não somados ao faturamento realizado)"
+        : "Pré-vendas em aberto (Apresentadas separadamente — não somadas ao faturamento realizado)";
+
+      return `
+        <section class="docs-drawer" aria-label="${titulo}">
+          <div class="docs-drawer-header">
+            <h3>${titulo}</h3>
+            <button type="button" class="btn-close-drawer" data-action="fechar-drawer">Fechar lista ✕</button>
+          </div>
+          ${lista.length === 0 ? `
+            <p style="color:var(--text-muted); font-size:0.9rem;">Nenhum documento em aberto para este recorte no momento.</p>
+          ` : `
+            <div class="docs-list">
+              ${lista.map(doc => {
+                const nomeCli = ehOrc ? doc.NomeCliFor : doc.Cliente;
+                return `
+                  <div class="doc-item">
+                    <div class="doc-item-top">
+                      <span>Nº ${escaparHtml(doc.NumMov)}</span>
+                      <span>Emissão: ${escaparHtml(doc.DtMov)}</span>
+                    </div>
+                    <div class="doc-item-client">${escaparHtml(nomeCli)}</div>
+                    <div class="doc-item-footer">
+                      <span>Em aberto há <strong>${doc.DiasAberto} ${doc.DiasAberto === 1 ? "dia" : "dias"}</strong></span>
+                      <strong style="color:var(--navy);">${formatarReais(doc.ValorLiquido)}</strong>
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          `}
+        </section>
+      `;
+    }
+
+    function renderizarVisaoSupervisaoOuGestao(tipoPerfil, supervisorObj) {
+      // Determina vendedoras autorizadas para o perfil
+      let vendedorasAutorizadas = [];
+      if (tipoPerfil === "supervisor" && supervisorObj) {
+        vendedorasAutorizadas = VENDEDORAS.filter(v => v.IdEquipe === supervisorObj.IdEquipe);
+      } else {
+        // Gestão: pode ver todas ou filtrar por equipe de supervisor
+        vendedorasAutorizadas = state.filtroEquipeGestao === "TODAS"
+          ? [...VENDEDORAS]
+          : VENDEDORAS.filter(v => v.IdEquipe === state.filtroEquipeGestao);
+      }
+
+      // Garante que a vendedora selecionada pertença ao escopo atual
+      const vendedoraSelecionadaObj = state.filtroVendedoraEscopo !== "TODAS"
+        ? vendedorasAutorizadas.find(v => v.CodVendedor === state.filtroVendedoraEscopo) || null
+        : null;
+
+      const vendedorasNoRecorte = vendedoraSelecionadaObj
+        ? [vendedoraSelecionadaObj]
+        : vendedorasAutorizadas;
+
+      const codsVendedorasRecorte = new Set(vendedorasNoRecorte.map(v => v.CodVendedor));
+      const carteiraRecorte = CARTEIRA_CLIENTES.filter(c => codsVendedorasRecorte.has(c.CodVendedorCarteira));
+
+      const tituloEscopo = vendedoraSelecionadaObj
+        ? `Vendedora: ${vendedoraSelecionadaObj.Nome}`
+        : (tipoPerfil === "supervisor" ? `Toda a minha equipe (${supervisorObj.Nome})` : (state.filtroEquipeGestao === "TODAS" ? "Consolidado Geral GM Limpezas" : `Equipe ${state.filtroEquipeGestao}`));
+
+      return `
+        <!-- BARRA DE ESCOPO: ALTERNAR ENTRE TODA A EQUIPE E UMA VENDEDORA -->
+        <section class="scope-bar" aria-label="Seleção de equipe e vendedora">
+          <div class="scope-bar-title">
+            <strong>${tipoPerfil === "supervisor" ? `Supervisão Comercial • ${escaparHtml(supervisorObj.Nome)}` : "Gestão Comercial • Visão Consolidada"}</strong>
+            <span>Exibindo dados de: <strong>${escaparHtml(tituloEscopo)}</strong> (${vendedorasNoRecorte.length} ${vendedorasNoRecorte.length === 1 ? "vendedora" : "vendedoras"} • ${carteiraRecorte.length} clientes)</span>
+          </div>
+
+          <div class="scope-selectors">
+            ${tipoPerfil === "gestao" ? `
+              <div class="scope-field">
+                <label for="selectEquipeGestao">Supervisor / Equipe:</label>
+                <select id="selectEquipeGestao" class="scope-select">
+                  <option value="TODAS" ${state.filtroEquipeGestao === "TODAS" ? "selected" : ""}>Todas as equipes</option>
+                  ${SUPERVISORES.map(s => `
+                    <option value="${escaparHtml(s.IdEquipe)}" ${state.filtroEquipeGestao === s.IdEquipe ? "selected" : ""}>
+                      ${escaparHtml(s.Nome)}
+                    </option>
+                  `).join("")}
+                </select>
+              </div>
+            ` : ""}
+
+            <div class="scope-field">
+              <label for="selectVendedoraEscopo">Recorte:</label>
+              <select id="selectVendedoraEscopo" class="scope-select">
+                <option value="TODAS" ${!vendedoraSelecionadaObj ? "selected" : ""}>
+                  ${tipoPerfil === "supervisor" ? "Toda a minha equipe" : "Todas as vendedoras do recorte"}
+                </option>
+                ${vendedorasAutorizadas.map(v => `
+                  <option value="${escaparHtml(v.CodVendedor)}" ${vendedoraSelecionadaObj && vendedoraSelecionadaObj.CodVendedor === v.CodVendedor ? "selected" : ""}>
+                    Vendedora: ${escaparHtml(v.Nome)} (${escaparHtml(v.CodVendedor)})
+                  </option>
+                `).join("")}
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- NAVEGAÇÃO DAS 4 ÁREAS DO SUPERVISOR -->
+        <nav class="role-nav" aria-label="Áreas da supervisão comercial">
+          <button type="button" class="role-nav-btn ${state.areaSupervisor === "visao_geral" ? "active" : ""}" data-action="mudar-area-sup" data-area="visao_geral">
+            1. Visão geral
+          </button>
+          <button type="button" class="role-nav-btn ${state.areaSupervisor === "desempenho" ? "active" : ""}" data-action="mudar-area-sup" data-area="desempenho">
+            2. Desempenho das vendedoras (${vendedorasAutorizadas.length})
+          </button>
+          <button type="button" class="role-nav-btn ${state.areaSupervisor === "carteira_geral" ? "active" : ""}" data-action="mudar-area-sup" data-area="carteira_geral">
+            3. Carteira geral da equipe (${carteiraRecorte.length})
+          </button>
+          <button type="button" class="role-nav-btn ${state.areaSupervisor === "metas" ? "active" : ""}" data-action="mudar-area-sup" data-area="metas">
+            4. Metas (${formatarCompetenciaLegivel(state.competencia)})
+          </button>
+        </nav>
+
+        ${state.avisoSupervisor ? `
+          <div class="feedback-toast ${state.avisoSupervisor.tipo}" role="status">
+            ${escaparHtml(state.avisoSupervisor.texto)}
+          </div>
+        ` : ""}
+
+        ${state.areaSupervisor === "visao_geral"
+          ? (vendedoraSelecionadaObj
+              ? renderizarVisaoVendedora(vendedoraSelecionadaObj, true)
+              : renderizarArea1VisaoGeralEquipe(vendedorasNoRecorte, carteiraRecorte, tituloEscopo))
+          : ""}
+
+        ${state.areaSupervisor === "desempenho"
+          ? renderizarArea2DesempenhoVendedoras(vendedorasAutorizadas)
+          : ""}
+
+        ${state.areaSupervisor === "carteira_geral"
+          ? renderizarArea3CarteiraGeralEquipe(carteiraRecorte, tituloEscopo)
+          : ""}
+
+        ${state.areaSupervisor === "metas"
+          ? renderizarArea4MetasEquipe(vendedorasAutorizadas, tituloEscopo)
+          : ""}
+      `;
+    }
+
+    function renderizarArea1VisaoGeralEquipe(vendedorasNoRecorte, carteiraRecorte, tituloEscopo) {
+      const cons = calcularConsolidadoVendedoras(vendedorasNoRecorte, state.competencia);
+      const totalClientes = carteiraRecorte.length;
+      const compraramMes = carteiraRecorte.filter(c => c.ComprouNoMes).length;
+      const naoCompraramMes = totalClientes - compraramMes;
+      const novosCadastrosMes = CADASTROS_MES.filter(c => vendedorasNoRecorte.some(v => v.CodVendedor === c.CodVendedorCarteira)).length;
+
+      return `
+        <section class="goal-hero ${cons.todasTemMeta ? "status-in-progress" : "status-missing"}" aria-label="Indicadores consolidados da equipe">
+          <div class="goal-header">
+            <div class="goal-title-group">
+              <h2>Visão Geral Consolidada — ${escaparHtml(tituloEscopo)}</h2>
+              <p>Competência ${formatarCompetenciaLegivel(state.competencia)} • Dados atualizados em ${DATA_ATUALIZACAO_DADOS}</p>
+            </div>
+            <span class="status-pill ${cons.todasTemMeta ? "in-progress" : "missing"}">
+              ${cons.todasTemMeta
+                ? "Meta da equipe completa"
+                : `Meta consolidada incompleta (${cons.vendedorasSemMeta.length} sem meta)`}
+            </span>
+          </div>
+
+          <div class="goal-metrics-grid">
+            <div class="metric-box">
+              <span class="metric-label">Faturamento da equipe</span>
+              <div class="metric-value">${formatarReais(cons.somaRealizado)}</div>
+              <div class="metric-sub">${vendedorasNoRecorte.length} vendedoras no recorte</div>
+            </div>
+
+            <div class="metric-box highlight-blue">
+              <span class="metric-label">Rentabilidade consolidada</span>
+              <div class="metric-value">${cons.rentabilidadeConsolidada !== null ? formatarPercentual(cons.rentabilidadeConsolidada) : "—"}</div>
+              <div class="metric-sub">Calculada sobre receita e custo totais</div>
+            </div>
+
+            <div class="metric-box ${cons.todasTemMeta ? "" : "highlight-amber"}">
+              <span class="metric-label">Meta e progresso da equipe</span>
+              <div class="metric-value">${cons.todasTemMeta ? formatarReais(cons.somaMeta) : "Meta incompleta"}</div>
+              <div class="metric-sub">
+                ${cons.todasTemMeta
+                  ? `Atingido: <strong>${formatarPercentual(cons.percentualMeta)}</strong> (Falta: ${formatarReais(cons.falta)})`
+                  : `Sem meta definida: <strong>${cons.vendedorasSemMeta.map(v => escaparHtml(v.Nome.split(" ")[0])).join(", ")}</strong>`}
+              </div>
+            </div>
+
+            <div class="metric-box">
+              <span class="metric-label">Clientes da carteira</span>
+              <div class="metric-value">${totalClientes}</div>
+              <div class="metric-sub"><strong>${compraramMes}</strong> compraram • <strong>${naoCompraramMes}</strong> ainda não compraram</div>
+            </div>
+
+            <div class="metric-box">
+              <span class="metric-label">Novos cadastros no mês</span>
+              <div class="metric-value">${servidor.cadastroDisponivel ? novosCadastrosMes : "—"}</div>
+              <div class="metric-sub">Clientes cadastrados na competência</div>
+            </div>
+          </div>
+
+          ${cons.todasTemMeta && cons.percentualMeta !== null ? `
+            <div class="progress-wrapper">
+              <div class="progress-labels">
+                <span>Progresso consolidado da equipe (Soma dos realizados ÷ Soma das metas)</span>
+                <span>${formatarPercentual(cons.percentualMeta)}</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill ${cons.percentualMeta >= 100 ? "exceeded" : ""}" style="width: ${cons.larguraBarra}%;"></div>
+              </div>
+            </div>
+          ` : `
+            <div class="goal-footnote" style="color:var(--amber); font-weight:700;">
+              <span>⚠️ Como há vendedora(s) sem meta cadastrada, o progresso percentual consolidado não é exibido sobre um denominador parcial. Acesse a aba "4. Metas" para definir.</span>
+            </div>
+          `}
+        </section>
+
+        <!-- Progresso da carteira por Curva ABC da equipe -->
+        ${renderizarSecaoProgressoCurvaABC(carteiraRecorte, tituloEscopo)}
+
+        <!-- Atalhos rápidos para o supervisor agir -->
+        <div class="quick-summary-grid">
+          <button type="button" class="summary-card summary-card-button" data-action="atalho-curva-a-sem-compra">
+            <div class="summary-info">
+              <span>Clientes Curva A sem compra no mês</span>
+              <strong>${carteiraRecorte.filter(c => c.CurvaABC === "A" && !c.ComprouNoMes).length} clientes</strong>
+            </div>
+            <span class="summary-action-tag">Filtrar na carteira →</span>
+          </button>
+
+          <button type="button" class="summary-card summary-card-button" data-action="mudar-area-sup" data-area="desempenho">
+            <div class="summary-info">
+              <span>Comparar desempenho individual</span>
+              <strong>${vendedorasNoRecorte.length} vendedoras</strong>
+            </div>
+            <span class="summary-action-tag">Abrir tabela →</span>
+          </button>
+
+          <button type="button" class="summary-card summary-card-button" data-action="mudar-area-sup" data-area="metas">
+            <div class="summary-info">
+              <span>Definir ou ajustar metas do mês</span>
+              <strong>${cons.vendedorasSemMeta.length > 0 ? `${cons.vendedorasSemMeta.length} pendente(s)` : "Todas definidas"}</strong>
+            </div>
+            <span class="summary-action-tag">Gerenciar metas →</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function renderizarArea2DesempenhoVendedoras(vendedorasAutorizadas) {
+      return `
+        <section class="abc-section" aria-label="Tabela comparativa de desempenho das vendedoras">
+          <div class="abc-header">
+            <div>
+              <h2>Desempenho das Vendedoras (${formatarCompetenciaLegivel(state.competencia)})</h2>
+              <p>Clique em qualquer vendedora para abrir imediatamente sua visão detalhada e carteira de clientes.</p>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table" aria-label="Comparação de indicadores por vendedora">
+              <thead>
+                <tr>
+                  <th>Vendedora</th>
+                  <th>Faturamento realizado</th>
+                  <th>Meta</th>
+                  <th>% Atingido</th>
+                  <th>Valor restante / Excedente</th>
+                  <th>Rentabilidade</th>
+                  <th>Carteira</th>
+                  <th>Compradores no mês</th>
+                  <th>Sem compra no mês</th>
+                  <th>Progresso por Curva (A | B | C)</th>
+                  <th>Cadastros no mês</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${vendedorasAutorizadas.map(vend => {
+                  const reg = DESEMPENHO_FINANCEIRO[`${EMPRESA_ID}|${vend.CodVendedor}|${state.competencia}`];
+                  const calc = calcularEstadoMeta(reg);
+                  const cliVend = CARTEIRA_CLIENTES.filter(c => c.CodVendedorCarteira === vend.CodVendedor);
+                  const compraram = cliVend.filter(c => c.ComprouNoMes).length;
+                  const semCompra = cliVend.length - compraram;
+                  const cadMes = cliVend.filter(c => c.CadastradoNoMes).length;
+                  const abc = calcularProgressoCurvaABC(cliVend);
+
+                  const fmtCurvaCurta = (d) => d.total === 0 ? "Sem cli." : `${Math.round(d.pctCompradores)}% (${d.compraram}/${d.total})`;
+
+                  return `
+                    <tr class="clickable-row" data-action="selecionar-vendedora-tabela" data-cod="${escaparHtml(vend.CodVendedor)}" title="Clique para abrir a visão detalhada de ${escaparHtml(vend.Nome)}">
+                      <td>
+                        <strong>${escaparHtml(vend.Nome)}</strong><br/>
+                        <span style="font-size:0.78rem; color:var(--text-muted);">Cód. ${escaparHtml(vend.CodVendedor)}</span>
+                      </td>
+                      <td><strong>${formatarReais(calc.realizado)}</strong></td>
+                      <td>${calc.temMeta ? formatarReais(calc.meta) : `<span class="reason-badge atencao">Meta não definida</span>`}</td>
+                      <td><strong>${calc.temMeta && calc.realizadoDisponivel ? formatarPercentual(calc.percentualReal) : "—"}</strong></td>
+                      <td>
+                        ${!calc.temMeta
+                          ? "—"
+                          : (calc.superou > 0
+                              ? `<span style="color:var(--green); font-weight:700;">Superou +${formatarReais(calc.superou)}</span>`
+                              : formatarReais(calc.falta))}
+                      </td>
+                      <td><strong>${calc.rentabilidade !== null ? formatarPercentual(calc.rentabilidade) : "—"}</strong></td>
+                      <td><strong>${cliVend.length}</strong></td>
+                      <td style="color:var(--green); font-weight:700;">${compraram}</td>
+                      <td style="color:var(--amber); font-weight:700;">${semCompra}</td>
+                      <td style="font-size:0.8rem; white-space:nowrap;">
+                        <strong>A:</strong> ${fmtCurvaCurta(abc.A)} •
+                        <strong>B:</strong> ${fmtCurvaCurta(abc.B)} •
+                        <strong>C:</strong> ${fmtCurvaCurta(abc.C)}
+                      </td>
+                      <td><strong>${servidor.cadastroDisponivel ? cadMes : "—"}</strong></td>
+                      <td>
+                        <button type="button" class="btn-curve-filter" data-action="selecionar-vendedora-tabela" data-cod="${escaparHtml(vend.CodVendedor)}">
+                          Abrir visão →
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderizarArea3CarteiraGeralEquipe(carteiraRecorte, tituloEscopo) {
+      const clientesFiltrados = ordenarListaClientes(
+        aplicarAba(carteiraRecorte.filter(passaPelosFiltrosPlanilha))
+      );
+
+      return `
+        ${renderizarSecaoProgressoCurvaABC(carteiraRecorte, tituloEscopo)}
+
+        <section class="abc-section" style="padding:14px 18px;">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px;">
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+              <strong style="color:var(--navy); font-size:0.92rem;">Atalhos de supervisão:</strong>
+              <button type="button" class="btn-curve-filter warn" data-action="atalho-curva-a-sem-compra">
+                ⚡ Combinar: Curva A + Ainda não comprou no mês
+              </button>
+              <button type="button" class="btn-curve-filter" data-action="atalho-abaixo-media">
+                📉 Comprou abaixo da média
+              </button>
+            </div>
+
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+              <button
+                type="button"
+                class="btn-secondary-outline"
+                data-action="alternar-modo-carteira-sup"
+              >
+                ${state.modoExibicaoCarteiraSup === "tabela" ? "Ver em Cartões Detalhados" : "Ver em Tabela Comparativa"}
+              </button>
+              <button
+                type="button"
+                class="btn-primary-navy"
+                data-action="exportar-csv-carteira"
+              >
+                ⬇ Exportar lista filtrada (${clientesFiltrados.length})
+              </button>
+            </div>
+          </div>
+        </section>
+
+        ${state.modoExibicaoCarteiraSup === "tabela" ? `
+          <div class="table-container" style="margin-bottom:8px;">
+            <table class="data-table" aria-label="Tabela da carteira geral da equipe">
+              <thead>
+                <tr>
+                  <th>Cliente / Código</th>
+                  <th>Curva</th>
+                  <th>Vendedora responsável</th>
+                  <th>Quanto costuma comprar (Média 12m)</th>
+                  <th>Comprou no mês</th>
+                  <th>Última compra / Dias</th>
+                  <th>Contato disponível</th>
+                  <th>Cartão</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${clientesFiltrados.length === 0 ? `
+                  <tr>
+                    <td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted);">
+                      Nenhum cliente encontrado para os filtros ativos.
+                    </td>
+                  </tr>
+                ` : clientesFiltrados.slice(state.pagina*25, (state.pagina+1)*25).map(c => `
+                  <tr>
+                    <td>
+                      <strong>${escaparHtml(c.Cliente)}</strong><br/>
+                      <span style="font-size:0.78rem; color:var(--text-muted);">Cód. ${escaparHtml(c.CodCliFor)}</span>
+                    </td>
+                    <td><span class="curve-badge curve-${escaparHtml(c.CurvaABC)}">Curva ${escaparHtml(c.CurvaABC)}</span></td>
+                    <td><strong>${escaparHtml(c.VendedorCarteira)}</strong></td>
+                    <td><strong>${formatarReais(c.MediaMensal)}</strong></td>
+                    <td style="color:${c.ComprouNoMes ? "var(--green)" : "var(--amber)"}; font-weight:700;">
+                      ${formatarReais(c.FatMesAtual)} (${c.ComprouNoMes ? "Comprou" : "Não comprou"})
+                    </td>
+                    <td>${escaparHtml(formatarUltimaCompraTexto(c))}</td>
+                    <td>
+                      ${c.Celular
+                        ? `<strong>${escaparHtml(c.Celular)}</strong>`
+                        : (c.Telefone ? `Fixo: ${escaparHtml(c.Telefone)}` : `<span style="color:var(--text-muted);">Indisponível</span>`)}
+                    </td>
+                    <td>
+                      <button type="button" class="btn-curve-filter" data-action="ir-para-cartao-cliente" data-cod="${escaparHtml(c.CodCliFor)}">
+                        Ver cartão ↓
+                      </button>
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        ` : ""}
+
+        ${renderizarBlocoNavegacaoECarteira(carteiraRecorte, true)}
+      `;
+    }
+
+    function renderizarArea4MetasEquipe(vendedorasAutorizadas, tituloEscopo) {
+      return `
+        <section class="abc-section" aria-label="Gestão de metas mensais da equipe">
+          <div class="abc-header">
+            <div>
+              <h2>Gestão de Metas Mensais — ${escaparHtml(tituloEscopo)} (${formatarCompetenciaLegivel(state.competenciaMeta)})</h2>
+              <p>Defina ou ajuste a meta individual em reais para o mês selecionado. As alterações são gravadas no servidor com autor, horário e histórico.</p>
+            </div>
+          </div>
+
+          <label for="mesMeta">Mês da meta</label>
+          <select id="mesMeta" class="scope-select">${servidor.mesesMetas.map(m => `<option value="${m}" ${m===state.competenciaMeta?'selected':''}>${formatarCompetenciaLegivel(m)}</option>`).join('')}</select>
+          <p class="scope-bar-title">Faturamento disponível somente para o mês corrente. Metas de outros meses são independentes.</p>
+          <div class="supervisor-grid">
+            ${vendedorasAutorizadas.map(vend => {
+              const chave = `${EMPRESA_ID}|${vend.CodVendedor}|${state.competenciaMeta}`;
+              const reg = DESEMPENHO_FINANCEIRO[chave] || {
+                IdEmpresa: EMPRESA_ID,
+                CodVendedor: vend.CodVendedor,
+                Competencia: state.competenciaMeta,
+                MetaValor: null,
+                RealizadoMeta: null,
+                RentabilidadePct: null,
+                AtualizadoPor: null,
+                AtualizadoEm: null
+              };
+              const calc = calcularEstadoMeta(reg);
+              const valorPadrao = calc.temMeta ? calc.meta.toFixed(2).replace(".", ",") : "";
+
+              return `
+                <article class="rep-goal-card ${calc.statusClasse}">
+                  <div class="rep-card-header">
+                    <div>
+                      <h3 class="rep-name">${escaparHtml(vend.Nome)}</h3>
+                      <span class="rep-code">Código: ${escaparHtml(vend.CodVendedor)} • Mês: ${escaparHtml(state.competenciaMeta)}</span>
+                    </div>
+                    <span class="status-pill ${calc.statusClasse}">
+                      ${escaparHtml(calc.statusTexto)}
+                    </span>
+                  </div>
+
+                  <div class="rep-numbers">
+                    <div class="c-metric">
+                      <span>Faturamento realizado</span>
+                      <strong>${formatarReais(calc.realizado)}</strong>
+                    </div>
+                    <div class="c-metric">
+                      <span>Meta mensal</span>
+                      <strong>${calc.temMeta ? formatarReais(calc.meta) : "Meta não definida"}</strong>
+                    </div>
+                    <div class="c-metric">
+                      <span>% Atingido</span>
+                      <strong>${calc.temMeta && calc.realizadoDisponivel ? formatarPercentual(calc.percentualReal) : "—"}</strong>
+                    </div>
+                    <div class="c-metric">
+                      <span>${calc.superou > 0 ? "Valor excedente" : "Valor restante"}</span>
+                      <strong style="${calc.superou > 0 ? "color:var(--green);" : ""}">
+                        ${!calc.temMeta || !calc.realizadoDisponivel
+                          ? "—"
+                          : (calc.superou > 0 ? `+${formatarReais(calc.superou)}` : formatarReais(calc.falta))}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <form class="rep-edit-form" data-action="salvar-meta-demo" data-cod="${escaparHtml(vend.CodVendedor)}">
+                    <label for="input-meta-${escaparHtml(vend.CodVendedor)}">
+                      ${calc.temMeta ? "Ajustar meta individual (R$):" : "Definir meta individual (R$):"}
+                    </label>
+                    <div class="rep-input-row">
+                      <input
+                        type="text"
+                        inputmode="decimal"
+                        id="input-meta-${escaparHtml(vend.CodVendedor)}"
+                        name="valorMeta"
+                        class="rep-goal-input"
+                        placeholder="Ex.: 45.000,00"
+                        value="${valorPadrao}"
+                      />
+                      <button type="submit" class="btn-primary-navy" ${pending ? "disabled" : ""}>
+                        Salvar meta
+                      </button>
+                    </div>
+                  </form>
+
+                  <div style="font-size:0.78rem; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                    <span>
+                      ${reg.AtualizadoEm
+                        ? `Autor: ${escaparHtml(reg.AtualizadoPor)} em ${escaparHtml(reg.AtualizadoEm)}`
+                        : "Sem registro de meta nesta competência"}
+                    </span>
+                  </div>
+                </article>
+              `;
+            }).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function exportarCarteiraFiltradaCSV() {
+      // Determina escopo autorizado atual
+      let carteiraEscopo = [];
+      if (state.visaoAtual.startsWith("vendedora_")) {
+        const cod = state.visaoAtual.replace("vendedora_", "");
+        carteiraEscopo = CARTEIRA_CLIENTES.filter(c => c.CodVendedorCarteira === cod);
+      } else if (state.visaoAtual.startsWith("supervisor_")) {
+        const idEq = state.visaoAtual.replace("supervisor_", "");
+        carteiraEscopo = CARTEIRA_CLIENTES.filter(c => c.IdEquipe === idEq);
+        if (state.filtroVendedoraEscopo !== "TODAS") {
+          carteiraEscopo = carteiraEscopo.filter(c => c.CodVendedorCarteira === state.filtroVendedoraEscopo);
+        }
+      } else {
+        carteiraEscopo = state.filtroEquipeGestao === "TODAS"
+          ? [...CARTEIRA_CLIENTES]
+          : CARTEIRA_CLIENTES.filter(c => c.IdEquipe === state.filtroEquipeGestao);
+        if (state.filtroVendedoraEscopo !== "TODAS") {
+          carteiraEscopo = carteiraEscopo.filter(c => c.CodVendedorCarteira === state.filtroVendedoraEscopo);
+        }
+      }
+
+      const filtrados = ordenarListaClientes(aplicarAba(carteiraEscopo.filter(passaPelosFiltrosPlanilha)));
+      const cabecalho = [
+        "Codigo", "Cliente", "CurvaABC", "VendedoraResponsavel", "ComprouNoMes",
+        "CompradoNoMes_R$", "MediaMensal12m_R$", "UltimaCompra", "DiasSemComprar", "Contato"
+      ];
+
+      const csv = value => {
+        let text=String(value ?? '');
+        if (/^[=+@\-\t\r\n]/.test(text)) text="'"+text;
+        return '"'+text.replace(/"/g,'""')+'"';
+      };
+      const linhas = filtrados.map(c => [c.CodCliFor,c.Cliente,c.CurvaABC,c.VendedorCarteira,
+        c.ComprouNoMes?'Sim':'Não',c.FatMesAtual.toFixed(2).replace('.',','),c.MediaMensal.toFixed(2).replace('.',','),
+        c.UltimaCompra || 'Sem compra 12m',c.DiasUltimaCompra===999?'Sem compra 12m':c.DiasUltimaCompra,c.Celular || c.Telefone].map(csv));
+
+      const conteudoCsv = "\uFEFF" + [cabecalho.join(";"), ...linhas.map(l => l.join(";"))].join("\n");
+      const blob = new Blob([conteudoCsv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `radar_carteira_filtrada_${state.competencia}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      state.avisoSupervisor = {
+        tipo: "ok",
+        texto: `Exportação concluída: ${filtrados.length} cliente(s) exportado(s) respeitando o escopo autorizado e os filtros ativos.`
+      };
+      renderizarAplicacao();
+    }
+
+    function limparTodosFiltros() {
+      state.termoBusca = "";
+      state.filtroCurva = "TODAS";
+      state.filtroSituacaoMes = "TODAS";
+      state.filtroAtividade2M = "TODOS";
+      state.filtroPeriodoUltCompra = "TODOS";
+      state.filtroDiasSemComprar = "TODOS";
+      state.filtroFaixaMedia = "TODAS";
+      state.filtroFaixaUltCompra = "TODAS";
+      state.filtroDiferencaMedia = "TODAS";
+      state.ordenacao = "PRIORIDADE";
+      state.subfiltroCadastrados = "todos";
+    }
+
+    function copiarTextoFallback(texto) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).catch(() => {});
+      }
+      const temp = document.createElement("textarea");
+      temp.value = texto;
+      temp.style.position = "fixed";
+      temp.style.opacity = "0";
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand("copy");
+      } catch (_) {}
+      document.body.removeChild(temp);
+    }
+
+    document.getElementById("mainContent").addEventListener("click", async (e) => {
+      const alvo = e.target.closest("[data-action]");
+      if (!alvo) return;
+
+      const action = alvo.getAttribute("data-action");
+      if (action === 'pdf-pendentes') {
+        if(pendingPdf) return;
+        const curva=alvo.getAttribute('data-curva');
+        pendingPdf=true;
+        enviar({tipo:'pdf_pendentes',id:crypto.randomUUID(),curva,vendedores:codigosNoEscopo()});
+        renderizarAplicacao(); return;
+      }
+      if (action === 'pagina-anterior' || action === 'pagina-proxima') {
+        state.pagina += action === 'pagina-anterior' ? -1 : 1;
+        renderizarAplicacao(); return;
+      }
+      if (['mudar-aba','mudar-subfiltro-cad','limpar-filtros','filtrar-curva','filtrar-curva-nao-compraram','atalho-curva-a-sem-compra','atalho-abaixo-media','selecionar-vendedora-tabela','mudar-area-sup'].includes(action)) state.pagina=0;
+      if(action === 'abrir-wa-real') {
+        const cod=alvo.getAttribute('data-cod');
+        const c=[...CARTEIRA_CLIENTES,...CADASTROS_MES].find(x=>x.CodCliFor===cod);
+        const input=document.getElementById('msg-'+cod);
+        if(c && /^55\d{10,11}$/.test(c.Celular)) window.open('https://wa.me/'+c.Celular+'?text='+encodeURIComponent(input?input.value:''),'_blank','noopener,noreferrer');
+        return;
+      }
+
+      if (action === "restaurar-estado-normal") {
+        state.estadoTela = "normal";
+        document.getElementById("simularEstadoSelect").value = "normal";
+        renderizarAplicacao();
+      } else if (action === "mudar-aba") {
+        state.abaClientes = alvo.getAttribute("data-aba");
+        renderizarAplicacao();
+      } else if (action === "mudar-subfiltro-cad") {
+        state.subfiltroCadastrados = alvo.getAttribute("data-sub");
+        renderizarAplicacao();
+      } else if (action === "toggle-filtros-avancados") {
+        state.mostrarFiltrosAvancados = !state.mostrarFiltrosAvancados;
+        renderizarAplicacao();
+      } else if (action === "limpar-filtros") {
+        limparTodosFiltros();
+        renderizarAplicacao();
+      } else if (action === "filtrar-curva") {
+        const curva = alvo.getAttribute("data-curva");
+        state.filtroCurva = state.filtroCurva === curva ? "TODAS" : curva;
+        state.abaClientes = "todos";
+        if (state.areaSupervisor === "visao_geral" && !state.visaoAtual.startsWith("vendedora_")) {
+          state.areaSupervisor = "carteira_geral";
+        }
+        renderizarAplicacao();
+      } else if (action === "filtrar-curva-nao-compraram") {
+        const curva = alvo.getAttribute("data-curva");
+        state.filtroCurva = curva;
+        state.filtroSituacaoMes = "NAO_COMPROU";
+        state.abaClientes = "todos";
+        if (state.areaSupervisor === "visao_geral" && !state.visaoAtual.startsWith("vendedora_")) {
+          state.areaSupervisor = "carteira_geral";
+        }
+        renderizarAplicacao();
+        const sec = document.getElementById("secaoCarteiraClientes");
+        if (sec) sec.scrollIntoView({ behavior: "smooth" });
+      } else if (action === "atalho-curva-a-sem-compra") {
+        limparTodosFiltros();
+        state.filtroCurva = "A";
+        state.filtroSituacaoMes = "NAO_COMPROU";
+        state.abaClientes = "todos";
+        state.areaSupervisor = "carteira_geral";
+        renderizarAplicacao();
+      } else if (action === "atalho-abaixo-media") {
+        limparTodosFiltros();
+        state.filtroSituacaoMes = "ABAIXO_MEDIA";
+        state.abaClientes = "todos";
+        state.areaSupervisor = "carteira_geral";
+        renderizarAplicacao();
+      } else if (action === "mudar-area-sup") {
+        state.areaSupervisor = alvo.getAttribute("data-area");
+        state.avisoSupervisor = null;
+        renderizarAplicacao();
+      } else if (action === "selecionar-vendedora-tabela") {
+        const cod = alvo.getAttribute("data-cod");
+        state.filtroVendedoraEscopo = cod;
+        state.areaSupervisor = "visao_geral";
+        renderizarAplicacao();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (action === "alternar-modo-carteira-sup") {
+        state.modoExibicaoCarteiraSup = state.modoExibicaoCarteiraSup === "tabela" ? "cartoes" : "tabela";
+        renderizarAplicacao();
+      } else if (action === "ir-para-cartao-cliente") {
+        const cod = alvo.getAttribute("data-cod");
+        state.termoBusca=cod; state.abaClientes='todos'; state.pagina=0;
+        renderizarAplicacao();
+        const card = document.getElementById(`card-cli-${cod}`);
+        if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else if (action === "exportar-csv-carteira") {
+        exportarCarteiraFiltradaCSV();
+      } else if (action === "toggle-drawer") {
+        const qual = alvo.getAttribute("data-drawer");
+        state.gavetaDocAberta = state.gavetaDocAberta === qual ? null : qual;
+        renderizarAplicacao();
+      } else if (action === "fechar-drawer") {
+        state.gavetaDocAberta = null;
+        renderizarAplicacao();
+      } else if (action === "abrir-whatsapp-demo") {
+        const cod = alvo.getAttribute("data-cod");
+        state.whatsappAbertoCod = state.whatsappAbertoCod === cod ? null : cod;
+        renderizarAplicacao();
+      } else if (action === "fechar-whatsapp-demo") {
+        state.whatsappAbertoCod = null;
+        renderizarAplicacao();
+      } else if (action === "copiar-msg-demo") {
+        const cod = alvo.getAttribute("data-cod");
+        const textarea = document.getElementById(`msg-${cod}`);
+        const feedback = document.getElementById(`copy-feedback-${cod}`);
+        if (textarea && feedback) {
+          try { await navigator.clipboard.writeText(textarea.value); feedback.textContent="Mensagem copiada."; } catch (_) { feedback.textContent="Selecione a mensagem e copie com Ctrl+C."; }
+        }
+      }
+    });
+
+    // Mudanças em selects de filtro e escopo
+    document.getElementById("mainContent").addEventListener("change", (e) => {
+      const target = e.target;
+      if (!target) return;
+      state.pagina = 0;
+      if (target.id === "mesMeta") {
+        state.competenciaMeta = target.value; state.avisoSupervisor = null;
+        renderizarAplicacao(); return;
+      }
+
+      if (target.id === "selectEquipeGestao") {
+        state.filtroEquipeGestao = target.value;
+        state.filtroVendedoraEscopo = "TODAS";
+        renderizarAplicacao();
+        return;
+      }
+
+      if (target.id === "selectVendedoraEscopo") {
+        state.filtroVendedoraEscopo = target.value;
+        renderizarAplicacao();
+        return;
+      }
+
+      const propFiltro = target.getAttribute("data-filter");
+      if (propFiltro && propFiltro in state) {
+        state[propFiltro] = target.value;
+        renderizarAplicacao();
+      }
+    });
+
+    // Aguarda uma pausa curta na digitação antes de reconstruir a carteira.
+    let buscaTimer;
+    // Busca textual em tempo real mantendo o cursor
+    document.getElementById("mainContent").addEventListener("input", (e) => {
+      if (e.target && e.target.id === "buscaClienteInput") {
+        const pos = e.target.selectionStart;
+        state.pagina=0;
+        state.termoBusca = e.target.value;
+        clearTimeout(buscaTimer);
+        buscaTimer = setTimeout(() => {
+        renderizarAplicacao();
+        const novoInput = document.getElementById("buscaClienteInput");
+        if (novoInput) {
+          novoInput.focus();
+          try {
+            novoInput.setSelectionRange(pos, pos);
+          } catch (_) {}
+        }
+        }, 220);
+      }
+    });
+
+    document.getElementById("mainContent").addEventListener("submit", (e) => {
+      const form = e.target.closest("form[data-action='salvar-meta-demo']");
+      if (!form) return;
+      e.preventDefault();
+      if (!servidor || pending || state.visaoAtual.startsWith("vendedora_")) return;
+      const cod = form.getAttribute("data-cod");
+      const valor = form.querySelector("input[name='valorMeta']").value.trim();
+      if (!/^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/.test(valor)) {
+        state.avisoSupervisor = {tipo:"err",texto:"Use o formato brasileiro: 35000,00 ou 35.000,00."};
+        renderizarAplicacao(); return;
+      }
+      const reg = DESEMPENHO_FINANCEIRO[`1|${cod}|${state.competenciaMeta}`];
+      pending = true;
+      state.avisoSupervisor = {tipo:"ok",texto:"Salvando meta no servidor…"};
+      enviar({tipo:"salvar_meta",id:crypto.randomUUID(),vendedor:cod,
+        competencia:state.competenciaMeta,valor,versao:reg ? reg.Versao : 0});
+      renderizarAplicacao();
+    });
+
+    // Inicializa horário de abertura da página em America/Sao_Paulo (diferenciando da atualização dos dados)
+    const horaAbertura = new Date().toLocaleTimeString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    const elLoad = document.getElementById("pageLoadTimestamp");
+    if (elLoad) {
+      elLoad.textContent = `Página carregada às ${horaAbertura}`;
+    }
+
+    // First render occurs only after authenticated Python data arrive.
+
+    function enviar(value) {
+      window.parent.postMessage({isStreamlitMessage:true,type:'streamlit:setComponentValue',value,dataType:'json'},'*');
+    }
+    let lastHeight=0;
+    function ajustarAltura() {
+      const root=document.getElementById('radarRoot');
+      const height=Math.max(300,Math.ceil(root.getBoundingClientRect().height));
+      if(height!==lastHeight){lastHeight=height;window.parent.postMessage({isStreamlitMessage:true,type:'streamlit:setFrameHeight',height},'*');}
+    }
+    function formatarCompetenciaLegivel(m) {
+      if(!/^\d{4}-\d{2}$/.test(m)) return '';
+      return new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(m+'-15T12:00:00Z'));
+    }
+    function calcularConsolidadoVendedoras(vendedoras, competencia) {
+      const key=vendedoras.map(v=>v.CodVendedor).sort().join('|');
+      const r=servidor.resumos[key];
+      if(!r || competencia!==servidor.competencia) return {somaRealizado:null,somaMeta:null,somaMetaParcial:null,todasTemMeta:false,vendedorasSemMeta:[],rentabilidadeConsolidada:null,percentualMeta:null,larguraBarra:0,falta:null,superou:null};
+      return r;
+    }
+    const listaCartoesOriginal=renderizarListaCartoesClientes;
+    renderizarListaCartoesClientes=function(clientes, responsavel){
+      const total=clientes.length;
+      state.pagina=Math.max(0,Math.min(state.pagina,Math.max(0,Math.ceil(total/25)-1)));
+      const ini=state.pagina*25;
+      return `<div class="pagination"><button type="button" class="btn-secondary-outline" data-action="pagina-anterior" ${state.pagina===0?'disabled':''}>Anterior</button><span>${total?ini+1:0}–${Math.min(ini+25,total)} de ${total}</span><button type="button" class="btn-secondary-outline" data-action="pagina-proxima" ${ini+25>=total?'disabled':''}>Próxima</button></div>`+listaCartoesOriginal(clientes.slice(ini,ini+25),responsavel);
+    };
+    const renderOriginal=renderizarAplicacao;
+    renderizarAplicacao=function(){
+      if(!servidor) return;
+      renderOriginal();
+      document.getElementById('userNameLabel').textContent=servidor.usuario.nome;
+      document.getElementById('snapshotTimestamp').textContent=servidor.atualizacaoCarteira;
+      const main=document.getElementById('mainContent');
+      let header='';
+      if(linkPdf) header+=`<div class="server-notice"><a href="${linkPdf.url}" download="${escaparHtml(linkPdf.nome)}">Baixar PDF preparado</a></div>`;
+      if(state.avisoSupervisor) header+=`<div class="server-notice" role="status">${escaparHtml(state.avisoSupervisor.texto)}</div>`;
+      header+=`<details class="server-info"><summary>Base da carteira: compras de ${escaparHtml(servidor.periodoCarteiraInicio || '')} a ${escaparHtml(servidor.referenciaCarteira)}</summary><p>Responsável atual do cadastro. Classificação ABC global preservada. Financeiro pelo vendedor da movimentação. Mês em andamento.</p>${servidor.avisos.map(x=>`<p>${escaparHtml(x)}</p>`).join('')}</details>`;
+      const f=servidor.financeiroGeral;
+      if(f && state.visaoAtual==='gestao_geral' && state.filtroEquipeGestao==='TODAS' && state.filtroVendedoraEscopo==='TODAS') {
+        header+=`<section class="abc-section"><h2>Consolidado geral — relatório Cronos</h2><div class="client-metrics"><div class="c-metric"><span>Faturamento</span><strong>${formatarReais(f.receita)}</strong></div><div class="c-metric"><span>Rentabilidade</span><strong>${f.margem===null?'—':f.margem.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%'}</strong></div><div class="c-metric"><span>Quantidade — Cronos</span><strong>${f.qtd===null?'—':f.qtd}</strong></div><div class="c-metric"><span>Custo</span><strong>${formatarReais(f.custo)}</strong></div></div><p class="server-info">Inclui todas as linhas do relatório, inclusive EMPRESA e INATIVADOS. As metas abaixo acompanham apenas as vendedoras elegíveis.</p></section>`;
+      }
+      main.insertAdjacentHTML('afterbegin',header);
+      requestAnimationFrame(ajustarAltura);
+    };
+    // Rendering only accepts data from the parent Streamlit frame.
+    window.addEventListener('message', event=>{
+      if(event.source!==window.parent || event.data?.type!=='streamlit:render') return;
+      const args=event.data.args || {};
+      if(!args.payload) return;
+      const p=args.payload;
+      const first=!servidor || servidor.usuario.cod!==p.usuario.cod;
+      servidor=p;
+      VENDEDORAS=p.vendedoras;SUPERVISORES=p.supervisores;CARTEIRA_CLIENTES=p.clientes;CADASTROS_MES=p.cadastrosMes || [];
+      DESEMPENHO_FINANCEIRO=p.financeiro;ORCAMENTOS=p.orcamentos;PREVENDAS=p.prevendas;
+      DATA_ATUALIZACAO_DADOS=p.atualizacaoFinanceiro;
+      state.visaoAtual=p.visao; state.competencia=p.competencia;
+      if(first){state.competenciaMeta=p.competencia;state.pagina=0;}
+      if(args.feedback){pending=false;pendingPdf=false;state.avisoSupervisor=args.feedback;}
+      if(!args.arquivoPdf && linkPdf){URL.revokeObjectURL(linkPdf.url);linkPdf=null;ultimoPdf=null;}
+      if(args.arquivoPdf && args.arquivoPdf.id!==ultimoPdf) {
+        const pdf=args.arquivoPdf;
+        const bytes=Uint8Array.from(atob(pdf.base64),c=>c.charCodeAt(0));
+        if(linkPdf) URL.revokeObjectURL(linkPdf.url);
+        linkPdf={url:URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),nome:pdf.nome};
+        ultimoPdf=pdf.id;pendingPdf=false;
+        const a=document.createElement('a');a.href=linkPdf.url;a.download=linkPdf.nome;document.body.appendChild(a);a.click();a.remove();
+      }
+      const select=document.getElementById('competenciaSelect');
+      select.innerHTML=`<option value="${escaparHtml(p.competencia)}">${formatarCompetenciaLegivel(p.competencia)}</option>`;
+      if(p.logo && /^data:image\/(png|jpeg);base64,/.test(p.logo)) document.getElementById('logoReal').innerHTML=`<img src="${p.logo}" alt="GM Limpezas" style="width:76px;height:auto">`;
+      renderizarAplicacao();
+    });
+    new ResizeObserver(()=>requestAnimationFrame(ajustarAltura)).observe(document.getElementById('radarRoot'));
+    window.parent.postMessage({isStreamlitMessage:true,type:'streamlit:componentReady',apiVersion:1},'*');
+    ajustarAltura();
+
+    function codigosNoEscopo() {
+      let vs=VENDEDORAS;
+      if(state.visaoAtual.startsWith('vendedora_')) return [state.visaoAtual.slice(10)];
+      if(state.visaoAtual.startsWith('supervisor_')) vs=vs.filter(v=>v.IdEquipe===state.visaoAtual.slice(11));
+      else if(state.filtroEquipeGestao!=='TODAS') vs=vs.filter(v=>v.IdEquipe===state.filtroEquipeGestao);
+      if(state.filtroVendedoraEscopo!=='TODAS') vs=vs.filter(v=>v.CodVendedor===state.filtroVendedoraEscopo);
+      return vs.map(v=>v.CodVendedor);
+    }
+    function cadastrosNoEscopo() {
+      const codes=new Set(codigosNoEscopo());
+      return CADASTROS_MES.filter(c=>codes.has(c.CodVendedorCarteira));
+    }
+
+    function aplicarAba(clientes) {
+      if(state.abaClientes==='prioridades') return clientes.filter(ehPrioridade);
+      if(state.abaClientes==='retomar') return clientes.filter(ehRetomarContato);
+      if(state.abaClientes==='cadastrados_mes') return cadastrosNoEscopo().filter(passaPelosFiltrosPlanilha).filter(c=>ehCadastradoNoMes(c) && (state.subfiltroCadastrados==='todos' || (state.subfiltroCadastrados==='ja_compraram' ? c.ComprouNoMes : !c.ComprouNoMes)));
+      return clientes;
+    }
+    const equipeOriginal=renderizarArea1VisaoGeralEquipe;
+    renderizarArea1VisaoGeralEquipe=function(vendedoras,clientes,titulo){
+      const codes=new Set(vendedoras.map(v=>v.CodVendedor));
+      const orc=ORCAMENTOS.filter(d=>codes.has(d.CodVendedor));
+      const prev=PREVENDAS.filter(d=>codes.has(d.CodVendedor));
+      return equipeOriginal(vendedoras,clientes,titulo)+`<section class="abc-section"><h2>Documentos em aberto da equipe</h2><p class="server-info">Valores separados do faturamento realizado.</p><div class="filter-tabs"><button type="button" class="tab-btn" data-action="toggle-drawer" data-drawer="orcamentos">Orçamentos (${servidor.documentosDisponiveis.orcamentos?orc.length:'—'})</button><button type="button" class="tab-btn" data-action="toggle-drawer" data-drawer="prevendas">Pré-vendas (${servidor.documentosDisponiveis.prevendas?prev.length:'—'})</button></div>${renderizarGavetaDocumentos(orc,prev)}</section>`;
+    };
+
+  </script>
+</body>
+</html>

@@ -104,8 +104,14 @@ def _load_usuarios() -> pd.DataFrame:
             "FirstLogin", "ResetRequired", "Active",
             "CreatedAt", "LastLogin", "LastFilters",
         ])
-    return pd.read_parquet(USUARIOS_FILE)
 
+    df = pd.read_parquet(USUARIOS_FILE)
+
+    df["LastLogin"] = pd.to_datetime(
+        df["LastLogin"], errors="raise"
+    ).astype("datetime64[ns]")
+
+    return df
 
 def _save_usuarios(df: pd.DataFrame):
     df.to_parquet(USUARIOS_FILE, index=False)
