@@ -10,7 +10,7 @@ ARQUIVOS = (
     'radar_rent_cli.parquet', 'radar_produtos.parquet',
     'orcamentos_abertos.parquet', 'prevendas.parquet',
 )
-CHAVE = '_radar_preparacao_local_v2'
+CHAVE = '_radar_preparacao_local_v4_equipe_paineis'
 
 
 def disponivel_local(usuario, cache, estado, db_path=None):

@@ -1634,6 +1634,20 @@
     let pendingPdf = false;
     let ultimoPdf = null;
     let linkPdf = null;
+    const paineisAbertos = new Set();
+    let ultimaMensagemRender = null;
+
+    function atributosPainel(chave) {
+      return `data-panel="${escaparHtml(chave)}"${paineisAbertos.has(chave) ? ' open' : ''}`;
+    }
+
+    function guardarPaineisAbertos() {
+      document.getElementById('mainContent').querySelectorAll('details[data-panel]').forEach(painel => {
+        const chave=painel.getAttribute('data-panel');
+        if(painel.open) paineisAbertos.add(chave);
+        else paineisAbertos.delete(chave);
+      });
+    }
     const state = {
       visaoAtual: "",
       estadoTela: "normal",          // 'normal' | 'sem_data_cadastro' | 'loading' | 'empty' | 'error'
@@ -1916,8 +1930,9 @@
       const termo = normalizarTextoBusca(state.termoBusca.trim());
       if (termo) {
         const matchNome = normalizarTextoBusca(cliente.Cliente).includes(termo);
+        const matchRazao = normalizarTextoBusca(cliente.RazaoSocial).includes(termo);
         const matchCod = normalizarTextoBusca(cliente.CodCliFor).includes(termo);
-        if (!matchNome && !matchCod) return false;
+        if (!matchNome && !matchRazao && !matchCod) return false;
       }
 
       // 2. Curva ABC
@@ -2213,7 +2228,7 @@
             </div>
           </div>
 
-          <details class="abc-accessible-details">
+          <details class="abc-accessible-details" ${atributosPainel('progresso-abc')}>
             <summary>Ver tabela textual acessível do progresso por Curva ABC</summary>
             <div style="margin-top:8px; overflow-x:auto;">
               <table class="history-table" aria-label="Tabela textual de composição e progresso por curva ABC">
@@ -2446,7 +2461,7 @@
           <div class="summary-card">
             <div class="summary-info">
               <span>Cadastrados neste mês</span>
-              <strong>${servidor.cadastroDisponivel ? listaCadastradosMes.length : "—"}</strong>
+              <strong>${cadastroCompletoNoEscopo() ? listaCadastradosMes.length : "—"}</strong>
             </div>
             <span style="font-size:0.78rem; color:var(--green); font-weight:700;">Novos cadastros</span>
           </div>
@@ -2518,7 +2533,7 @@
                 Retomar contato <span class="tab-count">${contRetomar}</span>
               </button>
               <button type="button" role="tab" class="tab-btn ${state.abaClientes === "cadastrados_mes" ? "active" : ""}" data-action="mudar-aba" data-aba="cadastrados_mes" aria-selected="${state.abaClientes === "cadastrados_mes"}">
-                Clientes cadastrados no mês <span class="tab-count">${servidor.cadastroDisponivel ? contCadastrados : "—"}</span>
+                Clientes cadastrados no mês <span class="tab-count">${cadastroCompletoNoEscopo() ? contCadastrados : "—"}</span>
               </button>
               <button type="button" role="tab" class="tab-btn ${state.abaClientes === "todos" ? "active" : ""}" data-action="mudar-aba" data-aba="todos" aria-selected="${state.abaClientes === "todos"}">
                 Todos os clientes <span class="tab-count">${contTodos}</span>
@@ -2530,7 +2545,7 @@
           <div class="filters-panel">
             <div class="filters-primary-row">
               <div class="filter-group">
-                <label for="buscaClienteInput">Buscar cliente por nome ou código:</label>
+                <label for="buscaClienteInput">Buscar por nome, razão social ou código:</label>
                 <input
                   type="search"
                   id="buscaClienteInput"
@@ -2694,8 +2709,23 @@
       return chips;
     }
 
+    function renderizarCadastrosForaCarteira() {
+      if (state.visaoAtual !== 'gestao_geral' || state.filtroEquipeGestao !== 'TODAS' || state.filtroVendedoraEscopo !== 'TODAS') return '';
+      const registros = servidor.cadastrosSemCarteiraAtiva || [];
+      const busca = normalizarTextoBusca(state.termoBusca).trim();
+      const visiveis = registros.filter(c => normalizarTextoBusca(`${c.Cliente} ${c.RazaoSocial} ${c.CodCliFor}`).includes(busca));
+      return `<section class="filters-panel" style="margin-top:16px;">
+        <h3>Novos cadastros fora das carteiras ativas (${registros.length})</h3>
+        <p class="server-info">Confira o responsável no Cronos para encaminhar estes clientes à equipe. A situação de compra não é apurada neste grupo.</p>
+        ${servidor.cadastrosForaCarteiraCompletos ? '' : '<p class="server-info">Existem cadastros sem data informada; esta lista pode estar incompleta.</p>'}
+        ${visiveis.length ? `<div class="table-container"><table class="data-table" aria-label="Novos cadastros fora das carteiras ativas"><thead><tr><th>Cliente / Código</th><th>Razão social</th><th>Cadastro</th><th>Responsável cadastrado</th><th>Situação</th></tr></thead><tbody>
+          ${visiveis.map(c => `<tr><td><strong>${escaparHtml(c.Cliente)}</strong><br>${escaparHtml(c.CodCliFor)}</td><td>${escaparHtml(c.RazaoSocial || '—')}</td><td>${escaparHtml(c.DataCadastro)}</td><td>${escaparHtml(c.VendedorCarteira || c.CodVendedorCarteira || 'Sem responsável')}</td><td>${escaparHtml(c.SituacaoResponsavel)}</td></tr>`).join('')}
+        </tbody></table></div>` : '<p class="server-info">Nenhum registro com data conhecida neste recorte.</p>'}
+      </section>`;
+    }
+
     function renderizarAbaCadastradosNoMes(clientesVisiveis, todosCadastradosNoRecorte) {
-      if (!servidor.cadastroDisponivel) return '<div class="empty-state"><h3>Data de cadastro indisponível ou incompleta</h3><p>Precisamos confirmar o campo de cadastro no Cronos e atualizar a base. A primeira compra não substitui a data de cadastro.</p></div>';
+      if (!servidor.cadastroListagemDisponivel) return '<div class="empty-state"><h3>Data de cadastro indisponível</h3><p>Atualize a base com o campo de cadastro configurado para consultar esta aba.</p></div>';
       const qtdTodos = todosCadastradosNoRecorte.length;
       const qtdJaCompraram = todosCadastradosNoRecorte.filter(c => c.ComprouNoMes).length;
       const qtdSemPrimeira = qtdTodos - qtdJaCompraram;
@@ -2707,27 +2737,23 @@
             <div>
               <h3 style="color:var(--navy); font-size:1.02rem;">Acompanhamento de Clientes Cadastrados no Mês</h3>
               <p style="font-size:0.84rem; color:var(--text-muted);">
-                Data de cadastro lida do campo próprio do cadastro de clientes (nunca substituída pela data da 1ª compra).
+                Cadastros do mês até ${escaparHtml(servidor.referenciaCarteira)}, conforme a data de operação do cadastro no Cronos.
               </p>
             </div>
             <div class="filter-tabs">
               <button type="button" class="tab-btn ${state.subfiltroCadastrados === "todos" ? "active" : ""}" data-action="mudar-subfiltro-cad" data-sub="todos">
-                Todos <span class="tab-count">${qtdTodos}</span>
+                ${cadastroCompletoNoEscopo() ? 'Todos' : 'Com data informada'} <span class="tab-count">${qtdTodos}</span>
               </button>
               <button type="button" class="tab-btn ${state.subfiltroCadastrados === "ja_compraram" ? "active" : ""}" data-action="mudar-subfiltro-cad" data-sub="ja_compraram">
                 Já compraram <span class="tab-count">${qtdJaCompraram}</span>
               </button>
               <button type="button" class="tab-btn ${state.subfiltroCadastrados === "sem_primeira_compra" ? "active" : ""}" data-action="mudar-subfiltro-cad" data-sub="sem_primeira_compra">
-                Ainda sem primeira compra <span class="tab-count">${qtdSemPrimeira}</span>
+                Sem compra no período <span class="tab-count">${qtdSemPrimeira}</span>
               </button>
             </div>
           </div>
 
-          ${simularSemDataCadastro ? `
-            <div class="feedback-toast err" style="margin-top:8px;">
-              ⚠️ Simulação ativa: Campo de data real de cadastro indisponível na base. O sistema exibe "Data de cadastro indisponível" sem usar a 1ª compra como substituta.
-            </div>
-          ` : ""}
+          ${cadastroCompletoNoEscopo() ? '' : '<p class="server-info">Lista parcial: há clientes sem data de cadastro. Os totais gerais ficam indisponíveis.</p>'}
         </div>
 
         ${clientesVisiveis.length === 0 ? `
@@ -2741,10 +2767,10 @@
               <thead>
                 <tr>
                   <th>Cliente / Código</th>
-                  <th>Data real de cadastro</th>
+                  <th>Data de cadastro</th>
                   <th>Vendedora responsável</th>
-                  <th>Situação da 1ª compra</th>
-                  <th>Data e valor da 1ª compra</th>
+                  <th>Compra no período</th>
+                  <th>Primeira compra após cadastro no período</th>
                   <th>Contato / Ação</th>
                 </tr>
               </thead>
@@ -2758,19 +2784,20 @@
                     <tr>
                       <td>
                         <strong>${escaparHtml(c.Cliente)}</strong><br/>
+                        ${c.RazaoSocial ? `<span style="font-size:0.78rem; color:var(--text-muted);">${escaparHtml(c.RazaoSocial)}</span><br/>` : ''}
                         <span style="font-size:0.78rem; color:var(--text-muted);">Cód. ${escaparHtml(c.CodCliFor)} • Curva ${escaparHtml(c.CurvaABC)}</span>
                       </td>
                       <td><strong>${escaparHtml(dataCadTexto)}</strong></td>
                       <td>${escaparHtml(c.VendedorCarteira)} (${escaparHtml(c.CodVendedorCarteira)})</td>
                       <td>
                         ${c.ComprouNoMes
-                          ? `<span class="reason-badge novo">Já realizou a 1ª compra</span>`
-                          : `<span class="reason-badge atencao">Ainda sem primeira compra</span>`}
+                          ? `<span class="reason-badge novo">Já comprou no período</span>`
+                          : `<span class="reason-badge atencao">Sem compra no período</span>`}
                       </td>
                       <td>
                         ${c.PrimeiraCompraData
                           ? `<strong>${escaparHtml(c.PrimeiraCompraData)}</strong> • ${formatarReais(c.PrimeiraCompraValor)}`
-                          : `<span style="color:var(--text-muted);">Sem compra registrada</span>`}
+                          : `<span style="color:var(--text-muted);">Compra após cadastro não identificada</span>`}
                       </td>
                       <td>
                         ${temCel ? `
@@ -2791,6 +2818,7 @@
           </div>
           ${renderizarListaCartoesClientes(clientesVisiveis, true)}
         `}
+        ${renderizarCadastrosForaCarteira()}
       `;
     }
 
@@ -2904,7 +2932,7 @@
             </div>
           ` : ""}
 
-          <details class="client-details">
+          <details class="client-details" ${atributosPainel('cliente-'+cliente.CodCliFor)}>
             <summary>Ver histórico de compras, cadastro e orçamentos disponíveis</summary>
             <div class="details-body">
               <div class="details-meta-grid">
@@ -3157,7 +3185,7 @@
 
             <div class="metric-box">
               <span class="metric-label">Novos cadastros no mês</span>
-              <div class="metric-value">${servidor.cadastroDisponivel ? novosCadastrosMes : "—"}</div>
+              <div class="metric-value">${cadastroCompletoNoEscopo() ? novosCadastrosMes : "—"}</div>
               <div class="metric-sub">Clientes cadastrados na competência</div>
             </div>
           </div>
@@ -3246,7 +3274,7 @@
                   const cliVend = CARTEIRA_CLIENTES.filter(c => c.CodVendedorCarteira === vend.CodVendedor);
                   const compraram = cliVend.filter(c => c.ComprouNoMes).length;
                   const semCompra = cliVend.length - compraram;
-                  const cadMes = cliVend.filter(c => c.CadastradoNoMes).length;
+                  const cadMes = CADASTROS_MES.filter(c => c.CodVendedorCarteira === vend.CodVendedor).length;
                   const abc = calcularProgressoCurvaABC(cliVend);
 
                   const fmtCurvaCurta = (d) => d.total === 0 ? "Sem cli." : `${Math.round(d.pctCompradores)}% (${d.compraram}/${d.total})`;
@@ -3276,7 +3304,7 @@
                         <strong>B:</strong> ${fmtCurvaCurta(abc.B)} •
                         <strong>C:</strong> ${fmtCurvaCurta(abc.C)}
                       </td>
-                      <td><strong>${servidor.cadastroDisponivel ? cadMes : "—"}</strong></td>
+                      <td><strong>${servidor.cadastroCompletoPorVendedor?.[vend.CodVendedor] ? cadMes : "—"}</strong></td>
                       <td>
                         <button type="button" class="btn-curve-filter" data-action="selecionar-vendedora-tabela" data-cod="${escaparHtml(vend.CodVendedor)}">
                           Abrir visão →
@@ -3801,6 +3829,7 @@
     const renderOriginal=renderizarAplicacao;
     renderizarAplicacao=function(){
       if(!servidor) return;
+      guardarPaineisAbertos();
       renderOriginal();
       document.getElementById('userNameLabel').textContent=servidor.usuario.nome;
       document.getElementById('snapshotTimestamp').textContent=servidor.atualizacaoCarteira;
@@ -3808,7 +3837,7 @@
       let header='';
       if(linkPdf) header+=`<div class="server-notice"><a href="${linkPdf.url}" download="${escaparHtml(linkPdf.nome)}">Baixar PDF preparado</a></div>`;
       if(state.avisoSupervisor) header+=`<div class="server-notice" role="status">${escaparHtml(state.avisoSupervisor.texto)}</div>`;
-      header+=`<details class="server-info"><summary>Base da carteira: compras de ${escaparHtml(servidor.periodoCarteiraInicio || '')} a ${escaparHtml(servidor.referenciaCarteira)}</summary><p>Responsável atual do cadastro. Classificação ABC global preservada. Financeiro pelo vendedor da movimentação. Mês em andamento.</p>${servidor.avisos.map(x=>`<p>${escaparHtml(x)}</p>`).join('')}</details>`;
+      header+=`<details class="server-info" ${atributosPainel('base-carteira')}><summary>Base da carteira: compras de ${escaparHtml(servidor.periodoCarteiraInicio || '')} a ${escaparHtml(servidor.referenciaCarteira)}</summary><p>Responsável atual do cadastro. Classificação ABC global preservada. Financeiro pelo vendedor da movimentação. Mês em andamento.</p>${servidor.avisos.map(x=>`<p>${escaparHtml(x)}</p>`).join('')}</details>`;
       const f=servidor.financeiroGeral;
       if(f && state.visaoAtual==='gestao_geral' && state.filtroEquipeGestao==='TODAS' && state.filtroVendedoraEscopo==='TODAS') {
         header+=`<section class="abc-section"><h2>Consolidado geral — relatório Cronos</h2><div class="client-metrics"><div class="c-metric"><span>Faturamento</span><strong>${formatarReais(f.receita)}</strong></div><div class="c-metric"><span>Rentabilidade</span><strong>${f.margem===null?'—':f.margem.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%'}</strong></div><div class="c-metric"><span>Quantidade — Cronos</span><strong>${f.qtd===null?'—':f.qtd}</strong></div><div class="c-metric"><span>Custo</span><strong>${formatarReais(f.custo)}</strong></div></div><p class="server-info">Inclui todas as linhas do relatório, inclusive EMPRESA e INATIVADOS. As metas abaixo acompanham apenas as vendedoras elegíveis.</p></section>`;
@@ -3821,13 +3850,26 @@
       if(event.source!==window.parent || event.data?.type!=='streamlit:render') return;
       const args=event.data.args || {};
       if(!args.payload) return;
+      // O Streamlit reenvia os mesmos argumentos ao ajustar a altura do iframe.
+      // Nao substitua o DOM nesse caso: isso fecha details e apaga formularios.
+      const assinatura=JSON.stringify({payload:args.payload,feedback:args.feedback||null,arquivoPdf:args.arquivoPdf||null});
+      if(assinatura===ultimaMensagemRender) {requestAnimationFrame(ajustarAltura);return;}
+      ultimaMensagemRender=assinatura;
       const p=args.payload;
-      const first=!servidor || servidor.usuario.cod!==p.usuario.cod;
+      const first=!servidor || servidor.usuario.cod!==p.usuario.cod || servidor.usuario.role!==p.usuario.role;
+      if(first) {
+        paineisAbertos.clear();
+        document.getElementById('mainContent').innerHTML='';
+        state.filtroEquipeGestao='TODAS';state.filtroVendedoraEscopo='TODAS';
+        state.whatsappAbertoCod=null;state.gavetaDocAberta=null;
+      }
       servidor=p;
       VENDEDORAS=p.vendedoras;SUPERVISORES=p.supervisores;CARTEIRA_CLIENTES=p.clientes;CADASTROS_MES=p.cadastrosMes || [];
       DESEMPENHO_FINANCEIRO=p.financeiro;ORCAMENTOS=p.orcamentos;PREVENDAS=p.prevendas;
       DATA_ATUALIZACAO_DADOS=p.atualizacaoFinanceiro;
       state.visaoAtual=p.visao; state.competencia=p.competencia;
+      if(state.filtroVendedoraEscopo!=='TODAS' && !VENDEDORAS.some(v=>v.CodVendedor===state.filtroVendedoraEscopo)) state.filtroVendedoraEscopo='TODAS';
+      if(state.filtroEquipeGestao!=='TODAS' && !SUPERVISORES.some(s=>s.IdEquipe===state.filtroEquipeGestao)) state.filtroEquipeGestao='TODAS';
       if(first){state.competenciaMeta=p.competencia;state.pagina=0;}
       if(args.feedback){pending=false;pendingPdf=false;state.avisoSupervisor=args.feedback;}
       if(!args.arquivoPdf && linkPdf){URL.revokeObjectURL(linkPdf.url);linkPdf=null;ultimoPdf=null;}
@@ -3859,6 +3901,12 @@
     function cadastrosNoEscopo() {
       const codes=new Set(codigosNoEscopo());
       return CADASTROS_MES.filter(c=>codes.has(c.CodVendedorCarteira));
+    }
+
+    function cadastroCompletoNoEscopo() {
+      const codigos=codigosNoEscopo();
+      const mapa=servidor.cadastroCompletoPorVendedor;
+      return mapa ? codigos.length>0 && codigos.every(c=>mapa[c]===true) : Boolean(servidor.cadastroDisponivel);
     }
 
     function aplicarAba(clientes) {

@@ -701,7 +701,10 @@ def _campo_data_cadastro(conn):
             SELECT c.name FROM [dbCronos].sys.columns c
             JOIN [dbCronos].sys.tables t ON t.object_id=c.object_id
             JOIN [dbCronos].sys.schemas s ON s.schema_id=t.schema_id
-            JOIN [dbCronos].sys.types ty ON ty.user_type_id=c.user_type_id
+            -- Resolve o tipo base: DataOperacao usa o alias UDD_DataOperacao.
+            JOIN [dbCronos].sys.types ty
+              ON ty.user_type_id=c.system_type_id
+             AND ty.system_type_id=c.system_type_id
             WHERE s.name='dbo' AND t.name='Cli_For' AND c.name=%s
               AND ty.name IN ('date','datetime','datetime2','smalldatetime')
         """, (campo,))
@@ -755,7 +758,7 @@ def etl_carteira_clientes(conn, data_referencia=None):
     sql = f"""
     ;WITH Carteira AS (
         SELECT
-            CF.IdEmpresa, CF.CodCliFor, CF.NomeCliFor AS Cliente,
+            CF.IdEmpresa, CF.CodCliFor, CF.NomeCliFor AS Cliente, CF.RazaoSocial,
             CF.TipoCliente, CF.Inativo AS ClienteInativo,
             {data_cadastro_sql} AS DataCadastro,
             CF.FoneCliFor AS Telefone, CF.CelCliFor AS Celular,
@@ -840,7 +843,7 @@ def etl_carteira_clientes(conn, data_referencia=None):
     """
     bruto = _run("carteira_clientes", sql, conn).reset_index(drop=True)
     cadastro = [
-        "IdEmpresa", "CodCliFor", "Cliente", "TipoCliente", "ClienteInativo",
+        "IdEmpresa", "CodCliFor", "Cliente", "RazaoSocial", "TipoCliente", "ClienteInativo",
         "Telefone", "Celular", "CodVendedorCarteira", "IdEmpresaResponsavel",
         "VendedorCarteira", "TipoResponsavel", "ResponsavelInativo",
         "CodSupervisor", "CarteiraVAtiva", "DataCadastro",
@@ -864,7 +867,7 @@ def etl_carteira_clientes(conn, data_referencia=None):
         bruto[coluna] = bruto[coluna].astype("string").str.strip()
     if bruto["CodCliFor"].eq("").any():
         raise ValueError("Codigo de cliente vazio.")
-    for coluna in ["Cliente", "Telefone", "Celular", "VendedorCarteira"]:
+    for coluna in ["Cliente", "RazaoSocial", "Telefone", "Celular", "VendedorCarteira"]:
         bruto[coluna] = bruto[coluna].fillna("").astype(str).str.strip()
     bruto["CarteiraVAtiva"] = bruto["CarteiraVAtiva"].eq(1)
     df = bruto[cadastro].drop_duplicates().reset_index(drop=True)
@@ -962,6 +965,9 @@ if __name__ == "__main__":
     conn = None
     try:
         conn = get_conn()
+        # Falha de configuracao cadastral deve aparecer antes das consultas pesadas.
+        if not args.somente_financeiro:
+            _campo_data_cadastro(conn)
         etl_rentabilidade_cronos(conn)
         if not args.somente_financeiro:
             etl_movimentos(conn)

@@ -3,6 +3,7 @@ import base64
 import logging
 from pathlib import Path
 import re
+import sqlite3
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
@@ -16,6 +17,7 @@ from radar_dados import ler_responsaveis
 from radar_cache_local import carregar_local, disponivel_local, CHAVE
 from radar_metas import salvar_meta, GESTAO, SUPERVISAO
 from radar_pdf import selecionar_pendentes, gerar_pdf
+from radar_equipe import candidatos, ler_equipe, salvar_equipe
 import radar_validado
 
 st.markdown('''<style>
@@ -42,10 +44,33 @@ if len(linhas)!=1 or not bool(linhas.iloc[0].Active) or bool(linhas.iloc[0].Rese
 usuario=dict(usuario,role=str(linhas.iloc[0].Role).strip().lower(),nome=str(linhas.iloc[0].NomeVendedor))
 render_logout_sidebar(usuario)
 with st.sidebar:
-    st.caption('Radar Comercial • versão enxuta 19/10/2026')
+    st.caption('Radar Comercial • painéis e equipe 20/10/2026')
     if st.button('Reler arquivos locais'):
         st.session_state.pop(CHAVE, None)
         st.rerun()
+    if str(usuario['role']).lower() in GESTAO:
+        with st.expander('Equipe comercial do Radar'):
+            st.caption('Mantenha selecionadas as pessoas da equipe atual. Faturamento zerado não define inatividade.')
+            try:
+                catalogo=ler_responsaveis(ROOT/'cache', equipe_atual=False)
+                pessoas=candidatos(catalogo).sort_values(['Vendedor','CodVendedor'])
+                nomes={r.CodVendedor:f'{r.Vendedor} ({r.CodVendedor})' for r in pessoas.itertuples()}
+                config=ler_equipe()
+                versao=config['versao'] if config else 0
+                atuais=[c for c in (config['codigos'] if config else list(nomes)) if c in nomes]
+                if 'radar_equipe_mensagem' in st.session_state:
+                    st.success(st.session_state.pop('radar_equipe_mensagem'))
+                with st.form('radar_equipe_form_'+str(versao)):
+                    selecionadas=st.multiselect('Participantes da equipe atual', list(nomes), default=atuais,
+                        format_func=lambda c:nomes[c], key='radar_equipe_selecao_'+str(versao))
+                    aplicar=st.form_submit_button('Salvar equipe')
+                st.caption('Esta seleção vale para todas as sessões do Radar. O cadastro do Cronos e o relatório financeiro completo são preservados.')
+                if aplicar:
+                    st.session_state['radar_equipe_mensagem']=salvar_equipe(usuario,catalogo,selecionadas,versao)
+                    st.session_state.pop(CHAVE,None)
+                    st.rerun()
+            except (ValueError, PermissionError, OSError, sqlite3.DatabaseError) as exc:
+                st.error(str(exc))
 
 carregando=st.empty()
 if not disponivel_local(usuario, ROOT/'cache', st.session_state):
@@ -58,7 +83,7 @@ except Exception as e:
     st.error('Não foi possível carregar a base da nova interface.')
     if isinstance(e,(ValueError,FileNotFoundError,PermissionError)):
         st.info(str(e))
-    st.caption('Extrações pausadas. Confira os arquivos locais; esta tela não consulta o Cronos.')
+    st.caption('Confira os arquivos locais; esta tela não consulta o Cronos.')
     st.stop()
 
 logo=ROOT/'dashboards/assets/logo.jpg'

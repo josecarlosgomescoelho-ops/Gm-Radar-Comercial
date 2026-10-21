@@ -7,6 +7,7 @@ import re
 import pandas as pd
 import radar_validado as validado
 from radar_metas import autorizados, ler_metas, GESTAO, SUPERVISAO
+from radar_equipe import aplicar_equipe
 
 
 def numero(v):
@@ -15,6 +16,10 @@ def numero(v):
 
 def data_br(v):
     return None if v is None or pd.isna(v) else pd.Timestamp(v).strftime('%d/%m/%Y')
+
+
+def texto(v):
+    return '' if v is None or pd.isna(v) else str(v).strip()
 
 
 def hora_br(v):
@@ -33,7 +38,7 @@ def telefone(v):
     return s
 
 
-def ler_responsaveis(cache):
+def ler_responsaveis(cache, db_path=None, equipe_atual=True):
     p = cache / 'radar_responsaveis.parquet'
     if not p.exists():
         raise ValueError('Execute o ETL completo atualizado para gerar os vínculos da equipe.')
@@ -45,7 +50,12 @@ def ler_responsaveis(cache):
         df[col] = df[col].fillna('').astype(str).str.strip()
     if df.IdEmpresa.ne(1).any() or df.CodVendedor.eq('').any() or df.CodVendedor.duplicated().any():
         raise ValueError('Cadastro de responsáveis inválido.')
-    return df
+    if 'Inativo' in df:
+        flag=df.Inativo.fillna('').astype(str).str.strip().str.upper()
+        if not flag.isin(['N','S']).all():
+            raise ValueError('Situação de atividade desconhecida no cadastro de responsáveis.')
+        df=df.loc[flag.eq('N')].copy()
+    return aplicar_equipe(df, db_path) if equipe_atual else df
 
 
 def preparar_clientes(carteira, historico, referencia):
@@ -92,6 +102,7 @@ def preparar_clientes(carteira, historico, referencia):
         primeira_confirmada = cadastrado and primeira is not None and pd.Timestamp(primeira['DataFaturamento']).normalize() >= cadastro
         result.append({
             'CodCliFor':codigo,'Cliente':str(row['Cliente']),
+            'RazaoSocial':texto(row.get('RazaoSocial')),
             'CodVendedorCarteira':str(row['CodVendedorCarteira']), 'VendedorCarteira':str(row['VendedorCarteira']),
             'IdEquipe':str(row.get('CodSupervisor','')), 'CurvaABC':str(row['CurvaABC']),
             'CompraNos12Meses':codigo in ultimas, 'Status':status, 'ComprouNoMes':comprou, 'AbaixoMedia':bool(comprou and media>0 and fat<media*.8),
@@ -108,6 +119,27 @@ def preparar_clientes(carteira, historico, referencia):
             'Historico':historico_mensal,
         })
     return result
+
+
+def cadastros_fora_carteira(total, referencia, usuario):
+    """Somente a gestao recebe cadastros sem vendedora elegivel; sem inferir vendas."""
+    if str(usuario['role']).lower().strip() not in GESTAO:
+        return []
+    datas = pd.to_datetime(total['DataCadastro'], errors='raise').dt.normalize()
+    recorte = total.loc[~total.CarteiraVAtiva & datas.between(referencia.replace(day=1), referencia)]
+    itens = []
+    for row in recorte.to_dict('records'):
+        cod = row.get('CodVendedorCarteira')
+        cod = '' if cod is None or pd.isna(cod) else str(cod).strip()
+        nome = row.get('VendedorCarteira')
+        nome = '' if nome is None or pd.isna(nome) else str(nome).strip()
+        razao = row.get('RazaoSocial')
+        razao = '' if razao is None or pd.isna(razao) else str(razao).strip()
+        itens.append({'CodCliFor':str(row['CodCliFor']), 'Cliente':str(row['Cliente']),
+                      'RazaoSocial':razao, 'DataCadastro':data_br(row['DataCadastro']),
+                      'CodVendedorCarteira':cod, 'VendedorCarteira':nome,
+                      'SituacaoResponsavel':'Sem responsavel cadastrado' if not cod else 'Responsavel fora da carteira ativa'})
+    return sorted(itens, key=lambda r: (r['DataCadastro'][6:]+r['DataCadastro'][3:5]+r['DataCadastro'][:2], r['CodCliFor']), reverse=True)
 
 
 def documentos(cache, nome, codigos, avisos):
@@ -140,11 +172,11 @@ def documentos(cache, nome, codigos, avisos):
 def construir_payload(usuario, cache, db_path=None):
     validado.CACHE_DIR=cache
     validado.HOJE=pd.Timestamp.now(tz='America/Sao_Paulo').date()
-    resp=ler_responsaveis(cache)
+    resp=ler_responsaveis(cache, db_path)
     permitido=autorizados(usuario,resp)
     vendedores=permitido.loc[permitido.Tipo.eq('V') & ~permitido.CodVendedor.isin(['00002','01174'])].copy()
     if vendedores.empty:
-        raise ValueError('Nenhuma vendedora elegível vinculada ao seu perfil. Confira o cadastro de equipe.')
+        raise ValueError('Nenhuma vendedora elegível vinculada ao seu perfil na equipe atual. A gestão pode revisar a seleção de participantes na barra lateral.')
     codigos=set(vendedores.CodVendedor)
     total, historico_total = validado._load_carteira_abc(validado._versao_cache_carteira())
     dia_cache = pd.Timestamp(total.DataReferencia.iloc[0]).date()
@@ -156,15 +188,19 @@ def construir_payload(usuario, cache, db_path=None):
         raise ValueError('Execute o ETL completo desta versão antes de abrir a nova interface.')
     # Empty authorized wallets still need date metadata from validated cache.
     referencia=pd.Timestamp(total.DataReferencia.iloc[0])
-    campo = str(total.CampoDataCadastro.iloc[0]) if 'CampoDataCadastro' in total else ''
+    campo = total.CampoDataCadastro.iloc[0] if 'CampoDataCadastro' in total else None
+    campo = '' if campo is None or pd.isna(campo) else str(campo).strip()
     competencia=referencia.strftime('%Y-%m')
     metas=ler_metas(codigos,db_path)
     avisos=[]
     if referencia.date()!=validado.HOJE:
         avisos.append('Carteira com dados até '+data_br(referencia)+'. Atualize o ETL para incluir as compras mais recentes.')
     sem_data = not campo or carteira.DataCadastro.isna().any()
-    if sem_data:
-        avisos.append('Data de cadastro indisponível ou incompleta. Os totais de novos cadastros não serão exibidos como zero.')
+    cadastro_completo = {cod: bool(campo) and not carteira.loc[carteira.CodVendedorCarteira.eq(cod), 'DataCadastro'].isna().any() for cod in codigos}
+    if not campo:
+        avisos.append('Data de cadastro não configurada. Novos cadastros indisponíveis nesta base.')
+    elif sem_data:
+        avisos.append('Há clientes sem data de cadastro. A lista mostra os registros com data conhecida; o total fica indisponível.')
     try:
         financeiro=validado._load_financeiro_cronos(validado._versao_cache_financeiro())
         atual_fin=hora_br(financeiro.AtualizadoEmUTC.iloc[0])
@@ -250,7 +286,7 @@ def construir_payload(usuario, cache, db_path=None):
     global_data={k:numero(global_fin[k]) for k in ['receita','custo','lucro','margem','qtd']} if global_fin else None
     orcamentos=documentos(cache,'orcamentos_abertos',codigos,avisos)
     prevendas=documentos(cache,'prevendas',codigos,avisos)
-    cadastros_mes = [c for c in clientes if c['CadastradoNoMes']]
+    cadastros_mes = [c for c in clientes if c['CadastradoNoMes']] if campo else []
     clientes_carteira = [c for c in clientes if c['CompraNos12Meses']]
     payload={'usuario':{'cod':str(usuario['cod']),'nome':str(usuario['nome']),'role':role},
         'visao':visao,'competencia':competencia,'mesesMetas':meses,'vendedoras':vendedoras,
@@ -258,6 +294,10 @@ def construir_payload(usuario, cache, db_path=None):
         'periodoCarteiraInicio':data_br(total.PeriodoInicio.iloc[0]),
         'regraCarteira':'Clientes com compra nos 12 meses de calendário do período salvo; responsável atual do cadastro.','financeiro':registros,'resumos':resumos,
         'financeiroGeral':global_data,'cadastroDisponivel':not sem_data,
+        'cadastroListagemDisponivel':bool(campo), 'campoDataCadastro':campo,
+        'cadastroCompletoPorVendedor':cadastro_completo,
+        'cadastrosSemCarteiraAtiva':cadastros_fora_carteira(total, referencia, usuario) if campo else [],
+        'cadastrosForaCarteiraCompletos':bool(campo) and not total.loc[~total.CarteiraVAtiva, 'DataCadastro'].isna().any() if role in GESTAO else None,
         'atualizacaoCarteira':hora_br(total.AtualizadoEmUTC.iloc[0]),'atualizacaoFinanceiro':atual_fin,
         'referenciaCarteira':data_br(referencia),'avisos':avisos,
         'documentosDisponiveis':{'orcamentos':orcamentos is not None,'prevendas':prevendas is not None},
