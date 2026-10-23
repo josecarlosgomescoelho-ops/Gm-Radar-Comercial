@@ -1,4 +1,5 @@
 """Testes sinteticos da selecao de equipe. Sem consulta ao Cronos."""
+from contextlib import closing
 from pathlib import Path
 import sqlite3
 import sys
@@ -85,27 +86,35 @@ class TesteEquipeRadar(unittest.TestCase):
             with self.assertRaises(PermissionError):self.salvar(['01'],user=dict(role=role,cod='01'))
         self.assertIsNone(ler_equipe(self.db))
 
-    def test_recusa_codigos_invalidos_e_lista_vazia(self):
-        for codigos in [[],['01','01'],[' 01'],[1],['desconhecido'],['S1'],['00002']]:
+    def test_recusa_codigos_invalidos(self):
+        for codigos in [['01','01'],[' 01'],[1],['desconhecido'],['S1'],['00002']]:
             with self.assertRaises((ValueError,PermissionError)):self.salvar(codigos)
         self.assertIsNone(ler_equipe(self.db))
 
-    def test_respeita_marcador_inativo_quando_disponivel(self):
+    def test_mostra_cadastro_inativo_e_a_gestao_decide(self):
         df=self.resp.copy();df['Inativo']='N';df.loc[df.CodVendedor.eq('02'),'Inativo']='S'
-        self.assertEqual(set(candidatos(df).CodVendedor),{'01'})
-        with self.assertRaises(PermissionError):salvar_equipe(self.user,df,['02'],0,self.db)
+        self.assertEqual(set(candidatos(df).CodVendedor),{'01','02'})
+        salvar_equipe(self.user,df,['02'],0,self.db)
         df.to_parquet(self.cache/'radar_responsaveis.parquet',index=False)
-        self.assertNotIn('02',set(ler_responsaveis(self.cache,self.db).CodVendedor))
+        self.assertIn('02',set(ler_responsaveis(self.cache,self.db).CodVendedor))
+        self.assertIn('02',set(ler_responsaveis(self.cache,self.db,equipe_atual=False).CodVendedor))
+
+    def test_equipe_vazia_e_legitima_e_pode_ser_reaberta(self):
+        self.salvar([])
+        self.assertEqual(ler_equipe(self.db)['codigos'],[])
+        self.assertEqual(self.payload()['vendedoras'],[])
+        self.salvar(['01'],1)
+        self.assertEqual([v['CodVendedor'] for v in self.payload()['vendedoras']],['01'])
 
     def test_concorrencia_e_auditoria(self):
         self.salvar(['01'])
         with self.assertRaises(ValueError):self.salvar(['02'],0)
         self.assertEqual(ler_equipe(self.db)['codigos'],['01'])
         self.salvar(['01'],1) # idempotente
-        with sqlite3.connect(self.db) as c:self.assertEqual(c.execute('SELECT COUNT(*) FROM radar_equipe_auditoria').fetchone()[0],1)
+        with closing(sqlite3.connect(self.db)) as c:self.assertEqual(c.execute('SELECT COUNT(*) FROM radar_equipe_auditoria').fetchone()[0],1)
         self.salvar(['01','02'],1)
         self.assertEqual(ler_equipe(self.db)['versao'],2)
-        with sqlite3.connect(self.db) as c:self.assertEqual(c.execute('SELECT COUNT(*) FROM radar_equipe_auditoria').fetchone()[0],2)
+        with closing(sqlite3.connect(self.db)) as c:self.assertEqual(c.execute('SELECT COUNT(*) FROM radar_equipe_auditoria').fetchone()[0],2)
 
     def test_selecao_invalida_cache_e_abrange_todas_as_sessoes(self):
         estado={}
@@ -127,7 +136,7 @@ class TesteEquipeRadar(unittest.TestCase):
             selecionar_pendentes(antigo,self.user,resp,dict(curva='TODAS',vendedores=['02']))
         evento=dict(id='equipe_teste_0123456789',vendedor='02',competencia=antigo['competencia'],valor='1000,00',versao=0)
         with self.assertRaises(PermissionError):salvar_meta(self.user,resp,evento,self.db)
-        with self.assertRaises(ValueError):self.payload(dict(cod='02',nome='Bia',role='vendedor'))
+        with self.assertRaises(PermissionError):self.payload(dict(cod='02',nome='Bia',role='vendedor'))
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

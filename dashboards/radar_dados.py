@@ -6,8 +6,10 @@ import math
 import re
 import pandas as pd
 import radar_validado as validado
+from radar_leitura import ler_parquet
 from radar_metas import autorizados, ler_metas, GESTAO, SUPERVISAO
-from radar_equipe import aplicar_equipe
+from radar_equipe import aplicar_equipe, filtrar_vinculos
+from radar_ordem import ordenar_registros
 
 
 def numero(v):
@@ -42,7 +44,7 @@ def ler_responsaveis(cache, db_path=None, equipe_atual=True):
     p = cache / 'radar_responsaveis.parquet'
     if not p.exists():
         raise ValueError('Execute o ETL completo atualizado para gerar os vínculos da equipe.')
-    df = pd.read_parquet(p)
+    df = ler_parquet(p)
     cols = {'IdEmpresa','CodVendedor','Vendedor','CodSupervisor','Supervisor','Tipo'}
     if not cols.issubset(df.columns):
         raise ValueError('Cadastro de responsáveis antigo. Execute o ETL completo.')
@@ -50,12 +52,7 @@ def ler_responsaveis(cache, db_path=None, equipe_atual=True):
         df[col] = df[col].fillna('').astype(str).str.strip()
     if df.IdEmpresa.ne(1).any() or df.CodVendedor.eq('').any() or df.CodVendedor.duplicated().any():
         raise ValueError('Cadastro de responsáveis inválido.')
-    if 'Inativo' in df:
-        flag=df.Inativo.fillna('').astype(str).str.strip().str.upper()
-        if not flag.isin(['N','S']).all():
-            raise ValueError('Situação de atividade desconhecida no cadastro de responsáveis.')
-        df=df.loc[flag.eq('N')].copy()
-    return aplicar_equipe(df, db_path) if equipe_atual else df
+    return aplicar_equipe(df, db_path) if equipe_atual else filtrar_vinculos(df)
 
 
 def preparar_clientes(carteira, historico, referencia):
@@ -114,7 +111,7 @@ def preparar_clientes(carteira, historico, referencia):
             'CadastradoNoMes':cadastrado,'DataCadastro':data_br(cadastro),
             'PrimeiraCompraData':data_br(primeira['DataFaturamento']) if primeira_confirmada else None,
             'PrimeiraCompraValor':numero(primeira['ValorLiquido']) if primeira_confirmada else None,
-            'Celular':telefone(row.get('Celular')),'Telefone':str(row.get('Telefone') or ''),
+            'Celular':telefone(row.get('Celular')),'Telefone':texto(row.get('Telefone')),
             'ReceitaEmRisco':media if not comprou and str(row['CurvaABC']) in {'A','B'} else 0,
             'Historico':historico_mensal,
         })
@@ -139,7 +136,7 @@ def cadastros_fora_carteira(total, referencia, usuario):
                       'RazaoSocial':razao, 'DataCadastro':data_br(row['DataCadastro']),
                       'CodVendedorCarteira':cod, 'VendedorCarteira':nome,
                       'SituacaoResponsavel':'Sem responsavel cadastrado' if not cod else 'Responsavel fora da carteira ativa'})
-    return sorted(itens, key=lambda r: (r['DataCadastro'][6:]+r['DataCadastro'][3:5]+r['DataCadastro'][:2], r['CodCliFor']), reverse=True)
+    return ordenar_registros(itens,'Cliente','CodCliFor')
 
 
 def documentos(cache, nome, codigos, avisos):
@@ -147,7 +144,7 @@ def documentos(cache, nome, codigos, avisos):
     if not p.exists():
         avisos.append(f'{nome}: dados indisponíveis; execute o ETL completo.')
         return None
-    df = pd.read_parquet(p)
+    df = ler_parquet(p)
     required={'IdEmpresa','VersaoDocumentosRadar','CodVendedor','CodCliFor','NumMov','DtMov','ValorLiquido'}
     if not required.issubset(df.columns):
         avisos.append(f'{nome}: cache antigo; execute o ETL completo.')
@@ -166,21 +163,20 @@ def documentos(cache, nome, codigos, avisos):
                        'Cliente':str(nome_cliente),'NomeCliFor':str(nome_cliente),
                        'ValorLiquido':numero(r['ValorLiquido']),
                        'DiasAberto':None if pd.isna(data) else max(0,(pd.Timestamp.now(tz='America/Sao_Paulo').date()-data.date()).days)})
-    return result
+    return ordenar_registros(result,'Cliente','NumMov')
 
 
+@validado.contexto_cache
 def construir_payload(usuario, cache, db_path=None):
-    validado.CACHE_DIR=cache
-    validado.HOJE=pd.Timestamp.now(tz='America/Sao_Paulo').date()
     resp=ler_responsaveis(cache, db_path)
     permitido=autorizados(usuario,resp)
     vendedores=permitido.loc[permitido.Tipo.eq('V') & ~permitido.CodVendedor.isin(['00002','01174'])].copy()
-    if vendedores.empty:
-        raise ValueError('Nenhuma vendedora elegível vinculada ao seu perfil na equipe atual. A gestão pode revisar a seleção de participantes na barra lateral.')
+    if vendedores.empty and str(usuario['role']).lower().strip() not in GESTAO | SUPERVISAO:
+        raise PermissionError('Login validado, mas seu cadastro não está incluído na equipe atual do Radar. Solicite a inclusão do seu código à gestão.')
     codigos=set(vendedores.CodVendedor)
     total, historico_total = validado._load_carteira_abc(validado._versao_cache_carteira())
     dia_cache = pd.Timestamp(total.DataReferencia.iloc[0]).date()
-    if dia_cache > validado.HOJE or (dia_cache.year, dia_cache.month) != (validado.HOJE.year, validado.HOJE.month):
+    if dia_cache > validado.hoje() or (dia_cache.year, dia_cache.month) != (validado.hoje().year, validado.hoje().month):
         raise ValueError('Carteira de outro mês. Confira a base local antes de analisar o mês atual.')
     carteira = total.loc[total.CarteiraVAtiva & total.CodVendedorCarteira.isin(codigos)].copy()
     hist = historico_total.loc[historico_total.CodCliFor.isin(carteira.CodCliFor)].copy()
@@ -193,7 +189,9 @@ def construir_payload(usuario, cache, db_path=None):
     competencia=referencia.strftime('%Y-%m')
     metas=ler_metas(codigos,db_path)
     avisos=[]
-    if referencia.date()!=validado.HOJE:
+    if vendedores.empty:
+        avisos.append('Nenhuma vendedora está incluída neste recorte. A gestão pode ajustar a participação na aba Equipe do Radar.')
+    if referencia.date()!=validado.hoje():
         avisos.append('Carteira com dados até '+data_br(referencia)+'. Atualize o ETL para incluir as compras mais recentes.')
     sem_data = not campo or carteira.DataCadastro.isna().any()
     cadastro_completo = {cod: bool(campo) and not carteira.loc[carteira.CodVendedorCarteira.eq(cod), 'DataCadastro'].isna().any() for cod in codigos}
@@ -224,13 +222,16 @@ def construir_payload(usuario, cache, db_path=None):
                   'Supervisor':r.Supervisor,'PodeMeta':True} for r in vendedores.itertuples()]
     supervisores=[{'IdEquipe':r.CodSupervisor or 'SEM','Nome':r.Supervisor or 'Sem supervisor'}
                   for r in vendedores[['CodSupervisor','Supervisor']].drop_duplicates().itertuples()]
+    vendedoras=ordenar_registros(vendedoras,'Nome','CodVendedor')
+    supervisores=ordenar_registros(supervisores,'Nome','IdEquipe')
     clientes=preparar_clientes(carteira,hist,referencia)
+    equipes_por_codigo={v['CodVendedor']:v['IdEquipe'] for v in vendedoras}
     for c in clientes:
-        c['IdEquipe']=next(v['IdEquipe'] for v in vendedoras if v['CodVendedor']==c['CodVendedorCarteira'])
+        c['IdEquipe']=equipes_por_codigo[c['CodVendedorCarteira']]
     # Client profitability is optional, never replaced with invented zeros.
     rp=cache/'radar_rent_cli.parquet'
     if rp.exists():
-        rent=pd.read_parquet(rp)
+        rent=ler_parquet(rp)
         if {'CodCliFor','CodVendedor','Faturamento','CustoTotal','VersaoRentabilidadeCronos','PeriodoFimExclusivo'}.issubset(rent.columns) and not rent.empty and rent.VersaoRentabilidadeCronos.eq(1).all() and pd.Timestamp(rent.PeriodoFimExclusivo.iloc[0]).to_period('M')==referencia.to_period('M'):
             rent.CodVendedor=rent.CodVendedor.astype('string').str.strip()
             rent=rent.loc[rent.CodVendedor.isin(codigos)]
@@ -240,17 +241,22 @@ def construir_payload(usuario, cache, db_path=None):
                 c['RentPerc']=float((r.Faturamento-r.CustoTotal)/r.Faturamento*100) if r is not None and pd.notna(r.Faturamento) and pd.notna(r.CustoTotal) and r.Faturamento!=0 else None
     produtos_path=cache/'radar_produtos.parquet'
     if produtos_path.exists():
-        produtos=pd.read_parquet(produtos_path)
+        produtos=ler_parquet(produtos_path)
         cols={'IdEmpresa','CodCliFor','CodVendedor','Produto','QtdTotal','Frequencia'}
         if cols.issubset(produtos.columns) and produtos.IdEmpresa.eq(1).all():
             produtos.CodVendedor=produtos.CodVendedor.astype('string').str.strip()
             produtos.CodCliFor=produtos.CodCliFor.astype('string').str.strip()
             produtos=produtos.loc[produtos.CodVendedor.isin(codigos)]
-            pg={(str(a),str(b)):g.sort_values('Frequencia',ascending=False).head(3)
-                for (a,b),g in produtos.groupby(['CodVendedor','CodCliFor'])}
+            # Ordena uma vez; evita criar e ordenar milhares de DataFrames por acesso.
+            selecionados=produtos.sort_values('Frequencia',ascending=False,kind='stable').groupby(
+                ['CodVendedor','CodCliFor'],sort=False).head(3)
+            pg={}
+            for r in selecionados.to_dict('records'):
+                chave=(str(r['CodVendedor']),str(r['CodCliFor']))
+                pg.setdefault(chave,[]).append({'Produto':str(r['Produto']),
+                    'Frequencia':numero(r['Frequencia']),'QtdTotal':numero(r['QtdTotal'])})
             for c in clientes:
-                g=pg.get((c['CodVendedorCarteira'],c['CodCliFor']))
-                c['ProdutosHabituais']=[] if g is None else [{'Produto':str(r.Produto),'Frequencia':numero(r.Frequencia),'QtdTotal':numero(r.QtdTotal)} for r in g.itertuples()]
+                c['ProdutosHabituais']=pg.get((c['CodVendedorCarteira'],c['CodCliFor']),[])
     meses=[str(p) for p in pd.period_range(referencia.to_period('M')-12,referencia.to_period('M')+12,freq='M')]
     registros={}
     for v in vendedoras:
@@ -287,13 +293,16 @@ def construir_payload(usuario, cache, db_path=None):
     orcamentos=documentos(cache,'orcamentos_abertos',codigos,avisos)
     prevendas=documentos(cache,'prevendas',codigos,avisos)
     cadastros_mes = [c for c in clientes if c['CadastradoNoMes']] if campo else []
-    clientes_carteira = [c for c in clientes if c['CompraNos12Meses']]
+    clientes_carteira = ordenar_registros([c for c in clientes if c['CompraNos12Meses']],'Cliente','CodCliFor')
+    cadastros_mes=ordenar_registros(cadastros_mes,'Cliente','CodCliFor')
     payload={'usuario':{'cod':str(usuario['cod']),'nome':str(usuario['nome']),'role':role},
         'visao':visao,'competencia':competencia,'mesesMetas':meses,'vendedoras':vendedoras,
         'supervisores':supervisores,'clientes':clientes_carteira,'cadastrosMes':cadastros_mes,
         'periodoCarteiraInicio':data_br(total.PeriodoInicio.iloc[0]),
         'regraCarteira':'Clientes com compra nos 12 meses de calendário do período salvo; responsável atual do cadastro.','financeiro':registros,'resumos':resumos,
-        'financeiroGeral':global_data,'cadastroDisponivel':not sem_data,
+        'financeiroGeral':global_data,
+        'financeiroGeralExato':{k:format(global_fin[k],'.4f') for k in ('receita','custo','lucro')} if global_fin else None,
+        'cadastroDisponivel':not sem_data,
         'cadastroListagemDisponivel':bool(campo), 'campoDataCadastro':campo,
         'cadastroCompletoPorVendedor':cadastro_completo,
         'cadastrosSemCarteiraAtiva':cadastros_fora_carteira(total, referencia, usuario) if campo else [],

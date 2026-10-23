@@ -1,16 +1,18 @@
-"""Lista somente identificadores e situação de contas locais; não altera acessos."""
+"""Lista identificadores e situacao das vendedoras na base local SQLite."""
 from pathlib import Path
-import pandas as pd
+import sys
+import sqlite3
 
-root = Path(__file__).resolve().parents[1]
-arquivo = root / 'cache' / 'usuarios.parquet'
-if not arquivo.exists():
-    raise SystemExit('Cadastro local não encontrado: ' + str(arquivo))
-colunas = ['CodVendedor', 'NomeVendedor', 'Role', 'Active', 'FirstLogin', 'ResetRequired']
-df = pd.read_parquet(arquivo, columns=colunas)
-df = df.loc[df.Role.astype('string').str.strip().str.lower().isin(['vendedor', 'vendedora'])].copy()
-df = df.sort_values('NomeVendedor')
-df = df.rename(columns={'CodVendedor':'Login', 'NomeVendedor':'Nome', 'Role':'Perfil',
-                        'Active':'Ativa', 'FirstLogin':'PrimeiroAcesso', 'ResetRequired':'TrocaPendente'})
-print(df.to_string(index=False) if not df.empty else 'Nenhuma conta de vendedora encontrada neste cache local.')
-print('\nO login é o código, incluindo zeros à esquerda. Senhas e tokens não são exibidos.')
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'dashboards'))
+from radar_auth_store import AuthStore, AuthError
+
+try:
+    df=AuthStore().users(include_hash=False)
+    df=df.loc[df.Role.isin(['vendedor','vendedora'])].sort_values('NomeVendedor')
+    cols=['CodVendedor','NomeVendedor','Role','Active','FirstLogin','ResetRequired']
+    print(df[cols].rename(columns={'CodVendedor':'Login','NomeVendedor':'Nome','Role':'Perfil','Active':'Ativa',
+          'FirstLogin':'PrimeiroAcesso','ResetRequired':'TrocaPendente'}).to_string(index=False) if not df.empty else 'Nenhuma conta de vendedora encontrada.')
+    print('\nO login e o codigo, incluindo zeros a esquerda. Senhas, hashes e tokens nao sao exibidos.')
+except (AuthError,OSError,sqlite3.Error) as exc:
+    raise SystemExit('Nao foi possivel consultar as contas: '+str(exc))

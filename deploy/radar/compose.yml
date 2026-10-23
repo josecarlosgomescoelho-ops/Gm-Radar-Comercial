@@ -1,0 +1,39 @@
+# Executar somente depois de validar o inventário e os caminhos do servidor.
+services:
+  radar:
+    build:
+      context: ../..
+      dockerfile: deploy/radar/Dockerfile
+    image: gm-radar-comercial:2026.10.22-r3
+    container_name: gm-radar-comercial
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:${RADAR_PORTA_HOST:-8504}:8504"
+    volumes:
+      - type: bind
+        source: ${RADAR_CACHE_HOST:?Informe o caminho absoluto do cache atual da VPS}
+        target: /app/cache
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${RADAR_DADOS_HOST:?Informe o caminho absoluto dos dados persistentes do Radar}
+        target: /radar-data
+        bind:
+          create_host_path: false
+    environment:
+      RADAR_AUTH_DB: /radar-data/radar_auth.sqlite3
+      RADAR_DATA_DIR: /radar-data
+      RADAR_AMBIENTE: VPS
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=128m
+      - /home/radar/.streamlit:rw,nosuid,nodev,size=8m,uid=10001,gid=10001
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

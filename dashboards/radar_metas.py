@@ -45,20 +45,20 @@ def caminho_banco():
 @contextmanager
 def conexao(path=None):
     conn = sqlite3.connect(str(path or caminho_banco()), timeout=10)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys=ON")
-    conn.executescript('''
-    CREATE TABLE IF NOT EXISTS metas (
-      empresa INTEGER NOT NULL, vendedor TEXT NOT NULL, competencia TEXT NOT NULL,
-      centavos INTEGER NOT NULL CHECK(centavos>0), versao INTEGER NOT NULL,
-      autor TEXT NOT NULL, atualizado TEXT NOT NULL,
-      PRIMARY KEY(empresa,vendedor,competencia));
-    CREATE TABLE IF NOT EXISTS metas_auditoria (
-      id INTEGER PRIMARY KEY, evento TEXT NOT NULL UNIQUE,
-      empresa INTEGER NOT NULL, vendedor TEXT NOT NULL, competencia TEXT NOT NULL,
-      anterior INTEGER, novo INTEGER NOT NULL, autor TEXT NOT NULL, atualizado TEXT NOT NULL);
-    ''')
     try:
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys=ON")
+        conn.executescript('''
+        CREATE TABLE IF NOT EXISTS metas (
+          empresa INTEGER NOT NULL, vendedor TEXT NOT NULL, competencia TEXT NOT NULL,
+          centavos INTEGER NOT NULL CHECK(centavos>0), versao INTEGER NOT NULL,
+          autor TEXT NOT NULL, atualizado TEXT NOT NULL,
+          PRIMARY KEY(empresa,vendedor,competencia));
+        CREATE TABLE IF NOT EXISTS metas_auditoria (
+          id INTEGER PRIMARY KEY, evento TEXT NOT NULL UNIQUE,
+          empresa INTEGER NOT NULL, vendedor TEXT NOT NULL, competencia TEXT NOT NULL,
+          anterior INTEGER, novo INTEGER NOT NULL, autor TEXT NOT NULL, atualizado TEXT NOT NULL);
+        ''')
         yield conn
     finally:
         conn.close()

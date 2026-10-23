@@ -1,5 +1,8 @@
 """PDF de pendências gerado em memória a partir da carteira autorizada."""
 from io import BytesIO
+from collections import OrderedDict
+import json
+from threading import RLock
 from xml.sax.saxutils import escape
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
@@ -7,6 +10,7 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, LongTable, TableStyle
 from radar_metas import autorizados
+from radar_ordem import chave_nome
 
 
 def selecionar_pendentes(payload, usuario, responsaveis, evento):
@@ -26,12 +30,39 @@ def selecionar_pendentes(payload, usuario, responsaveis, evento):
     itens = [c for c in payload['clientes'] if c['CodVendedorCarteira'] in codigos
              and c['CompraNos12Meses'] and not c['ComprouNoMes']
              and (curva == 'TODAS' or c['CurvaABC'] == curva)]
-    itens.sort(key=lambda c: (c['CurvaABC'], -c['MediaMensal'], c['Cliente'], c['CodCliFor']))
-    nomes = [r.Vendedor for r in equipe.itertuples() if r.CodVendedor in codigos]
+    itens.sort(key=lambda c: (chave_nome(c['Cliente']), c['CodCliFor']))
+    nomes = sorted([r.Vendedor for r in equipe.itertuples() if r.CodVendedor in codigos],key=chave_nome)
     return itens, nomes, curva
 
 
+_PDF_LOCK = RLock()
+_PDF_CACHE = OrderedDict()
+
+
 def gerar_pdf(payload, clientes, nomes, curva):
+    """Reutiliza somente relatórios idênticos após selecionar_pendentes autorizar o escopo."""
+    campos=('CodCliFor','CurvaABC','Cliente','VendedorCarteira','Celular','Telefone',
+            'UltimaCompra','DiasUltimaCompra','MediaMensal')
+    itens=[{k:c.get(k) for k in campos} for c in clientes]
+    base={k:payload[k] for k in ('competencia','referenciaCarteira','periodoCarteiraInicio')}
+    chave=json.dumps([base,itens,nomes,curva],ensure_ascii=False,sort_keys=True,allow_nan=False)
+    # ReportLab trabalha sobretudo em Python. Uma fila evita picos de RAM e
+    # deduplica relatórios simultâneos do mesmo recorte, inclusive entre perfis.
+    with _PDF_LOCK:
+        dados=_PDF_CACHE.get(chave)
+        if dados is None:
+            dados=_gerar_pdf(base,itens,nomes,curva)
+            tamanho=len(dados)+len(chave.encode('utf-8'))
+            if tamanho <= 32*1024*1024:
+                while _PDF_CACHE and (len(_PDF_CACHE)>=32 or sum(len(v)+len(k.encode('utf-8')) for k,v in _PDF_CACHE.items())+tamanho>32*1024*1024):
+                    _PDF_CACHE.popitem(last=False)
+                _PDF_CACHE[chave]=dados
+        else:
+            _PDF_CACHE.move_to_end(chave)
+        return dados
+
+
+def _gerar_pdf(payload, clientes, nomes, curva):
     buffer = BytesIO()
     navy = colors.HexColor('#1B3A5C')
     text = ParagraphStyle('texto', fontName='Helvetica', fontSize=8, leading=11, textColor=navy)

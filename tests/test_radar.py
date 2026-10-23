@@ -83,6 +83,8 @@ class Regras(unittest.TestCase):
         ref,c,h,r=dados()
         for df in [c,h]:
             df['DataReferencia']=ref
+        c['CarteiraVAtiva']=True
+        c['PeriodoInicio']=ref.replace(day=1)-pd.DateOffset(months=11)
         c['VersaoInterfaceCarteira']=2;c['CampoDataCadastro']='';c['AtualizadoEmUTC']=pd.Timestamp.now(tz='UTC')
         with tempfile.TemporaryDirectory() as td:
             p=Path(td)

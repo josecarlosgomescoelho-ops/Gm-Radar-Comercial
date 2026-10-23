@@ -1,5 +1,42 @@
 """Validadores e cálculo financeiro preservados da versão conferida com o Cronos."""
 import os
+from contextvars import ContextVar
+from functools import wraps
+from radar_leitura import ler_parquet, leitura_validada
+
+_CONTEXTO = ContextVar('radar_base_por_chamada', default=None)
+
+def contexto_cache(func):
+    @wraps(func)
+    def wrapped(usuario, cache, *args, **kwargs):
+        token = _CONTEXTO.set((Path(cache), pd.Timestamp.now(tz='America/Sao_Paulo').date()))
+        try:
+            return func(usuario, cache, *args, **kwargs)
+        finally:
+            _CONTEXTO.reset(token)
+    return wrapped
+
+def pasta_cache():
+    atual = _CONTEXTO.get()
+    return atual[0] if atual else CACHE_DIR
+
+def hoje():
+    atual = _CONTEXTO.get()
+    return atual[1] if atual else HOJE
+
+def snapshot_validado(func):
+    @wraps(func)
+    def wrapped(versao):
+        verificar = _versao_cache_carteira if func.__name__ == '_load_carteira_abc' else _versao_cache_financeiro
+        if verificar() != versao:
+            raise ValueError('Base local em atualização; releia os arquivos.')
+        chave = (func.__name__, str(pasta_cache().resolve()), hoje(), versao)
+        resultado = leitura_validada(chave, lambda: func(versao))
+        if verificar() != versao:
+            raise ValueError('Base local mudou durante a leitura; releia os arquivos.')
+        return resultado
+    return wrapped
+
 from pathlib import Path
 from decimal import Decimal
 import numpy as np
@@ -8,12 +45,14 @@ CACHE_DIR = Path(__file__).resolve().parent.parent / "cache"
 HOJE = pd.Timestamp.now(tz="America/Sao_Paulo").date()
 VERSAO_FINANCEIRO_CRONOS = 1
 def _versao_cache_financeiro():
-    p = CACHE_DIR / "rentabilidade_cronos.parquet"
-    return (p.stat().st_mtime_ns, p.stat().st_size)
+    p = pasta_cache() / "rentabilidade_cronos.parquet"
+    s = p.stat()
+    return (s.st_mtime_ns, s.st_size, s.st_ino)
 
+@snapshot_validado
 def _load_financeiro_cronos(versao):
     """Recusa esquemas antigos e invalida o cache ao trocar o arquivo."""
-    df = pd.read_parquet(CACHE_DIR / "rentabilidade_cronos.parquet")
+    df = ler_parquet(pasta_cache() / "rentabilidade_cronos.parquet")
     meta = {"VersaoFinanceiroCronos", "PeriodoInicio", "PeriodoFimInclusivo",
             "DataReferencia", "AtualizadoEmUTC"}
     dados = {"CodVendedor", "NomeVendedor", "NomeFilial", "IdImagem", "Qtd",
@@ -32,8 +71,8 @@ def _load_financeiro_cronos(versao):
     fim = pd.Timestamp(df["PeriodoFimInclusivo"].iloc[0])
     referencia = pd.Timestamp(df["DataReferencia"].iloc[0])
     if (inicio != referencia.replace(day=1) or fim != referencia
-            or referencia != referencia.normalize() or referencia.date() > HOJE
-            or (referencia.year, referencia.month) != (HOJE.year, HOJE.month)):
+            or referencia != referencia.normalize() or referencia.date() > hoje()
+            or (referencia.year, referencia.month) != (hoje().year, hoje().month)):
         raise ValueError("Financeiro de outro periodo; atualize o ETL.")
     if not df["LinhaFinanceira"].isin([True, False]).all():
         raise ValueError("Marcador de linhas financeiras invalido.")
@@ -90,13 +129,14 @@ def _exportar_financeiro_cronos(linhas):
     return df
 
 def _versao_cache_carteira():
-    paths = [CACHE_DIR / "carteira_clientes.parquet", CACHE_DIR / "carteira_historico.parquet"]
-    return tuple((p.stat().st_mtime_ns, p.stat().st_size) for p in paths)
+    paths = [pasta_cache() / "carteira_clientes.parquet", pasta_cache() / "carteira_historico.parquet"]
+    return tuple((s.st_mtime_ns, s.st_size, s.st_ino) for s in (p.stat() for p in paths))
 
+@snapshot_validado
 def _load_carteira_abc(versoes):
     """Le os dois caches juntos; a versao dos arquivos invalida o cache da tela."""
-    df = pd.read_parquet(CACHE_DIR / "carteira_clientes.parquet")
-    hist = pd.read_parquet(CACHE_DIR / "carteira_historico.parquet")
+    df = ler_parquet(pasta_cache() / "carteira_clientes.parquet")
+    hist = ler_parquet(pasta_cache() / "carteira_historico.parquet")
     meta = {"SnapshotCarteira", "DataReferencia", "PeriodoInicio", "PeriodoFimExclusivo"}
     cadastro = {
         "IdEmpresa", "CodCliFor", "Cliente", "Telefone", "Celular",
@@ -183,7 +223,7 @@ def _load_carteira_abc(versoes):
 def q_base_carteira(codigos_vendedores):
     df, hist = _load_carteira_abc(_versao_cache_carteira())
     referencia = pd.Timestamp(df["DataReferencia"].iloc[0]).date()
-    if referencia > HOJE or (referencia.year, referencia.month) != (HOJE.year, HOJE.month):
+    if referencia > hoje() or (referencia.year, referencia.month) != (hoje().year, hoje().month):
         raise ValueError("Carteira de outro mes: atualize o ETL antes de analisar o mes atual.")
     codigos = {str(c).strip() for c in codigos_vendedores}
     carteira = df.loc[df["CarteiraVAtiva"] & df["CodVendedorCarteira"].isin(codigos)].copy()

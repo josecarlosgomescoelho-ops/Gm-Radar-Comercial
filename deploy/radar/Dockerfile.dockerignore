@@ -1,0 +1,16 @@
+**/.env
+**/.env.*
+**/secrets.toml
+**/.git
+**/.venv
+**/__pycache__
+**/*.pyc
+**/cache
+**/data
+**/logs
+**/backups
+**/*.parquet
+**/*.sqlite3
+**/*.sqlite3-*
+**/*.db
+**/node_modules

@@ -718,12 +718,12 @@ def _campo_data_cadastro(conn):
 def etl_radar_responsaveis(conn):
     sql = """
         SELECT V.IdEmpresa, V.CodVendedor, V.NomeVendedor AS Vendedor,
-               V.Tipo, ISNULL(V.CodSupervisor,'') AS CodSupervisor,
+               V.Tipo, V.Inativo, ISNULL(V.CodSupervisor,'') AS CodSupervisor,
                ISNULL(S.NomeVendedor,'Sem supervisor') AS Supervisor
         FROM [dbCronos].[dbo].[Vendedores] V
         LEFT JOIN [dbCronos].[dbo].[Vendedores] S
           ON S.IdEmpresa=V.IdEmpresa AND S.CodVendedor=V.CodSupervisor
-        WHERE V.IdEmpresa=1 AND V.Inativo='N' AND V.Tipo IN ('V','S')
+        WHERE V.IdEmpresa=1 AND V.Tipo IN ('V','S')
     """
     df = _run("radar_responsaveis", sql, conn)
     if df.empty or df.CodVendedor.isna().any() or df.duplicated(["IdEmpresa","CodVendedor"]).any():

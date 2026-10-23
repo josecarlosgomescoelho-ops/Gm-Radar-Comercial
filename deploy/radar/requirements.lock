@@ -1,0 +1,8 @@
+# Versões informadas no notebook de José Carlos e usadas na validação local.
+streamlit==1.66.0
+pandas==3.0.6
+pyarrow==26.0.0
+bcrypt==5.0.0
+extra-streamlit-components==0.1.81
+python-dotenv==1.2.4
+reportlab==5.0.1
