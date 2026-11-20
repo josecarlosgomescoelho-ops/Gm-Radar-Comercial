@@ -1,6 +1,6 @@
 # GM Limpeza Analytics
 
-Sistema de analytics para a **GM Limpeza**, distribuidora de produtos de limpeza (varejo + atacado) no Ceará. Substitui o processo manual de relatórios Excel/Manus com dashboards interativos em tempo real, alimentados diretamente pelo ERP Cronos.
+Sistema de analytics para a **GM Limpeza**, distribuidora de produtos de limpeza (varejo + atacado) na Paraíba. Substitui o processo manual de relatórios Excel/Manus com dashboards interativos em tempo real, alimentados diretamente pelo ERP Cronos.
 
 ---
 
@@ -410,7 +410,7 @@ Guias completos para onboarding e manutenção do sistema:
 
 ## Contexto do Negócio
 
-- **Meta mensal:** R$ 1.600.000
+- **Meta mensal:** R$ X.XXX.XXX.XX
 - **Rentabilidade média histórica:** ~25,88%
 - **Canal de vendas:** telefone (principal) + loja física
 - **Logística:** entrega por rotas de caminhão
